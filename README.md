@@ -8,7 +8,7 @@ A tiny in-browser SVG editor for touching up figures from ggplot2 or Inkscape: e
 
 - Open or drop an SVG. Click selects a group; double-click goes inside it, Esc comes back out.
 - Scroll to move around; Ctrl+scroll (or pinch) zooms.
-- Draw text, rectangles, ellipses, lines and arrows, and add A/B/C panel labels in one click. The right panel sets position, size, rotation, alignment, fonts, fill, stroke, dashes and rounded corners.
+- Draw text, rectangles, ellipses, lines and arrows, and add A/B/C panel labels in one click. The right panel sets position, size, rotation, alignment, fonts, fill, stroke and dashes; drag the dot inside a selected rectangle's corner to round it.
 - Rulers, a mm grid and a light/dark interface can be switched on and off from the top bar.
 - Hover any button to see what it does and its shortcut.
 - Export writes `name_YYMMDD.svg` (or PNG) and leaves everything you didn't touch unchanged.

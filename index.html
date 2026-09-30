@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <title>minisvgbench</title>
-<script>try{localStorage.msbTheme==='dark'&&(document.documentElement.dataset.theme='dark')}catch(_){}</script>
 <style>
 :root{--fg:#222;--bar:#f3f3f3;--line:#ccc;--btn:#fff;--btnb:#bbb;--btnh:#eef3ff;--bfg:buttontext;--on:#d6e4ff;--onb:#6d94e0;--onfg:buttontext;--view:#cfcfcf;--side:#f7f7f7;--h4:#555;--h4b:#ddd;--pageb:#777}
 [data-theme=dark]{color-scheme:dark;--fg:#e5e5e5;--bar:#000;--line:#262626;--btn:#262626;--btnb:#000;--btnh:#404040;--bfg:#e5e5e5;--on:#e5e5e5;--onb:#e5e5e5;--onfg:#171717;--view:#141414;--side:#000;--h4:#a3a3a3;--h4b:#262626;--pageb:#404040}
@@ -103,7 +102,6 @@ input,select{font:inherit}
 <div class="kv"><span>Fill</span><div><input type="color" data-f="fill"><label><input type="checkbox" data-f="nofill">None</label></div>
 <span>Stroke</span><div><input type="color" data-f="stroke"><label><input type="checkbox" data-f="nostroke">None</label></div>
 <span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt<select data-f="dash" title="Line style"><option value="">Solid</option><option value="d">Dashed</option><option value="o">Dotted</option></select></div>
-<span>Corner</span><div><input type="number" step="0.5" min="0" data-f="rx" title="Corner radius of selected rectangles">mm</div>
 <span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
@@ -285,13 +283,16 @@ function rulers(){if(!root||!opts.rulers)return;const d=devicePixelRatio||1,cs=g
       if(M){const s=String(+x.toFixed(3));if(h)g.fillText(s,p+2,9);else{g.save();g.translate(9,p-2);g.rotate(-Math.PI/2);g.fillText(s,0,0);g.restore()}}}
     g.stroke();g.strokeStyle=v('--line');g.beginPath();h?(g.moveTo(0,R-.5),g.lineTo(W,R-.5)):(g.moveTo(R-.5,0),g.lineTo(R-.5,Hh));g.stroke();
     if(mouse){const p=Math.round(h?mouse[0]:mouse[1])+.5;g.strokeStyle='#e8711a';g.beginPath();h?(g.moveTo(p,0),g.lineTo(p,R)):(g.moveTo(0,p),g.lineTo(R,p));g.stroke()}}}
+const rgeo=e=>['x','y','width','height','rx'].map(a=>e[a].baseVal.value).map((v,i,a)=>i<4?v:v||e.ry.baseVal.value);
 function hud(M){H.replaceChildren();if(!root)return;rulers();
   const poly=(b,st,m)=>{const p=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]].map(([x,y])=>{const q=m?m.transformPoint({x,y}):{x,y};return[tx+(q.x-vb.x)*Z*k,ty+(q.y-vb.y)*Z*k]});mk('polygon',{points:p.join(' '),style:'fill:none;'+st},H);return p};
   cb&&poly(cb,'stroke:#999;stroke-dasharray:1 3');
   for(const b of sbs)poly(b,'stroke:#1a73e8;stroke-dasharray:2 2',M);
   if(sb){const p=poly(sb,'stroke:#1a73e8;stroke-dasharray:5 3',M);
     if(!M){['nw','ne','se','sw'].forEach((h,i)=>{const q=p[(i+1)%4],x=(p[i][0]+q[0])/2,y=(p[i][1]+q[1])/2;mk('rect',{x:p[i][0]-4,y:p[i][1]-4,width:8,height:8,'data-h':h,style:`fill:#fff;stroke:#1a73e8;cursor:${i%2?'nesw':'nwse'}-resize`},H);mk('rect',{x:x-3,y:y-3,width:6,height:6,'data-h':'nesw'[i],style:`fill:#1a73e8;stroke:#fff;cursor:${i%2?'ew':'ns'}-resize`},H)});
-      mk('circle',{cx:(p[0][0]+p[1][0])/2,cy:p[0][1]-18,r:5,'data-h':'rot',style:'fill:#fff;stroke:#e8711a'},H)}}
+      mk('circle',{cx:(p[0][0]+p[1][0])/2,cy:p[0][1]-18,r:5,'data-h':'rot',style:'fill:#fff;stroke:#e8711a'},H);
+      const e=sel[0];if(sel.length===1&&e.localName==='rect'){const m=ctm(e),[x,y,w,h,r]=rgeo(e),o=Math.min(Math.max(r,14/(Z*k*sc(m))),w/2,h/2),q=m.transformPoint({x:x+o,y:y+o});
+        mk('title',{},mk('circle',{cx:tx+(q.x-vb.x)*Z*k,cy:ty+(q.y-vb.y)*Z*k,r:4.5,'data-h':'rad',style:'fill:#fff;stroke:#1a73e8;stroke-width:1.5;cursor:default'},H),'Drag to round the corners')}}}
   if(D&&D.q){const[a,b]=[D.p,D.q];D.t==='line'||D.t==='arrow'?mk('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:'stroke:#1a73e8'},H)
     :D.t==='ellipse'?mk('ellipse',{cx:(a[0]+b[0])/2,cy:(a[1]+b[1])/2,rx:Math.abs(a[0]-b[0])/2,ry:Math.abs(a[1]-b[1])/2,style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)
     :mk('rect',{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)}}
@@ -300,7 +301,6 @@ function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3
   const t=selTexts()[0];v(F.fs,t&&tsize(t));F.ff.value=t?getComputedStyle(t).fontFamily.split(',')[0].replace(/["']/g,''):'';t&&(F.tc.value=hex(getComputedStyle(t).fill));
   const e=sel[0],l=e&&(isGrp(e)?e.querySelector(LEAF):e);
   if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw);F.dash.value=''}
-  const r=e&&(e.localName==='rect'?e:e.querySelector('rect'));v(F.rx,r&&(r.rx.baseVal.value||r.ry.baseVal.value)*sc(ctm(r))*U);
   if(l){const cs=getComputedStyle(l);F.nofill.checked=cs.fill==='none';F.fill.value=hex(cs.fill);F.nostroke.checked=cs.stroke==='none';F.stroke.value=hex(cs.stroke);v(F.sw,parseFloat(cs.strokeWidth)*sc(ctm(l))*U*PT);F.dash.value=cs.strokeDasharray==='none'?'':parseFloat(cs.strokeDasharray)/parseFloat(cs.strokeWidth)<1.5?'o':'d'}
   v(F.op,e&&getComputedStyle(e).opacity*100)}
 function sizes(){if(!root)return;const g=new Map();
@@ -324,6 +324,7 @@ function ghostOff(M){quiet(()=>{for(let i=G.length;i--;)G[i].p.insertBefore(G[i]
 function down(e){if(!root||e.target.closest('.ed'))return;finish(true);document.activeElement?.blur();const p=vp(e),u=toU(p),h=e.target.dataset&&e.target.dataset.h,cap=()=>view.setPointerCapture(e.pointerId);mouse=p;
   if(e.button===1||e.button===0&&space){D={t:'pan',p,tx,ty};return cap()}
   if(e.button)return;
+  if(h==='rad'){const e=sel[0];D={t:'rad',p,e,r0:rgeo(e)[4],q0:ctm(e).inverse().transformPoint(u)};return cap()}
   if(h&&sb){D={t:h==='rot'?'rot':'sc',h,p,u,b:sb};return cap()}
   if(tool==='text'){const t=hit(e),tt=t&&t.closest('text');if(tt){ctx=tt.parentNode;setSel([tt]);edit(tt,t)}else newText(u);return}
   if(tool!=='sel'){D={t:tool,p,u};return cap()}
@@ -335,6 +336,8 @@ function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textCo
   let dx=p[0]-D.p[0],dy=p[1]-D.p[1];
   if(D.t==='pan'){tx=D.tx+dx;ty=D.ty+dy;return place()}
   if(!D.on){if(Math.hypot(dx,dy)<3)return;D.on=1;/^(move|sc|rot)$/.test(D.t)&&ghostOn()}
+  if(D.t==='rad'){const e=D.e,q=ctm(e).inverse().transformPoint(u),[,,w,h]=rgeo(e),r=Math.max(0,Math.min(D.r0+(q.x-D.q0.x+q.y-D.q0.y)/2,w/2,h/2)),v=fc(r);
+    for(const a of['rx','ry'])+v?e.setAttribute(a,v):e.removeAttribute(a);msg(`Corner radius ${(r*sc(ctm(e))*U).toFixed(2)} mm`);return hud()}
   const b=D.b;let M;
   if(D.t==='move'){if(e.ctrlKey)Math.abs(dx)>Math.abs(dy)?dy=0:dx=0;M=T(dx/(Z*k),dy/(Z*k))}
   else if(D.t==='sc'){const w=D.h.includes('w'),n=D.h.includes('n'),ex=/[ew]/.test(D.h),ey=/[ns]/.test(D.h),ax=w?b.x+b.w:b.x,ay=n?b.y+b.h:b.y,vx=ex?(w?b.x:b.x+b.w)-ax:0,vy=ey?(n?b.y:b.y+b.h)-ay:0;if(!(vx||vy))return;
@@ -346,6 +349,7 @@ function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textCo
   D.M=M;gw.style.transform=S(Z).multiply(T(-vb.x,-vb.y)).multiply(M).multiply(T(vb.x,vb.y)).multiply(S(1/Z)).toString();hud(M)}
 function up(){if(!D)return;const d=D;D=null;
   if(d.t==='pan')return;
+  if(d.t==='rad')return commit();
   if(/^(move|sc|rot)$/.test(d.t)){if(G)ghostOff(d.M);else if(d.t==='move'&&d.was)setSel([d.el]);return}
   if(d.t==='band'){if(d.q){const a=toU(d.p),b=toU(d.q),R=rb(Math.min(a.x,b.x),Math.min(a.y,b.y),Math.abs(a.x-b.x),Math.abs(a.y-b.y));
       const got=memoize(()=>cands(top_(ctx)?root:ctx).filter(x=>{const q=bbox(x);return q&&q.x>=R.x&&q.y>=R.y&&q.x+q.w<=R.x+R.w&&q.y+q.h<=R.y+R.h}));setSel(d.add?[...sel,...got]:got)}
@@ -442,7 +446,7 @@ Object.assign(A,{
   copy,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
   bold:()=>flip('font-weight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','italic',c=>c.fontStyle==='italic'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
-  theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);try{localStorage.msbTheme=d?'dark':'light'}catch(_){}},
+  theme:()=>setTheme(document.documentElement.dataset.theme!=='dark'),
   rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
   allText:()=>{ctx=root;setSel(texts())},arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}});
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
@@ -463,7 +467,6 @@ $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v
   else if(f==='stroke'||f==='nostroke'){f==='stroke'&&(F.nostroke.checked=false);styleSet('stroke',F.nostroke.checked?'none':F.stroke.value)}
   else if(f==='sw'){styleSet('stroke-width',e=>f6(v/(sc(ctm(e))*U*PT)));F.dash.value&&styleSet('stroke-dasharray',dash)}
   else if(f==='dash')styleSet('stroke-dasharray',dash);
-  else if(f==='rx')sel.flatMap(e=>e.localName==='rect'?[e]:[...e.getElementsByTagName('rect')]).forEach(r=>{const x=fc(v/(U*sc(ctm(r))));for(const a of['rx','ry'])+x?r.setAttribute(a,x):r.removeAttribute(a)});
   else if(f==='op')sel.forEach(e=>setSt(e,'opacity',fm(Math.min(100,Math.max(0,v))/100)));
   /checkbox|select|color/.test(t.type)&&t.blur();commit()});
 $('mSide').addEventListener('keydown',e=>/^(Enter|Escape)$/.test(e.key)&&e.target.blur());
