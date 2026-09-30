@@ -30,6 +30,7 @@ input,select{font:inherit}
 #mGhost{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
 #mCap{position:absolute;inset:0}
 #mHud{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#mRx,#mRy{position:absolute;left:0;top:0;width:100%;height:18px;pointer-events:none}#mRy{width:18px;height:100%}
 #mHud [data-h]{pointer-events:all;cursor:pointer}
 #mHud [data-h=nw],#mHud [data-h=se]{cursor:nwse-resize}#mHud [data-h=ne],#mHud [data-h=sw]{cursor:nesw-resize}#mHud [data-h=n],#mHud [data-h=s]{cursor:ns-resize}#mHud [data-h=e],#mHud [data-h=w]{cursor:ew-resize}
 #mSide{overflow:auto;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}
@@ -58,7 +59,7 @@ input,select{font:inherit}
 <button data-a="label" title="Panel labels: place the letter below at the top-left of each selected panel"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" stroke-dasharray="2 2"/><text x="2" y="11" font-size="11" font-weight="bold" font-family="Arial" fill="currentColor" stroke="none">A</text></svg></button>
 <input id="mLbl" value="A" maxlength="1" title="Next label letter" style="width:30px;text-align:center">
 </div>
-<div id="mView"><div id="mStage"><div id="mPage"></div><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div id="mView"><div id="mStage"><div id="mPage"></div><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg><canvas id="mRx"></canvas><canvas id="mRy"></canvas></div>
 <div id="mSide">
 <h4>Position &amp; size (mm)</h4>
 <label>X<input type="number" step="0.1" data-f="x"></label><label>Y<input type="number" step="0.1" data-f="y"></label>
@@ -245,7 +246,18 @@ function refresh(){if(!root)return;sb=null;sbs=[];memoize(()=>{for(const e of se
   for(let e=ctx;e&&e!==root.parentNode;e=e.parentNode)c.unshift(lab(e));
   $('mCtx').textContent='Context: '+c.join(' › ');
   const e=sel[0];$('mSel').textContent=!e?'':sel.length>1?`${sel.length} objects selected`:`Selected ${e.localName}${e.id?'#'+e.id:''}`+(isGrp(e)?` (${e.getElementsByTagName('*').length} descendants)`:'')}
-function hud(M){H.replaceChildren();if(!root)return;
+function rulers(){if(!root)return;const d=devicePixelRatio||1,cs=getComputedStyle(document.documentElement),v=n=>cs.getPropertyValue(n),pm=Z*k/U,st=[1,2,5,10,20,50,100,200,500,1000].find(s=>s*pm>=45)||1000,m=st/5,R=18;
+  for(const[c,h]of[[$('mRx'),1],[$('mRy'),0]]){const W=c.clientWidth,Hh=c.clientHeight,L=h?W:Hh,o=h?tx:ty,g=c.getContext('2d');
+    if(c.width!==W*d||c.height!==Hh*d){c.width=W*d;c.height=Hh*d}
+    g.setTransform(d,0,0,d,0,0);g.fillStyle=v('--bar');g.fillRect(0,0,W,Hh);
+    if(sb){const a=o+(h?sb.x-vb.x:sb.y-vb.y)*Z*k,b=(h?sb.w:sb.h)*Z*k;g.fillStyle='#1a73e855';h?g.fillRect(a,0,b,R):g.fillRect(0,a,R,b)}
+    g.strokeStyle=g.fillStyle=v('--fg');g.lineWidth=1;g.font='9px system-ui,sans-serif';g.beginPath();
+    for(let x=Math.floor(-o/pm/m)*m;o+x*pm<L;x+=m){const p=Math.round(o+x*pm)+.5,M=Math.abs(x/st-Math.round(x/st))<1e-6,t=M?R:R/3;
+      h?(g.moveTo(p,R),g.lineTo(p,R-t)):(g.moveTo(R,p),g.lineTo(R-t,p));
+      if(M){const s=String(+x.toFixed(3));if(h)g.fillText(s,p+2,9);else{g.save();g.translate(9,p-2);g.rotate(-Math.PI/2);g.fillText(s,0,0);g.restore()}}}
+    g.stroke();g.strokeStyle=v('--line');g.beginPath();h?(g.moveTo(0,R-.5),g.lineTo(W,R-.5)):(g.moveTo(R-.5,0),g.lineTo(R-.5,Hh));g.stroke();
+    if(mouse){const p=Math.round(h?mouse[0]:mouse[1])+.5;g.strokeStyle='#e8711a';g.beginPath();h?(g.moveTo(p,0),g.lineTo(p,R)):(g.moveTo(0,p),g.lineTo(R,p));g.stroke()}}}
+function hud(M){H.replaceChildren();if(!root)return;rulers();
   const poly=(b,st,m)=>{const p=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]].map(([x,y])=>{const q=m?m.transformPoint({x,y}):{x,y};return[tx+(q.x-vb.x)*Z*k,ty+(q.y-vb.y)*Z*k]});mk('polygon',{points:p.join(' '),style:'fill:none;'+st},H);return p};
   cb&&poly(cb,'stroke:#999;stroke-dasharray:1 3');
   for(const b of sbs)poly(b,'stroke:#1a73e8;stroke-dasharray:2 2',M);
@@ -288,7 +300,7 @@ function down(e){if(!root||e.target.closest('.ed'))return;finish(true);document.
   if(!t||e.shiftKey){D={t:'band',p,u,add:e.shiftKey,h:t};return cap()}
   let[el,c]=e.ctrlKey||e.metaKey?[t.closest('text')||t]:pick(t);c=c||el.parentNode;
   const was=sel.includes(el);if(!was){ctx=c;setSel([el])}D={t:'move',p,u,el,was};cap()}
-function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textContent=`${((u.x-vb.x)*U).toFixed(1)}, ${((u.y-vb.y)*U).toFixed(1)} mm`;if(!D)return;
+function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textContent=`${((u.x-vb.x)*U).toFixed(1)}, ${((u.y-vb.y)*U).toFixed(1)} mm`;if(!D)return rulers();
   let dx=p[0]-D.p[0],dy=p[1]-D.p[1];
   if(D.t==='pan'){tx=D.tx+dx;ty=D.ty+dy;return place()}
   if(!D.on){if(Math.hypot(dx,dy)<3)return;D.on=1;/^(move|sc|rot)$/.test(D.t)&&ghostOn()}
@@ -422,7 +434,7 @@ $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').re
   if(dirty&&!confirm('Discard changes that have not been exported?'))return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 view.addEventListener('mousedown',e=>e.target.closest('.ed')||e.preventDefault());
-view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>mouse=null);
+view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>{mouse=null;rulers()});
 view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const f=Math.exp(-e.deltaY*(e.deltaMode?0.05:0.0015)),z=Z*k*f;z>1e-3&&z<1e4&&zoomAt(vp(e),f)},{passive:false});
 addEventListener('resize',()=>hud());
 addEventListener('dragover',e=>e.preventDefault());
@@ -438,7 +450,7 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(INP
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),l:()=>setTool('line'),a:()=>setTool('arrow')}[K.length>1?K:kl];
   if(f){e.preventDefault();f()}});
-function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';document.querySelector('[data-a=theme]').title=d?'Switch to light interface':'Switch to dark interface'}
+function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';document.querySelector('[data-a=theme]').title=d?'Switch to light interface':'Switch to dark interface';rulers()}
 setTheme(document.documentElement.dataset.theme==='dark');
 load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Wheel zooms, Space+drag pans.');
 </script>
