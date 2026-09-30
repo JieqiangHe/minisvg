@@ -456,7 +456,9 @@ $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').re
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 view.addEventListener('mousedown',e=>e.target.closest('.ed')||e.preventDefault());
 view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>{mouse=null;rulers()});
-view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const f=Math.exp(-e.deltaY*(e.deltaMode?0.05:0.0015)),z=Z*k*f;z>1e-3&&z<1e4&&zoomAt(vp(e),f)},{passive:false});
+view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const m=e.deltaMode?16:1;let dx=e.deltaX*m,dy=e.deltaY*m;
+  if(e.ctrlKey||e.metaKey){const f=Math.exp(-dy*0.0015),z=Z*k*f;return z>1e-3&&z<1e4&&zoomAt(vp(e),f)}
+  if(e.shiftKey&&!dx)[dx,dy]=[dy,0];tx-=dx;ty-=dy;place()},{passive:false});
 addEventListener('resize',()=>hud());
 addEventListener('dragover',e=>e.preventDefault());
 addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
@@ -476,7 +478,7 @@ function views(){document.body.classList.toggle('noR',!opts.rulers);$('mPage').c
 function toggle(k){opts[k]=!opts[k];try{localStorage['msb'+k[0].toUpperCase()+k.slice(1)]=opts[k]?1:0}catch(_){}views()}
 function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';document.querySelector('[data-a=theme]').title=d?'Switch to light interface':'Switch to dark interface';rulers()}
 setTheme(document.documentElement.dataset.theme==='dark');
-views();load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Wheel zooms, Space+drag pans.');
+views();load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Scroll to move around, Ctrl+scroll (or pinch) to zoom.');
 </script>
 </body>
 </html>

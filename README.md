@@ -7,5 +7,6 @@
 A tiny in-browser SVG editor for touching up figures from ggplot2 or Inkscape: edit text, move and resize, restyle, combine panels, export. Nothing is uploaded.
 
 - Open or drop an SVG. Click selects a group; double-click goes inside it, Esc comes back out.
+- Scroll to move around; Ctrl+scroll (or pinch) zooms.
 - Hover any button to see what it does and its shortcut.
 - Export writes `name_YYMMDD.svg` (or PNG) and leaves everything you didn't touch unchanged.
