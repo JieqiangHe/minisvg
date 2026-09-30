@@ -5,11 +5,12 @@
 <title>minisvgbench</title>
 <script>try{localStorage.msbTheme==='dark'&&(document.documentElement.dataset.theme='dark')}catch(_){}</script>
 <style>
-:root{--fg:#222;--bar:#f3f3f3;--line:#ccc;--btn:#fff;--btnb:#bbb;--btnh:#eef3ff;--bfg:buttontext;--on:#d6e4ff;--onb:#6d94e0;--onfg:buttontext;--view:#cfcfcf;--side:#f7f7f7;--h4:#555;--h4b:#ddd;--pageb:#777}
-[data-theme=dark]{color-scheme:dark;--fg:#e5e5e5;--bar:#000;--line:#262626;--btn:#262626;--btnb:#000;--btnh:#404040;--bfg:#e5e5e5;--on:#e5e5e5;--onb:#e5e5e5;--onfg:#171717;--view:#141414;--side:#000;--h4:#a3a3a3;--h4b:#262626;--pageb:#404040}
+:root{--swb:#8a8a8a;--fg:#222;--bar:#f3f3f3;--line:#ccc;--btn:#fff;--btnb:#bbb;--btnh:#eef3ff;--bfg:buttontext;--on:#d6e4ff;--onb:#6d94e0;--onfg:buttontext;--view:#cfcfcf;--side:#f7f7f7;--h4:#555;--h4b:#ddd;--pageb:#777}
+[data-theme=dark]{color-scheme:dark;--swb:#a3a3a3;--fg:#e5e5e5;--bar:#000;--line:#262626;--btn:#262626;--btnb:#000;--btnh:#404040;--bfg:#e5e5e5;--on:#e5e5e5;--onb:#e5e5e5;--onfg:#171717;--view:#141414;--side:#000;--h4:#a3a3a3;--h4b:#262626;--pageb:#404040}
 [data-theme=dark] input:not([type=checkbox]):not([type=color]),[data-theme=dark] select{background:#262626;color:#f5f5f5;border:1px solid #404040;border-radius:3px}
 [data-theme=dark] input:focus,[data-theme=dark] select:focus{outline:none;border-color:#a3a3a3}
-[data-theme=dark] input[type=color]::-webkit-color-swatch{border:1px solid #a3a3a3}[data-theme=dark] input[type=color]::-moz-color-swatch{border:1px solid #a3a3a3}
+input[type=color]{-webkit-appearance:none;appearance:none;height:24px;padding:2px;border:1px solid var(--swb);border-radius:4px;background:var(--btn);cursor:pointer}
+input[type=color]::-webkit-color-swatch-wrapper{padding:0}input[type=color]::-webkit-color-swatch{border:0;border-radius:2px}input[type=color]::-moz-color-swatch{border:0;border-radius:2px}
 .kv div:has(:checked) input[type=color]{opacity:.35}
 [data-theme=dark] dialog{background:#171717;color:#e5e5e5;border:1px solid #404040}
 *{box-sizing:border-box}
