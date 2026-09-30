@@ -6,7 +6,7 @@ A single-file, offline SVG editor for quick touch-ups of ggplot2/svglite figures
 
 ## Shortcuts
 
-- **View:** wheel zoom · Space+drag pan · `5` fit
+- **View:** wheel zoom · Space+drag pan · `5` fit · ◐ switches light/dark interface (the page stays white; the choice is remembered)
 - **Select:** click selects the outer group · double-click enters it · Esc goes up a level · Shift adds · Ctrl+click selects inside groups
 - **Move:** drag (Ctrl locks the axis) · arrows 0.1 mm, Shift+arrows 1 mm
 - **Scale/rotate:** corner handles (Shift for free scaling) · edge handles stretch one direction · orange dot rotates (Ctrl snaps to 15°)
