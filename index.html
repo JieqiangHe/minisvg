@@ -21,6 +21,7 @@ input,select{font:inherit}
 #mCap{position:absolute;inset:0}
 #mHud{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #mHud [data-h]{pointer-events:all;cursor:pointer}
+#mHud [data-h=nw],#mHud [data-h=se]{cursor:nwse-resize}#mHud [data-h=ne],#mHud [data-h=sw]{cursor:nesw-resize}#mHud [data-h=n],#mHud [data-h=s]{cursor:ns-resize}#mHud [data-h=e],#mHud [data-h=w]{cursor:ew-resize}
 #mSide{overflow:auto;padding:4px 8px;background:#f7f7f7;border-left:1px solid #ccc}
 #mSide h4{margin:10px 0 4px;color:#555;border-bottom:1px solid #ddd}
 #mSide label{display:inline-flex;align-items:center;gap:3px;margin:2px 6px 2px 0}
@@ -232,7 +233,7 @@ function hud(M){H.replaceChildren();if(!root)return;
   cb&&poly(cb,'stroke:#999;stroke-dasharray:1 3');
   for(const b of sbs)poly(b,'stroke:#1a73e8;stroke-dasharray:2 2',M);
   if(sb){const p=poly(sb,'stroke:#1a73e8;stroke-dasharray:5 3',M);
-    if(!M){['nw','ne','se','sw'].forEach((h,i)=>mk('rect',{x:p[i][0]-4,y:p[i][1]-4,width:8,height:8,'data-h':h,style:'fill:#fff;stroke:#1a73e8'},H));
+    if(!M){['nw','ne','se','sw'].forEach((h,i)=>{const q=p[(i+1)%4],x=(p[i][0]+q[0])/2,y=(p[i][1]+q[1])/2;mk('rect',{x:p[i][0]-4,y:p[i][1]-4,width:8,height:8,'data-h':h,style:'fill:#fff;stroke:#1a73e8'},H);mk('rect',{x:x-3,y:y-3,width:6,height:6,'data-h':'nesw'[i],style:'fill:#1a73e8;stroke:#fff'},H)});
       mk('circle',{cx:(p[0][0]+p[1][0])/2,cy:p[0][1]-18,r:5,'data-h':'rot',style:'fill:#fff;stroke:#e8711a'},H)}}
   if(D&&D.q){const[a,b]=[D.p,D.q];D.t==='line'||D.t==='arrow'?mk('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:'stroke:#1a73e8'},H)
     :mk('rect',{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)}}
@@ -276,8 +277,8 @@ function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textCo
   if(!D.on){if(Math.hypot(dx,dy)<3)return;D.on=1;/^(move|sc|rot)$/.test(D.t)&&ghostOn()}
   const b=D.b;let M;
   if(D.t==='move'){if(e.ctrlKey)Math.abs(dx)>Math.abs(dy)?dy=0:dx=0;M=T(dx/(Z*k),dy/(Z*k))}
-  else if(D.t==='sc'){const w=D.h.includes('w'),n=D.h.includes('n'),ax=w?b.x+b.w:b.x,ay=n?b.y+b.h:b.y,vx=(w?b.x:b.x+b.w)-ax,vy=(n?b.y:b.y+b.h)-ay;if(!(vx||vy))return;
-    let sx=vx?(u.x-ax)/vx:1,sy=vy?(u.y-ay)/vy:1;if(!e.shiftKey)sx=sy=((u.x-ax)*vx+(u.y-ay)*vy)/(vx*vx+vy*vy);
+  else if(D.t==='sc'){const w=D.h.includes('w'),n=D.h.includes('n'),ex=/[ew]/.test(D.h),ey=/[ns]/.test(D.h),ax=w?b.x+b.w:b.x,ay=n?b.y+b.h:b.y,vx=ex?(w?b.x:b.x+b.w)-ax:0,vy=ey?(n?b.y:b.y+b.h)-ay:0;if(!(vx||vy))return;
+    let sx=vx?(u.x-ax)/vx:1,sy=vy?(u.y-ay)/vy:1;if(ex&&ey&&!e.shiftKey)sx=sy=((u.x-ax)*vx+(u.y-ay)*vy)/(vx*vx+vy*vy);
     M=about(S(sx||1e-3,sy||1e-3),ax,ay)}
   else if(D.t==='rot'){const cx=b.x+b.w/2,cy=b.y+b.h/2;let a=(Math.atan2(u.y-cy,u.x-cx)-Math.atan2(D.u.y-cy,D.u.x-cx))*180/Math.PI;if(e.ctrlKey)a=Math.round(a/15)*15;M=about(Rot(a),cx,cy)}
   else{if(e.shiftKey&&/line|arrow/.test(D.t)){const a=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,r=Math.hypot(dx,dy);dx=r*Math.cos(a);dy=r*Math.sin(a)}D.q=[D.p[0]+dx,D.p[1]+dy];return hud()}
