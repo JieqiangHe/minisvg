@@ -9,6 +9,8 @@
 [data-theme=dark]{color-scheme:dark;--fg:#e5e5e5;--bar:#000;--line:#262626;--btn:#262626;--btnb:#000;--btnh:#404040;--bfg:#e5e5e5;--on:#e5e5e5;--onb:#e5e5e5;--onfg:#171717;--view:#141414;--side:#000;--h4:#a3a3a3;--h4b:#262626;--pageb:#404040}
 [data-theme=dark] input:not([type=checkbox]):not([type=color]),[data-theme=dark] select{background:#262626;color:#f5f5f5;border:1px solid #404040;border-radius:3px}
 [data-theme=dark] input:focus,[data-theme=dark] select:focus{outline:none;border-color:#a3a3a3}
+[data-theme=dark] input[type=color]::-webkit-color-swatch{border:1px solid #a3a3a3}[data-theme=dark] input[type=color]::-moz-color-swatch{border:1px solid #a3a3a3}
+.kv div:has(:checked) input[type=color]{opacity:.35}
 [data-theme=dark] dialog{background:#171717;color:#e5e5e5;border:1px solid #404040}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;font:12px/1.5 system-ui,sans-serif;color:var(--fg)}
@@ -40,7 +42,7 @@ input,select{font:inherit}
 #mSide h4{margin:8px 0 4px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
 #mSide label{display:inline-flex;align-items:center;gap:4px;margin:2px 0}
 #mSide .g2{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#mSide .g2 label{min-width:0}#mSide .g2 input[type=number]{flex:1;min-width:40px;width:auto}
-#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:52px 1fr;gap:3px 6px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv>input{width:100%;min-width:0}
+#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 8px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv>input{width:100%;min-width:0}#mSide .kv select{width:auto;flex:1;min-width:0}
 #mSide .row{display:flex;gap:3px;margin:2px 0}#mSide .row button{flex:1;min-width:0;padding:2px}
 .ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
 #mSide select{width:100%}
@@ -59,7 +61,8 @@ input,select{font:inherit}
 <div id="mTools">
 <button data-t="sel" class="on" title="Select (V)"><svg viewBox="0 0 24 24"><path d="M6 3v16l4.5-4.5 3 6.5 2.5-1.2-3-6.3H19z" fill="currentColor"/></svg></button>
 <button data-t="text" title="Text (T)"><svg viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg></button>
-<button data-t="rect" title="Rectangle (R)"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12"/></svg></button>
+<button data-t="rect" title="Rectangle (R), Shift for square"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12"/></svg></button>
+<button data-t="ellipse" title="Ellipse (E), Shift for circle"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8.5" ry="6.5"/></svg></button>
 <button data-t="line" title="Line (L)"><svg viewBox="0 0 24 24"><path d="M5 19 19 5"/></svg></button>
 <button data-t="arrow" title="Arrow (A)"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M10 5h9v9"/></svg></button><i></i>
 <button data-a="label" title="Panel labels: place the letter below at the top-left of each selected panel"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" stroke-dasharray="2 2"/><text x="2" y="11" font-size="11" font-weight="bold" font-family="Arial" fill="currentColor" stroke="none">A</text></svg></button>
@@ -99,7 +102,8 @@ input,select{font:inherit}
 <h4>Appearance</h4>
 <div class="kv"><span>Fill</span><div><input type="color" data-f="fill"><label><input type="checkbox" data-f="nofill">None</label></div>
 <span>Stroke</span><div><input type="color" data-f="stroke"><label><input type="checkbox" data-f="nostroke">None</label></div>
-<span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt</div>
+<span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt<select data-f="dash" title="Line style"><option value="">Solid</option><option value="d">Dashed</option><option value="o">Dotted</option></select></div>
+<span>Corner</span><div><input type="number" step="0.5" min="0" data-f="rx" title="Corner radius of selected rectangles">mm</div>
 <span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
@@ -289,13 +293,15 @@ function hud(M){H.replaceChildren();if(!root)return;rulers();
     if(!M){['nw','ne','se','sw'].forEach((h,i)=>{const q=p[(i+1)%4],x=(p[i][0]+q[0])/2,y=(p[i][1]+q[1])/2;mk('rect',{x:p[i][0]-4,y:p[i][1]-4,width:8,height:8,'data-h':h,style:`fill:#fff;stroke:#1a73e8;cursor:${i%2?'nesw':'nwse'}-resize`},H);mk('rect',{x:x-3,y:y-3,width:6,height:6,'data-h':'nesw'[i],style:`fill:#1a73e8;stroke:#fff;cursor:${i%2?'ew':'ns'}-resize`},H)});
       mk('circle',{cx:(p[0][0]+p[1][0])/2,cy:p[0][1]-18,r:5,'data-h':'rot',style:'fill:#fff;stroke:#e8711a'},H)}}
   if(D&&D.q){const[a,b]=[D.p,D.q];D.t==='line'||D.t==='arrow'?mk('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:'stroke:#1a73e8'},H)
+    :D.t==='ellipse'?mk('ellipse',{cx:(a[0]+b[0])/2,cy:(a[1]+b[1])/2,rx:Math.abs(a[0]-b[0])/2,ry:Math.abs(a[1]-b[1])/2,style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)
     :mk('rect',{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)}}
 function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3);
   v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
   const t=selTexts()[0];v(F.fs,t&&tsize(t));F.ff.value=t?getComputedStyle(t).fontFamily.split(',')[0].replace(/["']/g,''):'';t&&(F.tc.value=hex(getComputedStyle(t).fill));
   const e=sel[0],l=e&&(isGrp(e)?e.querySelector(LEAF):e);
-  if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw)}
-  if(l){const cs=getComputedStyle(l);F.nofill.checked=cs.fill==='none';F.fill.value=hex(cs.fill);F.nostroke.checked=cs.stroke==='none';F.stroke.value=hex(cs.stroke);v(F.sw,parseFloat(cs.strokeWidth)*sc(ctm(l))*U*PT)}
+  if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw);F.dash.value=''}
+  const r=e&&(e.localName==='rect'?e:e.querySelector('rect'));v(F.rx,r&&(r.rx.baseVal.value||r.ry.baseVal.value)*sc(ctm(r))*U);
+  if(l){const cs=getComputedStyle(l);F.nofill.checked=cs.fill==='none';F.fill.value=hex(cs.fill);F.nostroke.checked=cs.stroke==='none';F.stroke.value=hex(cs.stroke);v(F.sw,parseFloat(cs.strokeWidth)*sc(ctm(l))*U*PT);F.dash.value=cs.strokeDasharray==='none'?'':parseFloat(cs.strokeDasharray)/parseFloat(cs.strokeWidth)<1.5?'o':'d'}
   v(F.op,e&&getComputedStyle(e).opacity*100)}
 function sizes(){if(!root)return;const g=new Map();
   for(const t of texts()){const s=+tsize(t).toFixed(1);g.has(s)||g.set(s,[]);g.get(s).push(t)}
@@ -335,7 +341,8 @@ function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textCo
     let sx=vx?(u.x-ax)/vx:1,sy=vy?(u.y-ay)/vy:1;if(ex&&ey&&!e.shiftKey)sx=sy=((u.x-ax)*vx+(u.y-ay)*vy)/(vx*vx+vy*vy);
     M=about(S(sx||1e-3,sy||1e-3),ax,ay)}
   else if(D.t==='rot'){const cx=b.x+b.w/2,cy=b.y+b.h/2;let a=(Math.atan2(u.y-cy,u.x-cx)-Math.atan2(D.u.y-cy,D.u.x-cx))*180/Math.PI;if(e.ctrlKey)a=Math.round(a/15)*15;M=about(Rot(a),cx,cy)}
-  else{if(e.shiftKey&&/line|arrow/.test(D.t)){const a=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,r=Math.hypot(dx,dy);dx=r*Math.cos(a);dy=r*Math.sin(a)}D.q=[D.p[0]+dx,D.p[1]+dy];return hud()}
+  else{if(e.shiftKey&&/line|arrow/.test(D.t)){const a=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,r=Math.hypot(dx,dy);dx=r*Math.cos(a);dy=r*Math.sin(a)}
+    if(e.shiftKey&&/rect|ellipse/.test(D.t)){const m=Math.max(Math.abs(dx),Math.abs(dy));dx=dx<0?-m:m;dy=dy<0?-m:m}D.q=[D.p[0]+dx,D.p[1]+dy];return hud()}
   D.M=M;gw.style.transform=S(Z).multiply(T(-vb.x,-vb.y)).multiply(M).multiply(T(vb.x,vb.y)).multiply(S(1/Z)).toString();hud(M)}
 function up(){if(!D)return;const d=D;D=null;
   if(d.t==='pan')return;
@@ -351,6 +358,7 @@ function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=h
 // creation
 function create(t,a,b){const p=curParent(),Pi=ctm(p).inverse(),A=Pi.transformPoint(a),B=Pi.transformPoint(b),w=f6(0.5/PT/U/sc(ctm(p))),s=`fill:none;stroke:#000000;stroke-width:${w}`;let e;
   if(t==='rect')e=mk('rect',{id:uid('rect'),x:fc(Math.min(A.x,B.x)),y:fc(Math.min(A.y,B.y)),width:fc(Math.abs(B.x-A.x)),height:fc(Math.abs(B.y-A.y)),style:s},p);
+  else if(t==='ellipse')e=mk('ellipse',{id:uid('ellipse'),cx:fc((A.x+B.x)/2),cy:fc((A.y+B.y)/2),rx:fc(Math.abs(B.x-A.x)/2),ry:fc(Math.abs(B.y-A.y)/2),style:s},p);
   else e=mk('path',{id:uid('path'),d:`M ${fc(A.x)},${fc(A.y)} L ${fc(B.x)},${fc(B.y)}`,style:s+';stroke-linecap:butt'+(t==='arrow'?`;marker-end:url(#${arrowDef()})`:'')},p);
   ctx=p;setTool('sel');setSel([e],1);commit()}
 function arrowDef(){const id='ArrowMsb';byId(id)||mk('path',{d:'M 0,0 10,5 0,10 z',style:'fill:context-stroke;stroke:none'},
@@ -422,6 +430,7 @@ function dist(hz){const[p,s]=hz?['x','w']:['y','h'],it=sel.map(e=>[e,bbox(e)]).f
   const R=area(),gap=(R[s]-it.reduce((a,x)=>a+x[1][s],0))/(it.length-1);let q=R[p];
   for(const[e,b]of it){applyM(T(hz?q-b.x:0,hz?0:q-b.y),[e]);q+=b[s]+gap}commit()}
 function nudge(x,y,big){const d=(big?1:0.1)/U;applyM(T(x*d,y*d));commit()}
+function dash(e){const w=parseFloat(getComputedStyle(e).strokeWidth)||1,d=F.dash.value;return d?[d==='d'?4*w:w,2*w].map(fm).join():null}
 function flip(p,v,on){const ts=selTexts();if(!ts.length)return;const x=on(getComputedStyle(ts[0]))?'normal':v;ts.forEach(t=>setFont(t,p,x));commit()}
 function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
@@ -452,9 +461,11 @@ $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v
   else if(f==='tc')selTexts().forEach(x=>{setSt(x,'fill',t.value);kids(x,'fill')});
   else if(f==='fill'||f==='nofill'){f==='fill'&&(F.nofill.checked=false);styleSet('fill',F.nofill.checked?'none':F.fill.value)}
   else if(f==='stroke'||f==='nostroke'){f==='stroke'&&(F.nostroke.checked=false);styleSet('stroke',F.nostroke.checked?'none':F.stroke.value)}
-  else if(f==='sw')styleSet('stroke-width',e=>f6(v/(sc(ctm(e))*U*PT)));
+  else if(f==='sw'){styleSet('stroke-width',e=>f6(v/(sc(ctm(e))*U*PT)));F.dash.value&&styleSet('stroke-dasharray',dash)}
+  else if(f==='dash')styleSet('stroke-dasharray',dash);
+  else if(f==='rx')sel.flatMap(e=>e.localName==='rect'?[e]:[...e.getElementsByTagName('rect')]).forEach(r=>{const x=fc(v/(U*sc(ctm(r))));for(const a of['rx','ry'])+x?r.setAttribute(a,x):r.removeAttribute(a)});
   else if(f==='op')sel.forEach(e=>setSt(e,'opacity',fm(Math.min(100,Math.max(0,v))/100)));
-  commit()});
+  /checkbox|select|color/.test(t.type)&&t.blur();commit()});
 $('mSide').addEventListener('keydown',e=>/^(Enter|Escape)$/.test(e.key)&&e.target.blur());
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
 $('mPre').onchange=e=>{const v=e.target.value;if(v)[$('mNW').value,$('mNH').value]=v.split(',')};
@@ -471,14 +482,14 @@ addEventListener('dragover',e=>e.preventDefault());
 addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
 addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 addEventListener('keyup',e=>{if(e.key===' ')space=false});addEventListener('blur',()=>space=false);
-addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(INPUT|SELECT|TEXTAREA)$/.test(tg.tagName)||$('mNew').open)return;
+addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SELECT|TEXTAREA)$/.test(tg.tagName)||tg.tagName==='INPUT'&&!/checkbox|color/.test(tg.type)||$('mNew').open)return;
   const c=e.ctrlKey||e.metaKey,K=e.key,kl=K.toLowerCase(),ar={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[K];let f;
   if(K===' '){space=true;e.preventDefault();return}
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
   else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copy,x:()=>{copy();del()},v:()=>paste(),d:()=>{const k=clip;copy();paste(true);clip=k},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
-  else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),l:()=>setTool('line'),a:()=>setTool('arrow')}[K.length>1?K:kl];
+  else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),e:()=>setTool('ellipse'),l:()=>setTool('line'),a:()=>setTool('arrow')}[K.length>1?K:kl];
   if(f){e.preventDefault();f()}});
 const opts={rulers:true,grid:false};try{opts.rulers=localStorage.msbRulers!=='0';opts.grid=localStorage.msbGrid==='1'}catch(_){}
 function views(){document.body.classList.toggle('noR',!opts.rulers);grid();for(const k in opts)document.querySelector(`[data-a=${k}]`).classList.toggle('on',opts[k]);rulers()}
