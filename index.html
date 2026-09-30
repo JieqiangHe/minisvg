@@ -28,7 +28,7 @@ input,select{font:inherit}
 #mStage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #mStage>*{position:absolute!important;left:0;top:0;width:var(--w)!important;height:var(--h)!important;overflow:visible!important}
 #mPage{background:#fff;outline:1px solid var(--pageb);box-shadow:3px 3px 8px #0003}
-#mPage.grid{background-image:linear-gradient(#5b7bb440 1px,#0000 1px),linear-gradient(90deg,#5b7bb440 1px,#0000 1px),linear-gradient(#5b7bb418 1px,#0000 1px),linear-gradient(90deg,#5b7bb418 1px,#0000 1px);background-size:var(--g) var(--g),var(--g) var(--g),var(--gm) var(--gm),var(--gm) var(--gm)}
+#mGrid{pointer-events:none}#mGrid path{fill:none;stroke-width:1;vector-effect:non-scaling-stroke;shape-rendering:crispEdges}#mGrid .mi{stroke:#5a78aa30}#mGrid .ma{stroke:#5a78aa70}
 .noR #mRx,.noR #mRy{display:none}
 #mGW{will-change:transform;transform-origin:0 0}
 #mGhost{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
@@ -67,7 +67,7 @@ input,select{font:inherit}
 <input id="mLbl" value="A" maxlength="1" title="Next label letter" style="width:30px;text-align:center">
 <a href="https://github.com/JieqiangHe/minisvgbench" target="_blank" rel="noopener" title="minisvgbench on GitHub"><svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </div>
-<div id="mView"><div id="mStage"><div id="mPage"></div><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg><canvas id="mRx"></canvas><canvas id="mRy"></canvas></div>
+<div id="mView"><div id="mStage"><div id="mPage"></div><svg id="mGrid" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path class="mi"/><path class="ma"/></svg><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg><canvas id="mRx"></canvas><canvas id="mRy"></canvas></div>
 <div id="mSide">
 <h4>Transform <small>mm</small></h4>
 <div class="g2"><label>X<input type="number" step="0.1" data-f="x"></label><label>Y<input type="number" step="0.1" data-f="y"></label>
@@ -252,7 +252,12 @@ async function png(dpi){const W=Math.round(vb.w*U/25.4*dpi),Hh=Math.round(vb.h*U
 // view
 const vp=e=>{const r=view.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
 const toU=p=>({x:(p[0]-tx)/(Z*k)+vb.x,y:(p[1]-ty)/(Z*k)+vb.y});
-function size(){const s=stage.style;s.setProperty('--w',vb.w*Z+'px');s.setProperty('--h',vb.h*Z+'px');const pm=Z/U,[a,b]=[[1,5],[2,10],[10,50],[20,100],[100,500]].find(([a])=>a*pm>=10)||[100,500];s.setProperty('--gm',a*pm+'px');s.setProperty('--g',b*pm+'px')}
+function size(){stage.style.setProperty('--w',vb.w*Z+'px');stage.style.setProperty('--h',vb.h*Z+'px');grid()}
+function grid(){const G=$('mGrid');G.style.display=opts.grid?'':'none';if(!opts.grid||!root)return;
+  const pm=Z/U,[a,b]=[[1,10],[2,10],[5,10],[10,50]].find(([a])=>a*pm>=8)||[10,50],d=['',''];G.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  for(let n=0;n*a<=vb.w*U+1e-9;n++)d[+(n*a%b===0)]+=`M${vb.x+n*a/U} ${vb.y}V${vb.y+vb.h}`;
+  for(let n=0;n*a<=vb.h*U+1e-9;n++)d[+(n*a%b===0)]+=`M${vb.x} ${vb.y+n*a/U}H${vb.x+vb.w}`;
+  G.children[0].setAttribute('d',d[0]);G.children[1].setAttribute('d',d[1])}
 function place(){stage.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;hud();$('mZoom').textContent=Math.round(Z*k/U*2540/96)+'%'}
 function fit(){const r=view.getBoundingClientRect();Z=Math.min((r.width-40)/vb.w,(r.height-40)/vb.h);k=1;tx=(r.width-vb.w*Z)/2;ty=(r.height-vb.h*Z)/2;size();place()}
 function zoomAt(p,f){finish(true);k*=f;tx=p[0]-(p[0]-tx)*f;ty=p[1]-(p[1]-ty)*f;place();clearTimeout(zt);zt=setTimeout(()=>{Z*=k;k=1;size();place()},250)}
@@ -474,7 +479,7 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(INP
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),l:()=>setTool('line'),a:()=>setTool('arrow')}[K.length>1?K:kl];
   if(f){e.preventDefault();f()}});
 const opts={rulers:true,grid:false};try{opts.rulers=localStorage.msbRulers!=='0';opts.grid=localStorage.msbGrid==='1'}catch(_){}
-function views(){document.body.classList.toggle('noR',!opts.rulers);$('mPage').classList.toggle('grid',opts.grid);for(const k in opts)document.querySelector(`[data-a=${k}]`).classList.toggle('on',opts[k]);rulers()}
+function views(){document.body.classList.toggle('noR',!opts.rulers);grid();for(const k in opts)document.querySelector(`[data-a=${k}]`).classList.toggle('on',opts[k]);rulers()}
 function toggle(k){opts[k]=!opts[k];try{localStorage['msb'+k[0].toUpperCase()+k.slice(1)]=opts[k]?1:0}catch(_){}views()}
 function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';document.querySelector('[data-a=theme]').title=d?'Switch to light interface':'Switch to dark interface';rulers()}
 setTheme(document.documentElement.dataset.theme==='dark');
