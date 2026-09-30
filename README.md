@@ -15,17 +15,6 @@ A single-file, offline SVG editor for quick touch-ups of ggplot2/svglite figures
 
 Exports are named `name_YYMMDD.svg`. Untouched elements are written out unchanged, and edits are stored as `transform` attributes.
 
-## Tests
-
-The scripts need Node with `playwright`; `inkcheck.mjs` also needs Inkscape.
-
-```sh
-python3 test/make_volcano.py volcano.svg        # generate a stand-in test file
-node test/accept.mjs                            # acceptance runs → test/out/
-python3 test/svgdiff.py volcano.svg test/out/volcano_*.svg
-node test/features.mjs
-```
-
 ## Known issues
 
 - Dragging very large groups (80k nodes) pauses about 0.5–0.9 s at the start and on release; the drag itself is smooth.
