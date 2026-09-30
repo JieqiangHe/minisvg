@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>minisvgbench</title>
+<title>minisvg</title>
 <script>try{localStorage.msbTheme==='dark'&&(document.documentElement.dataset.theme='dark')}catch(_){}</script>
 <style>
 :root{--swb:#8a8a8a;--fg:#222;--bar:#f3f3f3;--line:#ccc;--btn:#fff;--btnb:#bbb;--btnh:#eef3ff;--bfg:buttontext;--on:#d6e4ff;--onb:#6d94e0;--onfg:buttontext;--view:#cfcfcf;--side:#f7f7f7;--h4:#555;--h4b:#ddd;--pageb:#777}
@@ -53,7 +53,7 @@ input,select{font:inherit}
 </style>
 </head>
 <body>
-<div id="mBar"><b>minisvgbench</b><i></i>
+<div id="mBar"><b>minisvg</b><i></i>
 <button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O)">Open</button><button data-a="imp" title="Import SVG into this canvas (Ctrl+I)">Import</button><i></i>
 <button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
 <span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">PDF</button><i></i>
@@ -68,7 +68,7 @@ input,select{font:inherit}
 <button data-t="arrow" title="Arrow (A)"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M10 5h9v9"/></svg></button><i></i>
 <button data-a="label" title="Panel labels: place the letter below at the top-left of each selected panel"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" stroke-dasharray="2 2"/><text x="2" y="11" font-size="11" font-weight="bold" font-family="Arial" fill="currentColor" stroke="none">A</text></svg></button>
 <input id="mLbl" value="A" maxlength="1" title="Next label letter" style="width:30px;text-align:center">
-<a href="https://github.com/JieqiangHe/minisvgbench" target="_blank" rel="noopener" title="minisvgbench on GitHub"><svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
+<a href="https://github.com/JieqiangHe/minisvg" target="_blank" rel="noopener" title="minisvg on GitHub"><svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </div>
 <div id="mView"><div id="mStage"><div id="mPage"></div><svg id="mGrid" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path class="mi"/><path class="ma"/></svg><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg><canvas id="mRx"></canvas><canvas id="mRy"></canvas></div>
 <div id="mSide">
