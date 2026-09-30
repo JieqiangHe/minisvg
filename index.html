@@ -36,11 +36,11 @@ input,select{font:inherit}
 #mHud [data-h]{pointer-events:all;cursor:pointer}
 #mHud [data-h=nw],#mHud [data-h=se]{cursor:nwse-resize}#mHud [data-h=ne],#mHud [data-h=sw]{cursor:nesw-resize}#mHud [data-h=n],#mHud [data-h=s]{cursor:ns-resize}#mHud [data-h=e],#mHud [data-h=w]{cursor:ew-resize}
 #mSide{overflow:auto;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}
-#mSide h4{margin:12px 0 6px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
+#mSide h4{margin:8px 0 4px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
 #mSide label{display:inline-flex;align-items:center;gap:4px;margin:2px 0}
 #mSide .g2{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#mSide .g2 label{min-width:0}#mSide .g2 input[type=number]{flex:1;min-width:40px;width:auto}
-#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes label{flex:1}#mSizes input{width:48px!important}#mSide .w{display:flex}#mSide .w input{flex:1;min-width:0}
-#mSide .row{display:flex;gap:3px;margin:3px 0}#mSide .row button{flex:1;min-width:0;padding:2px}
+#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:52px 1fr;gap:3px 6px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv>input{width:100%;min-width:0}
+#mSide .row{display:flex;gap:3px;margin:2px 0}#mSide .row button{flex:1;min-width:0;padding:2px}
 .ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
 #mSide select{width:100%}
 #mSide input[type=number]{width:62px;-moz-appearance:textfield}#mSide input::-webkit-inner-spin-button{display:none}
@@ -87,17 +87,19 @@ input,select{font:inherit}
 <div class="row"><button data-a="top" title="Bring to front (Home)">Bring to front</button><button data-a="up" title="Bring forward (PageUp)">Forward</button></div>
 <div class="row"><button data-a="bot" title="Send to back (End)">Send to back</button><button data-a="dn" title="Send backward (PageDown)">Backward</button></div>
 <h4>Text</h4>
-<div class="g2"><label>Size<input type="number" step="0.5" min="0.5" data-f="fs">pt</label><label>Color<input type="color" data-f="tc"></label></div>
-<label class="w">Font<input list="mFonts" data-f="ff"></label>
+<div class="kv"><span>Font</span><input list="mFonts" data-f="ff">
+<span>Size</span><div><input type="number" step="0.5" min="0.5" data-f="fs">pt</div>
+<span>Color</span><div><input type="color" data-f="tc"></div></div>
 <div class="row"><button data-a="bold" title="Bold"><b>B</b></button><button data-a="ital" title="Italic"><i>I</i></button><button data-a="sup" title="Superscript: applies to selected characters while editing">X²</button><button data-a="sub" title="Subscript: applies to selected characters while editing">X₂</button></div>
 <datalist id="mFonts"><option>Arial<option>Helvetica<option>Liberation Sans<option>Times New Roman<option>Courier New<option>Symbol</datalist>
 <h4>All text</h4>
 <div class="row"><button data-a="allText">Select all</button><button data-a="arial">All to Arial</button></div>
 <div id="mSizes"></div>
 <h4>Appearance</h4>
-<div class="g2"><label>Fill<input type="color" data-f="fill"></label><label><input type="checkbox" data-f="nofill">None</label>
-<label>Stroke<input type="color" data-f="stroke"></label><label><input type="checkbox" data-f="nostroke">None</label>
-<label>Width<input type="number" step="0.1" min="0" data-f="sw">pt</label><label>Opacity<input type="number" min="0" max="100" step="5" data-f="op">%</label></div>
+<div class="kv"><span>Fill</span><div><input type="color" data-f="fill"><label><input type="checkbox" data-f="nofill">None</label></div>
+<span>Stroke</span><div><input type="color" data-f="stroke"><label><input type="checkbox" data-f="nostroke">None</label></div>
+<span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt</div>
+<span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
@@ -285,12 +287,13 @@ function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3
   v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
   const t=selTexts()[0];v(F.fs,t&&tsize(t));F.ff.value=t?getComputedStyle(t).fontFamily.split(',')[0].replace(/["']/g,''):'';t&&(F.tc.value=hex(getComputedStyle(t).fill));
   const e=sel[0],l=e&&(isGrp(e)?e.querySelector(LEAF):e);
+  if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw)}
   if(l){const cs=getComputedStyle(l);F.nofill.checked=cs.fill==='none';F.fill.value=hex(cs.fill);F.nostroke.checked=cs.stroke==='none';F.stroke.value=hex(cs.stroke);v(F.sw,parseFloat(cs.strokeWidth)*sc(ctm(l))*U*PT)}
   v(F.op,e&&getComputedStyle(e).opacity*100)}
 function sizes(){if(!root)return;const g=new Map();
   for(const t of texts()){const s=+tsize(t).toFixed(1);g.has(s)||g.set(s,[]);g.get(s).push(t)}
   $('mSizes').replaceChildren(...[...g].sort((a,b)=>a[0]-b[0]).map(([s,ts])=>{const d=document.createElement('div');
-    d.innerHTML=`<label>${s} pt × ${ts.length} → <input type="number" step="0.5" min="0.5"> pt</label><button>Select</button>`;
+    d.innerHTML=`<span>${s} pt × ${ts.length}</span>→<input type="number" step="0.5" min="0.5"> pt<button>Select</button>`;
     d.querySelector('input').onchange=e=>{ts.forEach(t=>setSize(t,+e.target.value));commit()};d.querySelector('button').onclick=()=>setSel(ts);return d}))}
 function pick(t){let c=ctx&&ctx!==t&&ctx.contains(t)?ctx:root;for(;;){let e=t;while(e.parentNode!==c)e=e.parentNode;if(isLayer(e)&&e!==t){c=e;continue}return[e,c]}}
 function hit(e){for(const[dx,dy]of[[0,0],[2,0],[-2,0],[0,2],[0,-2],[4,0],[-4,0],[0,4],[0,-4]])
