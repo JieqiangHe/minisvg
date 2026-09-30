@@ -43,7 +43,7 @@ input,select{font:inherit}
 #mSide h4{margin:8px 0 4px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
 #mSide label{display:inline-flex;align-items:center;gap:4px;margin:2px 0}
 #mSide .g2{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#mSide .g2 label{min-width:0}#mSide .g2 input[type=number]{flex:1;min-width:40px;width:auto}
-#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 8px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv>input{width:100%;min-width:0}#mSide .kv select{width:auto;flex:1;min-width:0}
+#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 8px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv .tc{margin-left:auto}#mSide .kv>input{width:100%;min-width:0}#mSide .kv select{width:auto;flex:1;min-width:0}
 #mSide .row{display:flex;gap:3px;margin:2px 0}#mSide .row button{flex:1;min-width:0;padding:2px}
 .ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
 #mSide select{width:100%}#mPg{flex:1;width:auto!important;min-width:0}#mSide .row .ori{flex:0 0 28px}
@@ -56,7 +56,7 @@ input,select{font:inherit}
 <div id="mBar"><b>minisvgbench</b><i></i>
 <button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O)">Open</button><button data-a="imp" title="Import SVG into this canvas (Ctrl+I)">Import</button><i></i>
 <button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
-<span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><i></i>
+<span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="通过打印对话框另存为 PDF（矢量）；推荐 Chrome/Edge">PDF</button><i></i>
 <button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="theme">◐</button>
 </div>
 <div id="mTools">
@@ -97,8 +97,7 @@ input,select{font:inherit}
 <div class="row"><button data-a="bot" title="Send to back (End)">Send to back</button><button data-a="dn" title="Send backward (PageDown)">Backward</button></div>
 <h4>Text</h4>
 <div class="kv"><span>Font</span><input list="mFonts" data-f="ff">
-<span>Size</span><div><input type="number" step="0.5" min="0.5" data-f="fs">pt</div>
-<span>Color</span><div><input type="color" data-f="tc"></div></div>
+<span>Size</span><div><input type="number" step="0.5" min="0.5" data-f="fs">pt<span class="tc">Color</span><input type="color" data-f="tc"></div></div>
 <div class="row"><button data-a="bold" title="Bold"><b>B</b></button><button data-a="ital" title="Italic"><i>I</i></button><button data-a="sup" title="Superscript: applies to selected characters while editing">X²</button><button data-a="sub" title="Subscript: applies to selected characters while editing">X₂</button></div>
 <datalist id="mFonts"><option>Arial<option>Helvetica<option>Liberation Sans<option>Times New Roman<option>Courier New<option>Symbol</datalist>
 <h4>All text</h4>
@@ -250,6 +249,10 @@ function phys(b,dpi){const c=new Uint8Array(21),v=new DataView(c.buffer),p=Math.
   v.setUint32(0,9);c.set([112,72,89,115],4);v.setUint32(8,p);v.setUint32(12,p);c[16]=1;
   for(const x of c.subarray(4,17)){r^=x;for(let i=0;i<8;i++)r=r>>>1^(0xEDB88320&-(r&1))}
   v.setUint32(17,~r>>>0);return new Blob([b.subarray(0,33),c,b.subarray(33)],{type:'image/png'})}
+function pdf(){const w=fm(vb.w*U),h=fm(vb.h*U),f=document.createElement('iframe'),done=()=>f.remove();f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.append(f);
+  const d=f.contentDocument;d.open();d.write(`<!doctype html><meta charset="utf-8"><style>@page{size:${w}mm ${h}mm;margin:0}html,body{margin:0}svg{display:block;width:${w}mm;height:${h}mm;print-color-adjust:exact;-webkit-print-color-adjust:exact}</style>`);d.close();
+  d.title=outName('');d.body.append(d.importNode(new DOMParser().parseFromString(svgText(),'image/svg+xml').documentElement,true));
+  f.contentWindow.onafterprint=done;d.fonts.ready.then(()=>{f.contentWindow.print();setTimeout(done,6e4)})}
 async function png(dpi){const W=Math.round(vb.w*U/25.4*dpi),Hh=Math.round(vb.h*U/25.4*dpi),img=new Image(),url=URL.createObjectURL(new Blob([svgText()],{type:'image/svg+xml'}));
   msg(`Rendering ${W}×${Hh} PNG…`);
   try{img.src=url;await img.decode();const c=document.createElement('canvas');c.width=W;c.height=Hh;const g=c.getContext('2d');
@@ -462,7 +465,7 @@ function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
 Object.assign(A,{
   new:newDoc,open:()=>chooseFile(0),imp:()=>chooseFile(1),
-  svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;msg('Exported '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),
+  svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;msg('Exported '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),pdf,
   undo:()=>undo(0),redo:()=>undo(1),label:labels,group,ungroup,top:()=>zorder('top'),up:()=>zorder('up'),dn:()=>zorder('dn'),bot:()=>zorder('bot'),
   copy,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
   bold:()=>flip('font-weight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','italic',c=>c.fontStyle==='italic'),
