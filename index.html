@@ -105,6 +105,9 @@ input,select{font:inherit}
 <span>Stroke</span><div><input type="color" data-f="stroke"><label><input type="checkbox" data-f="nostroke">None</label></div>
 <span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt<select data-f="dash" title="Line style"><option value="">Solid</option><option value="d">Dashed</option><option value="o">Dotted</option></select></div>
 <span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
+<h4>Page <small>mm</small></h4>
+<div class="g2"><label>W<input type="number" step="1" min="1" data-f="pw"></label><label>H<input type="number" step="1" min="1" data-f="ph"></label></div>
+<div class="row"><button data-a="fitPage" title="Resize the page to the drawing (1 mm margin). Anything outside the page is not exported.">Fit page to content</button></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
@@ -263,12 +266,15 @@ function grid(){const G=$('mGrid');G.style.display=opts.grid?'':'none';if(!opts.
   for(let n=0;n*a<=vb.h*U+1e-9;n++)d[+(n*a%b===0)]+=`M${vb.x} ${vb.y+n*a/U}H${vb.x+vb.w}`;
   G.children[0].setAttribute('d',d[0]);G.children[1].setAttribute('d',d[1])}
 function place(){stage.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;hud();$('mZoom').textContent=Math.round(Z*k/U*2540/96)+'%'}
+function syncPage(){const b=root.viewBox.baseVal,u=(mmOf(root.getAttribute('width'))||b.width*25.4/96)/b.width;if(b.x===vb.x&&b.y===vb.y&&b.width===vb.w&&b.height===vb.h&&u===U)return;
+  vb=rb(b.x,b.y,b.width,b.height);U=u;ghost.setAttribute('viewBox',root.getAttribute('viewBox'));fit()}
+function setPage(x,y,w,h){if(!(w>0&&h>0))return;root.setAttribute('viewBox',[x,y,w,h].map(fm).join(' '));root.setAttribute('width',fm(w*U)+'mm');root.setAttribute('height',fm(h*U)+'mm');commit()}
 function fit(){const r=view.getBoundingClientRect();Z=Math.min((r.width-40)/vb.w,(r.height-40)/vb.h);k=1;tx=(r.width-vb.w*Z)/2;ty=(r.height-vb.h*Z)/2;size();place()}
 function zoomAt(p,f){finish(true);k*=f;tx=p[0]-(p[0]-tx)*f;ty=p[1]-(p[1]-ty)*f;place();clearTimeout(zt);zt=setTimeout(()=>{Z*=k;k=1;size();place()},250)}
 
 // selection
 function setSel(a,q){const s=new Set(a);sel=[...s].filter(e=>{for(let p=e.parentNode;p&&p!==root;p=p.parentNode)if(s.has(p))return false;return true});q||refresh()}
-function refresh(){if(!root)return;sb=null;sbs=[];memoize(()=>{for(const e of sel){const b=bbox(e);sb=un(sb,b);sel.length>1&&sel.length<=200&&b&&sbs.push(b)}});
+function refresh(){if(!root)return;syncPage();sb=null;sbs=[];memoize(()=>{for(const e of sel){const b=bbox(e);sb=un(sb,b);sel.length>1&&sel.length<=200&&b&&sbs.push(b)}});
   cb=top_(ctx)?null:bbox(ctx);hud();panel();
   const lab=e=>e===root?'Document':e.getAttributeNS(NS.inkscape,'label')||e.id||e.localName,c=[];
   for(let e=ctx;e&&e!==root.parentNode;e=e.parentNode)c.unshift(lab(e));
@@ -305,7 +311,7 @@ function hud(M){H.replaceChildren();if(!root)return;rulers();
     :D.t==='ellipse'?mk('ellipse',{cx:(a[0]+b[0])/2,cy:(a[1]+b[1])/2,rx:Math.abs(a[0]-b[0])/2,ry:Math.abs(a[1]-b[1])/2,style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)
     :mk('rect',{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)}}
 function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3);
-  v(F.r,sel[0]&&(Math.round(ang(sel[0])*100)/100||0));v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
+  v(F.pw,vb.w*U);v(F.ph,vb.h*U);v(F.r,sel[0]&&(Math.round(ang(sel[0])*100)/100||0));v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
   const t=selTexts()[0];v(F.fs,t&&tsize(t));F.ff.value=t?getComputedStyle(t).fontFamily.split(',')[0].replace(/["']/g,''):'';t&&(F.tc.value=hex(getComputedStyle(t).fill));
   const e=sel[0],l=e&&(isGrp(e)?e.querySelector(LEAF):e);
   if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw);F.dash.value=''}
@@ -460,12 +466,14 @@ Object.assign(A,{
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);try{localStorage.msbTheme=d?'dark':'light'}catch(_){}},
   rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
+  fitPage:()=>{const b=memoize(()=>cands(root).reduce((a,e)=>un(a,bbox(e)),null)),m=1/U;b?setPage(b.x-m,b.y-m,b.w+2*m,b.h+2*m):msg('Nothing to fit')},
   allText:()=>{ctx=root;setSel(texts())},arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}});
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
 
 document.body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!root&&!/new|open/.test(b.dataset.a))return;b.dataset.a&&A[b.dataset.a]?A[b.dataset.a]():b.dataset.t&&setTool(b.dataset.t)});
 document.body.addEventListener('mousedown',e=>e.target.closest('#mBar button,#mTools button,#mSide button')&&e.preventDefault());
 $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v=+t.value;if(!f||!root||t.type==='number'&&(t.value===''||isNaN(v)))return;
+  if(f==='pw'||f==='ph')return setPage(vb.x,vb.y,f==='pw'?v/U:vb.w,f==='ph'?v/U:vb.h);
   if(/^[xywhr]$/.test(f)){const b=sb;if(!b)return;const l=$('mLock').checked;let M;
     if(f==='x')M=T(v/U+vb.x-b.x,0);
     if(f==='y')M=T(0,v/U+vb.y-b.y);
