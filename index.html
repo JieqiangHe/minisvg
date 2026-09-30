@@ -36,7 +36,6 @@ input,select{font:inherit}
 #mHud{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #mRx,#mRy{position:absolute;left:0;top:0;width:100%;height:18px;pointer-events:none}#mRy{width:18px;height:100%}
 #mHud [data-h]{pointer-events:all;cursor:pointer}
-#mHud [data-h=nw],#mHud [data-h=se]{cursor:nwse-resize}#mHud [data-h=ne],#mHud [data-h=sw]{cursor:nesw-resize}#mHud [data-h=n],#mHud [data-h=s]{cursor:ns-resize}#mHud [data-h=e],#mHud [data-h=w]{cursor:ew-resize}
 #mSide{overflow:auto;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}
 #mSide h4{margin:8px 0 4px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
 #mSide label{display:inline-flex;align-items:center;gap:4px;margin:2px 0}
@@ -132,9 +131,9 @@ const isG=e=>e&&e.namespaceURI===NS.svg&&GR.test(e.localName);
 const isGrp=e=>/^(g|a|switch)$/.test(e.localName);
 const isLayer=e=>e.localName==='g'&&e.getAttributeNS(NS.inkscape,'groupmode')==='layer';
 const top_=c=>c===root||isLayer(c);
-const uid=p=>{while(byId(p+ ++idn));return p+idn};
+const uid=p=>{while(byId(p+ ++idn));return p+idn},reid=n=>{for(const x of[n,...n.querySelectorAll('[id]')])x.id&&(x.id=uid(x.localName));return n};
 const defs=()=>[...root.children].find(e=>e.localName==='defs')||root.insertBefore(mk('defs',{id:uid('defs')}),[...root.children].find(isG)||null);
-const order=a=>{if(a.length<64)return[...a].sort((x,y)=>x.compareDocumentPosition(y)&4?-1:1);const s=new Set(a);return[...root.getElementsByTagName('*')].filter(e=>s.has(e))};
+const order=a=>{const s=new Set(a);return[...root.getElementsByTagName('*')].filter(e=>s.has(e))};
 
 // geometry
 const mx=(a,b,c,d,e,f)=>new DOMMatrix([a,b,c,d,e,f]),T=(x,y)=>mx(1,0,0,1,x,y),S=(x,y=x)=>mx(x,0,0,y,0,0),about=(M,x,y)=>T(x,y).multiply(M).multiply(T(-x,-y)),
@@ -227,7 +226,8 @@ function doImport(txt,nm){const r=document.adoptNode(parse(txt).documentElement)
   for(const l of[...g.getElementsByTagName('g')])isLayer(l)&&l.removeAttributeNS(NS.inkscape,'groupmode');
   setT(g,ctm(p).inverse().multiply(T(vb.x,vb.y)).multiply(S(uI/U)).multiply(T(hv?-b.x:0,hv?-b.y:0)));
   p.appendChild(g);ctx=p;setSel([g],1);commit()}
-async function readFile(f,imp){if(!f)return;if(!imp&&dirty&&!confirm('Discard changes that have not been exported?'))return;
+const discard=()=>!dirty||confirm('Discard changes that have not been exported?');
+async function readFile(f,imp){if(!f||!imp&&!discard())return;
   const t0=performance.now(),txt=await f.text();
   try{imp?doImport(txt,f.name):load(txt,f.name)}catch(e){return msg(`Cannot read ${f.name}: ${e.message}`)}
   requestAnimationFrame(()=>setTimeout(()=>msg(`${imp?'Imported':'Opened'} ${f.name} · ${(f.size/1048576).toFixed(1)} MB · ${root.getElementsByTagName('*').length} elements · ${Math.round(performance.now()-t0)} ms`)))}
@@ -286,7 +286,7 @@ function hud(M){H.replaceChildren();if(!root)return;rulers();
   cb&&poly(cb,'stroke:#999;stroke-dasharray:1 3');
   for(const b of sbs)poly(b,'stroke:#1a73e8;stroke-dasharray:2 2',M);
   if(sb){const p=poly(sb,'stroke:#1a73e8;stroke-dasharray:5 3',M);
-    if(!M){['nw','ne','se','sw'].forEach((h,i)=>{const q=p[(i+1)%4],x=(p[i][0]+q[0])/2,y=(p[i][1]+q[1])/2;mk('rect',{x:p[i][0]-4,y:p[i][1]-4,width:8,height:8,'data-h':h,style:'fill:#fff;stroke:#1a73e8'},H);mk('rect',{x:x-3,y:y-3,width:6,height:6,'data-h':'nesw'[i],style:'fill:#1a73e8;stroke:#fff'},H)});
+    if(!M){['nw','ne','se','sw'].forEach((h,i)=>{const q=p[(i+1)%4],x=(p[i][0]+q[0])/2,y=(p[i][1]+q[1])/2;mk('rect',{x:p[i][0]-4,y:p[i][1]-4,width:8,height:8,'data-h':h,style:`fill:#fff;stroke:#1a73e8;cursor:${i%2?'nesw':'nwse'}-resize`},H);mk('rect',{x:x-3,y:y-3,width:6,height:6,'data-h':'nesw'[i],style:`fill:#1a73e8;stroke:#fff;cursor:${i%2?'ew':'ns'}-resize`},H)});
       mk('circle',{cx:(p[0][0]+p[1][0])/2,cy:p[0][1]-18,r:5,'data-h':'rot',style:'fill:#fff;stroke:#e8711a'},H)}}
   if(D&&D.q){const[a,b]=[D.p,D.q];D.t==='line'||D.t==='arrow'?mk('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:'stroke:#1a73e8'},H)
     :mk('rect',{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)}}
@@ -391,7 +391,7 @@ function finish(ok){if(!ed)return;const{t,r,d,r0,vis,mark}=ed,rs=norm(edRuns(d))
 function copy(){if(sel.length)clip={it:order(sel).map(e=>[e.cloneNode(true),ctm(e.parentNode)]),b:sb}}
 function paste(inPlace){if(!clip)return;const p=curParent(),Pi=ctm(p).inverse(),b=clip.b;let O=T(0,0);
   if(!inPlace&&mouse&&b){const u=toU(mouse);O=T(u.x-b.x-b.w/2,u.y-b.y-b.h/2)}
-  const out=clip.it.map(([c,M])=>{const e=c.cloneNode(true);for(const x of[e,...e.querySelectorAll('[id]')])x.id&&(x.id=uid(x.localName));setT(e,Pi.multiply(O).multiply(M).multiply(lm(c)));p.appendChild(e);return e});
+  const out=clip.it.map(([c,M])=>{const e=reid(c.cloneNode(true));setT(e,Pi.multiply(O).multiply(M).multiply(lm(c)));p.appendChild(e);return e});
   ctx=p;setSel(out,1);commit()}
 function del(){if(!sel.length)return;sel.forEach(e=>e.remove());setSel([],1);commit()}
 function zorder(w){const s=order(sel),S=new Set(sel),sib=(e,n)=>{do e=n?e.nextElementSibling:e.previousElementSibling;while(e&&!isG(e));return e};
@@ -410,26 +410,28 @@ function ungroup(){const out=[];
       for(const[p,v]of ds)p==='opacity'?setSt(c,p,fm(v*(stGet(c,p)??1))):stGet(c,p)==null&&setSt(c,p,v);
       if(cp&&(c.hasAttribute('clip-path')||c.style.clipPath)){const w=mk('g',{id:uid('g'),'clip-path':cp});c.before(w);w.appendChild(c);setT(w,T);out.push(w);continue}
       if(cp&&L.isIdentity)c.setAttribute('clip-path',cp);
-      else if(cp){const o=byId(refId(cp)),n=o.cloneNode(true),I=L.inverse().multiply(lm(o));n.removeAttribute('transform');for(const x of[n,...n.querySelectorAll('[id]')])x.id&&(x.id=uid(x.localName));for(const r of n.children)isG(r)&&setT(r,I.multiply(lm(r)));defs().appendChild(n);c.setAttribute('clip-path',`url(#${n.id})`)}
+      else if(cp){const o=byId(refId(cp)),n=reid(o.cloneNode(true)),I=L.inverse().multiply(lm(o));n.removeAttribute('transform');for(const r of n.children)isG(r)&&setT(r,I.multiply(lm(r)));defs().appendChild(n);c.setAttribute('clip-path',`url(#${n.id})`)}
       setT(c,T.multiply(L));out.push(c)}
     g.remove()}
   setSel(out,1);commit()}
-function align(c){const R=$('mRel').value?rb(vb.x,vb.y,vb.w,vb.h):sb;if(!R)return;
+const area=()=>$('mRel').value?rb(vb.x,vb.y,vb.w,vb.h):sb;
+function align(c){const R=area();if(!R)return;
   for(const e of sel){const b=bbox(e);if(!b)continue;
     applyM(T({l:R.x-b.x,c:R.x+(R.w-b.w)/2-b.x,r:R.x+R.w-b.x-b.w}[c]||0,{t:R.y-b.y,m:R.y+(R.h-b.h)/2-b.y,b:R.y+R.h-b.y-b.h}[c]||0),[e])}commit()}
 function dist(hz){const[p,s]=hz?['x','w']:['y','h'],it=sel.map(e=>[e,bbox(e)]).filter(a=>a[1]).sort((a,b)=>a[1][p]-b[1][p]);if(it.length<2)return;
-  const R=$('mRel').value?rb(vb.x,vb.y,vb.w,vb.h):sb,gap=(R[s]-it.reduce((a,x)=>a+x[1][s],0))/(it.length-1);let q=R[p];
+  const R=area(),gap=(R[s]-it.reduce((a,x)=>a+x[1][s],0))/(it.length-1);let q=R[p];
   for(const[e,b]of it){applyM(T(hz?q-b.x:0,hz?0:q-b.y),[e]);q+=b[s]+gap}commit()}
 function nudge(x,y,big){const d=(big?1:0.1)/U;applyM(T(x*d,y*d));commit()}
+function flip(p,v,on){const ts=selTexts();if(!ts.length)return;const x=on(getComputedStyle(ts[0]))?'normal':v;ts.forEach(t=>setFont(t,p,x));commit()}
+function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
 Object.assign(A,{
-  new:newDoc,open:()=>{fileMode=0;$('mFile').value='';$('mFile').click()},imp:()=>{fileMode=1;$('mFile').value='';$('mFile').click()},
+  new:newDoc,open:()=>chooseFile(0),imp:()=>chooseFile(1),
   svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;msg('Exported '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),
   undo:()=>undo(0),redo:()=>undo(1),label:labels,group,ungroup,top:()=>zorder('top'),up:()=>zorder('up'),dn:()=>zorder('dn'),bot:()=>zorder('bot'),
   copy,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
-  bold:()=>{const ts=selTexts();if(!ts.length)return;const b=+getComputedStyle(ts[0]).fontWeight>=600;ts.forEach(t=>setFont(t,'font-weight',b?'normal':'bold'));commit()},
-  ital:()=>{const ts=selTexts();if(!ts.length)return;const i=getComputedStyle(ts[0]).fontStyle==='italic';ts.forEach(t=>setFont(t,'font-style',i?'normal':'italic'));commit()},
+  bold:()=>flip('font-weight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','italic',c=>c.fontStyle==='italic'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);try{localStorage.msbTheme=d?'dark':'light'}catch(_){}},
   rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
@@ -457,7 +459,7 @@ $('mSide').addEventListener('keydown',e=>/^(Enter|Escape)$/.test(e.key)&&e.targe
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
 $('mPre').onchange=e=>{const v=e.target.value;if(v)[$('mNW').value,$('mNH').value]=v.split(',')};
 $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').returnValue!=='ok'||!(w>0&&h>0))return;
-  if(dirty&&!confirm('Discard changes that have not been exported?'))return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
+  if(!discard())return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 view.addEventListener('mousedown',e=>e.target.closest('.ed')||e.preventDefault());
 view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>{mouse=null;rulers()});
