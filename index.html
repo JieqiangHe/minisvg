@@ -46,7 +46,7 @@ input,select{font:inherit}
 #mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 8px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv>input{width:100%;min-width:0}#mSide .kv select{width:auto;flex:1;min-width:0}
 #mSide .row{display:flex;gap:3px;margin:2px 0}#mSide .row button{flex:1;min-width:0;padding:2px}
 .ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
-#mSide select{width:100%}
+#mSide select{width:100%}#mPg{flex:1;width:auto!important;min-width:0}#mSide .row .ori{flex:0 0 28px}
 #mSide input[type=number]{width:62px;-moz-appearance:textfield}#mSide input::-webkit-inner-spin-button{display:none}
 #mSt{grid-column:1/4;height:22px;display:flex;gap:18px;padding:2px 8px;background:var(--bar);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
 .ed{position:absolute;white-space:pre;outline:1px solid #1a73e8;background:#fffd;min-width:4px;line-height:1.2;padding:0 1px}
@@ -72,6 +72,10 @@ input,select{font:inherit}
 </div>
 <div id="mView"><div id="mStage"><div id="mPage"></div><svg id="mGrid" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path class="mi"/><path class="ma"/></svg><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg><canvas id="mRx"></canvas><canvas id="mRy"></canvas></div>
 <div id="mSide">
+<h4>Page <small>mm</small></h4>
+<div class="row ic"><select data-f="pg" id="mPg" title="Page size"><option value="">Custom</option><option value="210,297">A4</option><option value="297,420">A3</option><option value="148,210">A5</option><option value="215.9,279.4">US Letter</option><option value="85,85">Single column 85 mm</option><option value="180,120">Double column 180 mm</option></select><button data-a="portrait" class="ori" title="Portrait"><svg viewBox="0 0 16 16"><rect x="4" y="1.5" width="8" height="13"/></svg></button><button data-a="landscape" class="ori" title="Landscape"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8"/></svg></button></div>
+<div class="g2"><label>W<input type="number" step="1" min="1" data-f="pw"></label><label>H<input type="number" step="1" min="1" data-f="ph"></label></div>
+<div class="row"><button data-a="fitPage" title="Resize the page to the drawing (1 mm margin). Anything outside the page is not exported.">Fit page to content</button></div>
 <h4>Transform <small>mm</small></h4>
 <div class="g2"><label>X<input type="number" step="0.1" data-f="x"></label><label>Y<input type="number" step="0.1" data-f="y"></label>
 <label>W<input type="number" step="0.1" data-f="w"></label><label>H<input type="number" step="0.1" data-f="h"></label>
@@ -105,9 +109,6 @@ input,select{font:inherit}
 <span>Stroke</span><div><input type="color" data-f="stroke"><label><input type="checkbox" data-f="nostroke">None</label></div>
 <span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt<select data-f="dash" title="Line style"><option value="">Solid</option><option value="d">Dashed</option><option value="o">Dotted</option></select></div>
 <span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
-<h4>Page <small>mm</small></h4>
-<div class="g2"><label>W<input type="number" step="1" min="1" data-f="pw"></label><label>H<input type="number" step="1" min="1" data-f="ph"></label></div>
-<div class="row"><button data-a="fitPage" title="Resize the page to the drawing (1 mm margin). Anything outside the page is not exported.">Fit page to content</button></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
@@ -311,7 +312,8 @@ function hud(M){H.replaceChildren();if(!root)return;rulers();
     :D.t==='ellipse'?mk('ellipse',{cx:(a[0]+b[0])/2,cy:(a[1]+b[1])/2,rx:Math.abs(a[0]-b[0])/2,ry:Math.abs(a[1]-b[1])/2,style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)
     :mk('rect',{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)}}
 function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3);
-  v(F.pw,vb.w*U);v(F.ph,vb.h*U);v(F.r,sel[0]&&(Math.round(ang(sel[0])*100)/100||0));v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
+  v(F.pw,vb.w*U);v(F.ph,vb.h*U);const pw=+(vb.w*U).toFixed(1),ph=+(vb.h*U).toFixed(1);F.pg.value=([...F.pg.options].find(o=>o.value===pw+','+ph||o.value===ph+','+pw)||{}).value||'';
+  document.querySelector('[data-a=portrait]').classList.toggle('on',ph>=pw);document.querySelector('[data-a=landscape]').classList.toggle('on',pw>ph);v(F.r,sel[0]&&(Math.round(ang(sel[0])*100)/100||0));v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
   const t=selTexts()[0];v(F.fs,t&&tsize(t));F.ff.value=t?getComputedStyle(t).fontFamily.split(',')[0].replace(/["']/g,''):'';t&&(F.tc.value=hex(getComputedStyle(t).fill));
   const e=sel[0],l=e&&(isGrp(e)?e.querySelector(LEAF):e);
   if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw);F.dash.value=''}
@@ -466,6 +468,7 @@ Object.assign(A,{
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);try{localStorage.msbTheme=d?'dark':'light'}catch(_){}},
   rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
+  portrait:()=>vb.w>vb.h&&setPage(vb.x,vb.y,vb.h,vb.w),landscape:()=>vb.h>vb.w&&setPage(vb.x,vb.y,vb.h,vb.w),
   fitPage:()=>{const b=memoize(()=>cands(root).reduce((a,e)=>un(a,bbox(e)),null)),m=1/U;b?setPage(b.x-m,b.y-m,b.w+2*m,b.h+2*m):msg('Nothing to fit')},
   allText:()=>{ctx=root;setSel(texts())},arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}});
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
@@ -473,6 +476,7 @@ for(const c of'lcrtmb')A['a'+c]=()=>align(c);
 document.body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!root&&!/new|open/.test(b.dataset.a))return;b.dataset.a&&A[b.dataset.a]?A[b.dataset.a]():b.dataset.t&&setTool(b.dataset.t)});
 document.body.addEventListener('mousedown',e=>e.target.closest('#mBar button,#mTools button,#mSide button')&&e.preventDefault());
 $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v=+t.value;if(!f||!root||t.type==='number'&&(t.value===''||isNaN(v)))return;
+  if(f==='pg'){t.blur();if(!t.value)return;let[w,h]=t.value.split(',').map(Number);if(vb.w>vb.h&&w<h)[w,h]=[h,w];return setPage(vb.x,vb.y,w/U,h/U)}
   if(f==='pw'||f==='ph')return setPage(vb.x,vb.y,f==='pw'?v/U:vb.w,f==='ph'?v/U:vb.h);
   if(/^[xywhr]$/.test(f)){const b=sb;if(!b)return;const l=$('mLock').checked;let M;
     if(f==='x')M=T(v/U+vb.x-b.x,0);
