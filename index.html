@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>minisvgbench</title>
+<script>try{localStorage.msbTheme==='dark'&&(document.documentElement.dataset.theme='dark')}catch(_){}</script>
 <style>
 :root{--fg:#222;--bar:#f3f3f3;--line:#ccc;--btn:#fff;--btnb:#bbb;--btnh:#eef3ff;--bfg:buttontext;--on:#d6e4ff;--onb:#6d94e0;--onfg:buttontext;--view:#cfcfcf;--side:#f7f7f7;--h4:#555;--h4b:#ddd;--pageb:#777}
 [data-theme=dark]{color-scheme:dark;--fg:#e5e5e5;--bar:#000;--line:#262626;--btn:#262626;--btnb:#000;--btnh:#404040;--bfg:#e5e5e5;--on:#e5e5e5;--onb:#e5e5e5;--onfg:#171717;--view:#141414;--side:#000;--h4:#a3a3a3;--h4b:#262626;--pageb:#404040}
@@ -446,7 +447,7 @@ Object.assign(A,{
   copy,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
   bold:()=>flip('font-weight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','italic',c=>c.fontStyle==='italic'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
-  theme:()=>setTheme(document.documentElement.dataset.theme!=='dark'),
+  theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);try{localStorage.msbTheme=d?'dark':'light'}catch(_){}},
   rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
   allText:()=>{ctx=root;setSel(texts())},arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}});
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
