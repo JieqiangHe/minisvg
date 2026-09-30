@@ -74,7 +74,7 @@ input,select{font:inherit}
 <h4>Transform <small>mm</small></h4>
 <div class="g2"><label>X<input type="number" step="0.1" data-f="x"></label><label>Y<input type="number" step="0.1" data-f="y"></label>
 <label>W<input type="number" step="0.1" data-f="w"></label><label>H<input type="number" step="0.1" data-f="h"></label>
-<label title="Rotate the selection by this angle">↻<input type="number" data-f="r" value="0"></label><label><input type="checkbox" id="mLock" checked>Lock ratio</label></div>
+<label title="Rotation angle in degrees (counterclockwise)">↻<input type="number" data-f="r"></label><label><input type="checkbox" id="mLock" checked>Lock ratio</label></div>
 <h4>Align</h4>
 <div class="row ic">
 <button data-a="al" title="Align left"><svg viewBox="0 0 16 16"><path d="M2 1v14"/><rect x="4" y="3" width="10" height="4"/><rect x="4" y="9" width="6" height="4"/></svg></button>
@@ -147,7 +147,7 @@ function lm(e){const m=new DOMMatrix(),s=e.getAttribute&&e.getAttribute('transfo
     m.multiplySelf(f==='matrix'&&v.length===6?mx(...v):f==='translate'?T(x,y):f==='scale'?S(x,v.length>1?y:x):f==='rotate'?about(Rot(x),y,z):f==='skewX'?mx(1,0,tan(x),1,0,0):f==='skewY'?mx(1,tan(x),0,1,0,0):T(0,0))}
   return m}
 function ctm(e){const m=new DOMMatrix();for(;e&&e!==root;e=e.parentNode)m.preMultiplySelf(lm(e));return m}
-const sc=m=>Math.sqrt(Math.abs(m.a*m.d-m.b*m.c));
+const sc=m=>Math.sqrt(Math.abs(m.a*m.d-m.b*m.c)),ang=e=>{const m=ctm(e);return-Math.atan2(m.b,m.a)*180/Math.PI};
 function setT(e,m){const v=[fm(m.a),fm(m.b),fm(m.c),fm(m.d),fc(m.e),fc(m.f)];
   if(v.join()==='1,0,0,1,0,0')e.removeAttribute('transform');
   else e.setAttribute('transform',v.slice(0,4).join()==='1,0,0,1'?`translate(${v[4]},${v[5]})`:`matrix(${v})`)}
@@ -296,7 +296,7 @@ function hud(M){H.replaceChildren();if(!root)return;rulers();
     :D.t==='ellipse'?mk('ellipse',{cx:(a[0]+b[0])/2,cy:(a[1]+b[1])/2,rx:Math.abs(a[0]-b[0])/2,ry:Math.abs(a[1]-b[1])/2,style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)
     :mk('rect',{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)}}
 function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3);
-  v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
+  v(F.r,sel[0]&&(Math.round(ang(sel[0])*100)/100||0));v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
   const t=selTexts()[0];v(F.fs,t&&tsize(t));F.ff.value=t?getComputedStyle(t).fontFamily.split(',')[0].replace(/["']/g,''):'';t&&(F.tc.value=hex(getComputedStyle(t).fill));
   const e=sel[0],l=e&&(isGrp(e)?e.querySelector(LEAF):e);
   if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw);F.dash.value=''}
@@ -454,7 +454,7 @@ $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v
     if(f==='x')M=T(v/U+vb.x-b.x,0);
     if(f==='y')M=T(0,v/U+vb.y-b.y);
     if(f==='w'||f==='h'){const s=v/(f==='w'?b.w:b.h)/U;if(!(s>0&&isFinite(s)))return;M=about(S(f==='w'||l?s:1,f==='h'||l?s:1),b.x,b.y)}
-    if(f==='r'){M=about(Rot(v),b.x+b.w/2,b.y+b.h/2);t.value=0}
+    if(f==='r')M=about(Rot(ang(sel[0])-v),b.x+b.w/2,b.y+b.h/2);
     applyM(M)}
   else if(f==='fs')selTexts().forEach(x=>setSize(x,v));
   else if(f==='ff')t.value.trim()&&selTexts().forEach(x=>setFont(x,'font-family',fam(t.value.trim())));
