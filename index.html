@@ -17,7 +17,7 @@ button{font:inherit;padding:2px 5px;border:1px solid var(--btnb);border-radius:3
 button:hover{background:var(--btnh)}button.on{background:var(--on);border-color:var(--onb);color:var(--onfg)}
 input,select{font:inherit}
 #mBar{grid-column:1/4;display:flex;flex-wrap:wrap;align-items:center;gap:3px;padding:4px;background:var(--bar);border-bottom:1px solid var(--line)}
-#mBar button{border-color:transparent;background:transparent}#mBar button:hover{background:var(--btnh)}#mBar>b{padding:0 6px 0 4px}#mBar .sp{flex:1}#mBar .lb{color:var(--h4);margin-right:2px}
+#mBar button{border-color:transparent;background:transparent}#mBar button:hover{background:var(--btnh)}#mBar button.on{background:var(--on);color:var(--onfg)}#mBar>b{padding:0 6px 0 4px}#mBar .sp{flex:1}#mBar .lb{color:var(--h4);margin-right:2px}
 #mBar>i{width:1px;height:18px;background:var(--line);margin:0 4px}
 #mTools{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;background:var(--bar);border-right:1px solid var(--line)}
 #mTools button{width:30px;height:30px;padding:0;display:grid;place-items:center}
@@ -28,6 +28,8 @@ input,select{font:inherit}
 #mStage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #mStage>*{position:absolute!important;left:0;top:0;width:var(--w)!important;height:var(--h)!important;overflow:visible!important}
 #mPage{background:#fff;outline:1px solid var(--pageb);box-shadow:3px 3px 8px #0003}
+#mPage.grid{background-image:linear-gradient(#5b7bb455 1px,#0000 1px),linear-gradient(90deg,#5b7bb455 1px,#0000 1px),linear-gradient(#5b7bb422 1px,#0000 1px),linear-gradient(90deg,#5b7bb422 1px,#0000 1px);background-size:var(--g) var(--g),var(--g) var(--g),var(--gm) var(--gm),var(--gm) var(--gm)}
+.noR #mRx,.noR #mRy{display:none}
 #mGW{will-change:transform;transform-origin:0 0}
 #mGhost{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
 #mCap{position:absolute;inset:0}
@@ -36,11 +38,11 @@ input,select{font:inherit}
 #mHud [data-h]{pointer-events:all;cursor:pointer}
 #mHud [data-h=nw],#mHud [data-h=se]{cursor:nwse-resize}#mHud [data-h=ne],#mHud [data-h=sw]{cursor:nesw-resize}#mHud [data-h=n],#mHud [data-h=s]{cursor:ns-resize}#mHud [data-h=e],#mHud [data-h=w]{cursor:ew-resize}
 #mSide{overflow:auto;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}
-#mSide h4{margin:12px 0 6px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
+#mSide h4{margin:8px 0 4px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
 #mSide label{display:inline-flex;align-items:center;gap:4px;margin:2px 0}
 #mSide .g2{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#mSide .g2 label{min-width:0}#mSide .g2 input[type=number]{flex:1;min-width:40px;width:auto}
-#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes label{flex:1}#mSizes input{width:48px!important}#mSide .w{display:flex}#mSide .w input{flex:1;min-width:0}
-#mSide .row{display:flex;gap:3px;margin:3px 0}#mSide .row button{flex:1;min-width:0;padding:2px}
+#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:52px 1fr;gap:3px 6px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv>input{width:100%;min-width:0}
+#mSide .row{display:flex;gap:3px;margin:2px 0}#mSide .row button{flex:1;min-width:0;padding:2px}
 .ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
 #mSide select{width:100%}
 #mSide input[type=number]{width:62px;-moz-appearance:textfield}#mSide input::-webkit-inner-spin-button{display:none}
@@ -53,7 +55,7 @@ input,select{font:inherit}
 <button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O)">Open</button><button data-a="imp" title="Import SVG into this canvas (Ctrl+I)">Import</button><i></i>
 <button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
 <span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><i></i>
-<button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="theme">◐</button>
+<button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (10 mm, minor 2 mm); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="theme">◐</button>
 </div>
 <div id="mTools">
 <button data-t="sel" class="on" title="Select (V)"><svg viewBox="0 0 24 24"><path d="M6 3v16l4.5-4.5 3 6.5 2.5-1.2-3-6.3H19z" fill="currentColor"/></svg></button>
@@ -87,17 +89,19 @@ input,select{font:inherit}
 <div class="row"><button data-a="top" title="Bring to front (Home)">Bring to front</button><button data-a="up" title="Bring forward (PageUp)">Forward</button></div>
 <div class="row"><button data-a="bot" title="Send to back (End)">Send to back</button><button data-a="dn" title="Send backward (PageDown)">Backward</button></div>
 <h4>Text</h4>
-<div class="g2"><label>Size<input type="number" step="0.5" min="0.5" data-f="fs">pt</label><label>Color<input type="color" data-f="tc"></label></div>
-<label class="w">Font<input list="mFonts" data-f="ff"></label>
+<div class="kv"><span>Font</span><input list="mFonts" data-f="ff">
+<span>Size</span><div><input type="number" step="0.5" min="0.5" data-f="fs">pt</div>
+<span>Color</span><div><input type="color" data-f="tc"></div></div>
 <div class="row"><button data-a="bold" title="Bold"><b>B</b></button><button data-a="ital" title="Italic"><i>I</i></button><button data-a="sup" title="Superscript: applies to selected characters while editing">X²</button><button data-a="sub" title="Subscript: applies to selected characters while editing">X₂</button></div>
 <datalist id="mFonts"><option>Arial<option>Helvetica<option>Liberation Sans<option>Times New Roman<option>Courier New<option>Symbol</datalist>
 <h4>All text</h4>
 <div class="row"><button data-a="allText">Select all</button><button data-a="arial">All to Arial</button></div>
 <div id="mSizes"></div>
 <h4>Appearance</h4>
-<div class="g2"><label>Fill<input type="color" data-f="fill"></label><label><input type="checkbox" data-f="nofill">None</label>
-<label>Stroke<input type="color" data-f="stroke"></label><label><input type="checkbox" data-f="nostroke">None</label>
-<label>Width<input type="number" step="0.1" min="0" data-f="sw">pt</label><label>Opacity<input type="number" min="0" max="100" step="5" data-f="op">%</label></div>
+<div class="kv"><span>Fill</span><div><input type="color" data-f="fill"><label><input type="checkbox" data-f="nofill">None</label></div>
+<span>Stroke</span><div><input type="color" data-f="stroke"><label><input type="checkbox" data-f="nostroke">None</label></div>
+<span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt</div>
+<span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
@@ -248,7 +252,7 @@ async function png(dpi){const W=Math.round(vb.w*U/25.4*dpi),Hh=Math.round(vb.h*U
 // view
 const vp=e=>{const r=view.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
 const toU=p=>({x:(p[0]-tx)/(Z*k)+vb.x,y:(p[1]-ty)/(Z*k)+vb.y});
-function size(){stage.style.setProperty('--w',vb.w*Z+'px');stage.style.setProperty('--h',vb.h*Z+'px')}
+function size(){const s=stage.style;s.setProperty('--w',vb.w*Z+'px');s.setProperty('--h',vb.h*Z+'px');s.setProperty('--g',10*Z/U+'px');s.setProperty('--gm',2*Z/U>=4?2*Z/U+'px':'100%')}
 function place(){stage.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;hud();$('mZoom').textContent=Math.round(Z*k/U*2540/96)+'%'}
 function fit(){const r=view.getBoundingClientRect();Z=Math.min((r.width-40)/vb.w,(r.height-40)/vb.h);k=1;tx=(r.width-vb.w*Z)/2;ty=(r.height-vb.h*Z)/2;size();place()}
 function zoomAt(p,f){finish(true);k*=f;tx=p[0]-(p[0]-tx)*f;ty=p[1]-(p[1]-ty)*f;place();clearTimeout(zt);zt=setTimeout(()=>{Z*=k;k=1;size();place()},250)}
@@ -261,7 +265,7 @@ function refresh(){if(!root)return;sb=null;sbs=[];memoize(()=>{for(const e of se
   for(let e=ctx;e&&e!==root.parentNode;e=e.parentNode)c.unshift(lab(e));
   $('mCtx').textContent='Context: '+c.join(' › ');
   const e=sel[0];$('mSel').textContent=!e?'':sel.length>1?`${sel.length} objects selected`:`Selected ${e.localName}${e.id?'#'+e.id:''}`+(isGrp(e)?` (${e.getElementsByTagName('*').length} descendants)`:'')}
-function rulers(){if(!root)return;const d=devicePixelRatio||1,cs=getComputedStyle(document.documentElement),v=n=>cs.getPropertyValue(n),pm=Z*k/U,st=[1,2,5,10,20,50,100,200,500,1000].find(s=>s*pm>=45)||1000,m=st/5,R=18;
+function rulers(){if(!root||!opts.rulers)return;const d=devicePixelRatio||1,cs=getComputedStyle(document.documentElement),v=n=>cs.getPropertyValue(n),pm=Z*k/U,st=[1,2,5,10,20,50,100,200,500,1000].find(s=>s*pm>=45)||1000,m=st/5,R=18;
   for(const[c,h]of[[$('mRx'),1],[$('mRy'),0]]){const W=c.clientWidth,Hh=c.clientHeight,L=h?W:Hh,o=h?tx:ty,g=c.getContext('2d');
     if(c.width!==W*d||c.height!==Hh*d){c.width=W*d;c.height=Hh*d}
     g.setTransform(d,0,0,d,0,0);g.fillStyle=v('--bar');g.fillRect(0,0,W,Hh);
@@ -285,12 +289,13 @@ function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3
   v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
   const t=selTexts()[0];v(F.fs,t&&tsize(t));F.ff.value=t?getComputedStyle(t).fontFamily.split(',')[0].replace(/["']/g,''):'';t&&(F.tc.value=hex(getComputedStyle(t).fill));
   const e=sel[0],l=e&&(isGrp(e)?e.querySelector(LEAF):e);
+  if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw)}
   if(l){const cs=getComputedStyle(l);F.nofill.checked=cs.fill==='none';F.fill.value=hex(cs.fill);F.nostroke.checked=cs.stroke==='none';F.stroke.value=hex(cs.stroke);v(F.sw,parseFloat(cs.strokeWidth)*sc(ctm(l))*U*PT)}
   v(F.op,e&&getComputedStyle(e).opacity*100)}
 function sizes(){if(!root)return;const g=new Map();
   for(const t of texts()){const s=+tsize(t).toFixed(1);g.has(s)||g.set(s,[]);g.get(s).push(t)}
   $('mSizes').replaceChildren(...[...g].sort((a,b)=>a[0]-b[0]).map(([s,ts])=>{const d=document.createElement('div');
-    d.innerHTML=`<label>${s} pt × ${ts.length} → <input type="number" step="0.5" min="0.5"> pt</label><button>Select</button>`;
+    d.innerHTML=`<span>${s} pt × ${ts.length}</span>→<input type="number" step="0.5" min="0.5"> pt<button>Select</button>`;
     d.querySelector('input').onchange=e=>{ts.forEach(t=>setSize(t,+e.target.value));commit()};d.querySelector('button').onclick=()=>setSel(ts);return d}))}
 function pick(t){let c=ctx&&ctx!==t&&ctx.contains(t)?ctx:root;for(;;){let e=t;while(e.parentNode!==c)e=e.parentNode;if(isLayer(e)&&e!==t){c=e;continue}return[e,c]}}
 function hit(e){for(const[dx,dy]of[[0,0],[2,0],[-2,0],[0,2],[0,-2],[4,0],[-4,0],[0,4],[0,-4]])
@@ -422,6 +427,7 @@ Object.assign(A,{
   ital:()=>{const ts=selTexts();if(!ts.length)return;const i=getComputedStyle(ts[0]).fontStyle==='italic';ts.forEach(t=>setFont(t,'font-style',i?'normal':'italic'));commit()},
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);try{localStorage.msbTheme=d?'dark':'light'}catch(_){}},
+  rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
   allText:()=>{ctx=root;setSel(texts())},arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}});
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
 
@@ -450,7 +456,9 @@ $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').re
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 view.addEventListener('mousedown',e=>e.target.closest('.ed')||e.preventDefault());
 view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>{mouse=null;rulers()});
-view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const f=Math.exp(-e.deltaY*(e.deltaMode?0.05:0.0015)),z=Z*k*f;z>1e-3&&z<1e4&&zoomAt(vp(e),f)},{passive:false});
+view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const m=e.deltaMode?16:1;let dx=e.deltaX*m,dy=e.deltaY*m;
+  if(e.ctrlKey||e.metaKey){const f=Math.exp(-dy*0.0015),z=Z*k*f;return z>1e-3&&z<1e4&&zoomAt(vp(e),f)}
+  if(e.shiftKey&&!dx)[dx,dy]=[dy,0];tx-=dx;ty-=dy;place()},{passive:false});
 addEventListener('resize',()=>hud());
 addEventListener('dragover',e=>e.preventDefault());
 addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
@@ -465,9 +473,12 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(INP
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),l:()=>setTool('line'),a:()=>setTool('arrow')}[K.length>1?K:kl];
   if(f){e.preventDefault();f()}});
+const opts={rulers:true,grid:false};try{opts.rulers=localStorage.msbRulers!=='0';opts.grid=localStorage.msbGrid==='1'}catch(_){}
+function views(){document.body.classList.toggle('noR',!opts.rulers);$('mPage').classList.toggle('grid',opts.grid);for(const k in opts)document.querySelector(`[data-a=${k}]`).classList.toggle('on',opts[k]);rulers()}
+function toggle(k){opts[k]=!opts[k];try{localStorage['msb'+k[0].toUpperCase()+k.slice(1)]=opts[k]?1:0}catch(_){}views()}
 function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';document.querySelector('[data-a=theme]').title=d?'Switch to light interface':'Switch to dark interface';rulers()}
 setTheme(document.documentElement.dataset.theme==='dark');
-load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Wheel zooms, Space+drag pans.');
+views();load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Scroll to move around, Ctrl+scroll (or pinch) to zoom.');
 </script>
 </body>
 </html>
