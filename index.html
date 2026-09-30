@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>minisvgbench</title>
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;font:12px/1.5 system-ui,"Microsoft YaHei",sans-serif;color:#222}
+html,body{margin:0;height:100%;overflow:hidden;font:12px/1.5 system-ui,sans-serif;color:#222}
 body{display:grid;grid-template:auto 1fr auto/1fr 236px}
 button{font:inherit;padding:2px 7px;border:1px solid #bbb;border-radius:3px;background:#fff;cursor:pointer}
 button:hover{background:#eef3ff}button.on{background:#d6e4ff;border-color:#6d94e0}
@@ -31,46 +31,46 @@ input,select{font:inherit}
 </head>
 <body>
 <div id="mBar">
-<button data-a="new">新建</button><button data-a="open" title="Ctrl+O">打开</button><button data-a="imp" title="Ctrl+I">导入</button><button data-a="svg" title="Ctrl+S">导出 SVG</button><button data-a="p300">PNG 300</button><button data-a="p600">PNG 600</button><i></i>
-<button data-a="undo" title="Ctrl+Z">撤销</button><button data-a="redo" title="Ctrl+Shift+Z">重做</button><i></i>
-<button data-t="sel" class="on" title="V">选择</button><button data-t="text" title="T">文字</button><button data-t="rect" title="R">矩形</button><button data-t="line" title="L">直线</button><button data-t="arrow" title="A">箭头</button>
-<button data-a="label" title="在选中面板左上角放置标签">标签</button><input id="mLbl" value="A" size="1"><i></i>
-<button data-a="group" title="Ctrl+G">组合</button><button data-a="ungroup" title="Ctrl+Shift+G">取消组合</button><i></i>
-<button data-a="top" title="Home">置顶</button><button data-a="up" title="PageUp">上移</button><button data-a="dn" title="PageDown">下移</button><button data-a="bot" title="End">置底</button><i></i>
-<button data-a="copy" title="Ctrl+C">复制</button><button data-a="paste" title="Ctrl+V">粘贴</button><button data-a="del" title="Delete">删除</button><i></i>
-<button data-a="fit" title="5">适应窗口</button>
+<button data-a="new">New</button><button data-a="open" title="Ctrl+O">Open</button><button data-a="imp" title="Ctrl+I">Import</button><button data-a="svg" title="Ctrl+S">Export SVG</button><button data-a="p300">PNG 300</button><button data-a="p600">PNG 600</button><i></i>
+<button data-a="undo" title="Ctrl+Z">Undo</button><button data-a="redo" title="Ctrl+Shift+Z">Redo</button><i></i>
+<button data-t="sel" class="on" title="V">Select</button><button data-t="text" title="T">Text</button><button data-t="rect" title="R">Rect</button><button data-t="line" title="L">Line</button><button data-t="arrow" title="A">Arrow</button>
+<button data-a="label" title="Place a label at the top-left of each selected panel">Label</button><input id="mLbl" value="A" size="1"><i></i>
+<button data-a="group" title="Ctrl+G">Group</button><button data-a="ungroup" title="Ctrl+Shift+G">Ungroup</button><i></i>
+<button data-a="top" title="Home">To top</button><button data-a="up" title="PageUp">Raise</button><button data-a="dn" title="PageDown">Lower</button><button data-a="bot" title="End">To bottom</button><i></i>
+<button data-a="copy" title="Ctrl+C">Copy</button><button data-a="paste" title="Ctrl+V">Paste</button><button data-a="del" title="Delete">Delete</button><i></i>
+<button data-a="fit" title="5">Fit</button>
 </div>
 <div id="mView"><div id="mStage"><div id="mPage"></div><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg></div>
 <div id="mSide">
-<h4>位置与尺寸（mm）</h4>
+<h4>Position &amp; size (mm)</h4>
 <label>X<input type="number" step="0.1" data-f="x"></label><label>Y<input type="number" step="0.1" data-f="y"></label>
 <label>W<input type="number" step="0.1" data-f="w"></label><label>H<input type="number" step="0.1" data-f="h"></label>
-<label><input type="checkbox" id="mLock" checked>锁定比例</label><label>旋转<input type="number" data-f="r" value="0">°</label>
-<h4>对齐与分布</h4>
-<select id="mRel"><option value="">相对选区</option><option value="1">相对页面</option></select><br>
-<button data-a="al">左</button><button data-a="ac">水平居中</button><button data-a="ar">右</button><br>
-<button data-a="at">上</button><button data-a="am">垂直居中</button><button data-a="ab">下</button><br>
-<button data-a="dh">水平分布</button><button data-a="dv">垂直分布</button>
-<h4>文字</h4>
-<label>字号<input type="number" step="0.5" min="0.5" data-f="fs">pt</label>
-<label>字体<input list="mFonts" data-f="ff" size="13"></label>
-<label>颜色<input type="color" data-f="tc"></label><br>
-<button data-a="bold"><b>B</b></button><button data-a="ital"><i>I</i></button><button data-a="sup" title="编辑时对选中字符">X²</button><button data-a="sub" title="编辑时对选中字符">X₂</button>
+<label><input type="checkbox" id="mLock" checked>Lock ratio</label><label>Rotate<input type="number" data-f="r" value="0">°</label>
+<h4>Align &amp; distribute</h4>
+<select id="mRel"><option value="">Relative to selection</option><option value="1">Relative to page</option></select><br>
+<button data-a="al">Left</button><button data-a="ac">Center</button><button data-a="ar">Right</button><br>
+<button data-a="at">Top</button><button data-a="am">Middle</button><button data-a="ab">Bottom</button><br>
+<button data-a="dh">Distribute H</button><button data-a="dv">Distribute V</button>
+<h4>Text</h4>
+<label>Size<input type="number" step="0.5" min="0.5" data-f="fs">pt</label>
+<label>Font<input list="mFonts" data-f="ff" size="13"></label>
+<label>Color<input type="color" data-f="tc"></label><br>
+<button data-a="bold"><b>B</b></button><button data-a="ital"><i>I</i></button><button data-a="sup" title="Applies to selected characters while editing">X²</button><button data-a="sub" title="Applies to selected characters while editing">X₂</button>
 <datalist id="mFonts"><option>Arial<option>Helvetica<option>Liberation Sans<option>Times New Roman<option>Courier New<option>Symbol</datalist>
-<h4>批量文字</h4>
-<button data-a="allText">选中所有文字</button><button data-a="arial">全部改为 Arial</button>
+<h4>All text</h4>
+<button data-a="allText">Select all text</button><button data-a="arial">All to Arial</button>
 <div id="mSizes"></div>
-<h4>样式</h4>
-<label>填充<input type="color" data-f="fill"></label><label><input type="checkbox" data-f="nofill">无</label><br>
-<label>描边<input type="color" data-f="stroke"></label><label><input type="checkbox" data-f="nostroke">无</label><br>
-<label>描边宽<input type="number" step="0.1" min="0" data-f="sw">pt</label><label>不透明度<input type="number" min="0" max="100" step="5" data-f="op">%</label>
+<h4>Style</h4>
+<label>Fill<input type="color" data-f="fill"></label><label><input type="checkbox" data-f="nofill">None</label><br>
+<label>Stroke<input type="color" data-f="stroke"></label><label><input type="checkbox" data-f="nostroke">None</label><br>
+<label>Width<input type="number" step="0.1" min="0" data-f="sw">pt</label><label>Opacity<input type="number" min="0" max="100" step="5" data-f="op">%</label>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
 <dialog id="mNew"><form method="dialog">
-<p><select id="mPre"><option value="210,297">A4（210×297 mm）</option><option value="85,85">单栏 85 mm</option><option value="180,120" selected>双栏 180 mm</option><option value="">自定义</option></select></p>
-<p><label>宽 <input id="mNW" type="number" value="180" min="1" step="0.1"></label> <label>高 <input id="mNH" type="number" value="120" min="1" step="0.1"></label> mm</p>
-<p><button value="ok">创建</button> <button value="">取消</button></p>
+<p><select id="mPre"><option value="210,297">A4 (210×297 mm)</option><option value="85,85">Single column 85 mm</option><option value="180,120" selected>Double column 180 mm</option><option value="">Custom</option></select></p>
+<p><label>Width <input id="mNW" type="number" value="180" min="1" step="0.1"></label> <label>Height <input id="mNH" type="number" value="120" min="1" step="0.1"></label> mm</p>
+<p><button value="ok">Create</button> <button value="">Cancel</button></p>
 </form></dialog>
 <script>
 'use strict';
@@ -157,7 +157,7 @@ function undo(r){finish(true);if(D)return;if(flush()){undos.push(pend);pend=[]}
   if(!root.contains(ctx))ctx=root;sel=sel.filter(e=>root.contains(e));sizes();refresh()}
 
 // document
-function parse(txt){const d=new DOMParser().parseFromString(txt,'image/svg+xml');if(d.documentElement.localName!=='svg'||d.getElementsByTagName('parsererror').length)throw Error('不是有效的 SVG');return d}
+function parse(txt){const d=new DOMParser().parseFromString(txt,'image/svg+xml');if(d.documentElement.localName!=='svg'||d.getElementsByTagName('parsererror').length)throw Error('not a valid SVG');return d}
 function load(txt,nm){const d=parse(txt);prolog='';
   for(let n=d.firstChild;n!==d.documentElement;n=n.nextSibling)n.nodeType===8?prolog+=`<!--${n.data}-->\n`:n.nodeType===7&&(prolog+=`<?${n.target} ${n.data}?>\n`);
   finish(false);root&&root.remove();mo&&mo.disconnect();
@@ -189,10 +189,10 @@ function doImport(txt,nm){const r=document.adoptNode(parse(txt).documentElement)
   for(const l of[...g.getElementsByTagName('g')])isLayer(l)&&l.removeAttributeNS(NS.inkscape,'groupmode');
   setT(g,ctm(p).inverse().multiply(T(vb.x,vb.y)).multiply(S(uI/U)).multiply(T(hv?-b.x:0,hv?-b.y:0)));
   p.appendChild(g);ctx=p;setSel([g],1);commit()}
-async function readFile(f,imp){if(!f)return;if(!imp&&dirty&&!confirm('当前修改尚未导出，确定放弃？'))return;
+async function readFile(f,imp){if(!f)return;if(!imp&&dirty&&!confirm('Discard changes that have not been exported?'))return;
   const t0=performance.now(),txt=await f.text();
-  try{imp?doImport(txt,f.name):load(txt,f.name)}catch(e){return msg(`无法读取 ${f.name}：${e.message}`)}
-  requestAnimationFrame(()=>setTimeout(()=>msg(`${imp?'导入':'打开'} ${f.name} · ${(f.size/1048576).toFixed(1)} MB · ${root.getElementsByTagName('*').length} 个元素 · ${Math.round(performance.now()-t0)} ms`)))}
+  try{imp?doImport(txt,f.name):load(txt,f.name)}catch(e){return msg(`Cannot read ${f.name}: ${e.message}`)}
+  requestAnimationFrame(()=>setTimeout(()=>msg(`${imp?'Imported':'Opened'} ${f.name} · ${(f.size/1048576).toFixed(1)} MB · ${root.getElementsByTagName('*').length} elements · ${Math.round(performance.now()-t0)} ms`)))}
 function curParent(){if(ctx!==root)return ctx;const nv=[...root.children].find(e=>e.localName==='namedview'),l=nv&&byId(nv.getAttributeNS(NS.inkscape,'current-layer'));
   return l&&root.contains(l)&&isLayer(l)?l:[...root.children].reverse().find(isLayer)||root}
 const ymd=()=>{const d=new Date();return[d.getFullYear()%100,d.getMonth()+1,d.getDate()].map(x=>String(x).padStart(2,'0')).join('')};
@@ -204,12 +204,12 @@ function phys(b,dpi){const c=new Uint8Array(21),v=new DataView(c.buffer),p=Math.
   for(const x of c.subarray(4,17)){r^=x;for(let i=0;i<8;i++)r=r>>>1^(0xEDB88320&-(r&1))}
   v.setUint32(17,~r>>>0);return new Blob([b.subarray(0,33),c,b.subarray(33)],{type:'image/png'})}
 async function png(dpi){const W=Math.round(vb.w*U/25.4*dpi),Hh=Math.round(vb.h*U/25.4*dpi),img=new Image(),url=URL.createObjectURL(new Blob([svgText()],{type:'image/svg+xml'}));
-  msg(`正在渲染 ${W}×${Hh} PNG…`);
+  msg(`Rendering ${W}×${Hh} PNG…`);
   try{img.src=url;await img.decode();const c=document.createElement('canvas');c.width=W;c.height=Hh;const g=c.getContext('2d');
     g.fillStyle='#fff';g.fillRect(0,0,W,Hh);g.drawImage(img,0,0,W,Hh);
     const b=new Uint8Array(await(await new Promise(r=>c.toBlob(r,'image/png'))).arrayBuffer());
-    dl(phys(b,dpi),outName(`_${dpi}dpi.png`));msg(`已导出 ${W}×${Hh} PNG（${dpi} dpi）`)}
-  catch(e){msg('PNG 导出失败：'+e.message)}finally{URL.revokeObjectURL(url)}}
+    dl(phys(b,dpi),outName(`_${dpi}dpi.png`));msg(`Exported ${W}×${Hh} PNG (${dpi} dpi)`)}
+  catch(e){msg('PNG export failed: '+e.message)}finally{URL.revokeObjectURL(url)}}
 
 // view
 const vp=e=>{const r=view.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]};
@@ -223,10 +223,10 @@ function zoomAt(p,f){finish(true);k*=f;tx=p[0]-(p[0]-tx)*f;ty=p[1]-(p[1]-ty)*f;p
 function setSel(a,q){const s=new Set(a);sel=[...s].filter(e=>{for(let p=e.parentNode;p&&p!==root;p=p.parentNode)if(s.has(p))return false;return true});q||refresh()}
 function refresh(){if(!root)return;sb=null;sbs=[];memoize(()=>{for(const e of sel){const b=bbox(e);sb=un(sb,b);sel.length>1&&sel.length<=200&&b&&sbs.push(b)}});
   cb=top_(ctx)?null:bbox(ctx);hud();panel();
-  const lab=e=>e===root?'文档':e.getAttributeNS(NS.inkscape,'label')||e.id||e.localName,c=[];
+  const lab=e=>e===root?'Document':e.getAttributeNS(NS.inkscape,'label')||e.id||e.localName,c=[];
   for(let e=ctx;e&&e!==root.parentNode;e=e.parentNode)c.unshift(lab(e));
-  $('mCtx').textContent='层级：'+c.join(' › ');
-  const e=sel[0];$('mSel').textContent=!e?'':sel.length>1?`已选 ${sel.length} 个对象`:`已选 ${e.localName}${e.id?'#'+e.id:''}`+(isGrp(e)?`（${e.getElementsByTagName('*').length} 个子节点）`:'')}
+  $('mCtx').textContent='Context: '+c.join(' › ');
+  const e=sel[0];$('mSel').textContent=!e?'':sel.length>1?`${sel.length} objects selected`:`Selected ${e.localName}${e.id?'#'+e.id:''}`+(isGrp(e)?` (${e.getElementsByTagName('*').length} descendants)`:'')}
 function hud(M){H.replaceChildren();if(!root)return;
   const poly=(b,st,m)=>{const p=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]].map(([x,y])=>{const q=m?m.transformPoint({x,y}):{x,y};return[tx+(q.x-vb.x)*Z*k,ty+(q.y-vb.y)*Z*k]});mk('polygon',{points:p.join(' '),style:'fill:none;'+st},H);return p};
   cb&&poly(cb,'stroke:#999;stroke-dasharray:1 3');
@@ -245,7 +245,7 @@ function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3
 function sizes(){if(!root)return;const g=new Map();
   for(const t of texts()){const s=+tsize(t).toFixed(1);g.has(s)||g.set(s,[]);g.get(s).push(t)}
   $('mSizes').replaceChildren(...[...g].sort((a,b)=>a[0]-b[0]).map(([s,ts])=>{const d=document.createElement('div');
-    d.innerHTML=`<label>${s} pt × ${ts.length} → <input type="number" step="0.5" min="0.5"> pt</label><button>选择</button>`;
+    d.innerHTML=`<label>${s} pt × ${ts.length} → <input type="number" step="0.5" min="0.5"> pt</label><button>Select</button>`;
     d.querySelector('input').onchange=e=>{ts.forEach(t=>setSize(t,+e.target.value));commit()};d.querySelector('button').onclick=()=>setSel(ts);return d}))}
 function pick(t){let c=ctx&&ctx!==t&&ctx.contains(t)?ctx:root;for(;;){let e=t;while(e.parentNode!==c)e=e.parentNode;if(isLayer(e)&&e!==t){c=e;continue}return[e,c]}}
 function hit(e){for(const[dx,dy]of[[0,0],[2,0],[-2,0],[0,2],[0,-2],[4,0],[-4,0],[0,4],[0,-4]])
@@ -303,7 +303,7 @@ function arrowDef(){const id='ArrowMsb';byId(id)||mk('path',{d:'M 0,0 10,5 0,10 
 function newText(u,txt){const p=curParent(),m=ctm(p),q=m.inverse().transformPoint(u),mark=flush();
   const t=mk('text',{'xml:space':'preserve',id:uid('text'),x:fc(q.x),y:fc(q.y),style:`font-size:${f6(8/PT/U/sc(m))}px;font-family:Arial;fill:#000000`},p,txt);
   ctx=p;setSel([t]);txt==null&&edit(t,null,mark);return t}
-function labels(){const it=sel.map(e=>[e,bbox(e)]).filter(x=>x[1]).sort((a,b)=>Math.abs(a[1].y-b[1].y)>5/U?a[1].y-b[1].y:a[1].x-b[1].x);if(!it.length)return msg('先选中面板');
+function labels(){const it=sel.map(e=>[e,bbox(e)]).filter(x=>x[1]).sort((a,b)=>Math.abs(a[1].y-b[1].y)>5/U?a[1].y-b[1].y:a[1].x-b[1].x);if(!it.length)return msg('Select one or more panels first');
   let c=($('mLbl').value||'A').charCodeAt(0);const out=[];
   for(const[e,b]of it){const p=e.parentNode,m=ctm(p),q=m.inverse().transformPoint({x:b.x,y:b.y+10/PT/U*0.716});
     out.push(mk('text',{'xml:space':'preserve',id:uid('text'),x:fc(q.x),y:fc(q.y),style:`font-weight:bold;font-size:${f6(10/PT/U/sc(m))}px;font-family:Arial;fill:#000000`},p,String.fromCharCode(c++)))}
@@ -370,7 +370,7 @@ function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
 Object.assign(A,{
   new:newDoc,open:()=>{fileMode=0;$('mFile').value='';$('mFile').click()},imp:()=>{fileMode=1;$('mFile').value='';$('mFile').click()},
-  svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;msg('已导出 '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),
+  svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;msg('Exported '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),
   undo:()=>undo(0),redo:()=>undo(1),label:labels,group,ungroup,top:()=>zorder('top'),up:()=>zorder('up'),dn:()=>zorder('dn'),bot:()=>zorder('bot'),
   copy,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
   bold:()=>{const ts=selTexts();if(!ts.length)return;const b=+getComputedStyle(ts[0]).fontWeight>=600;ts.forEach(t=>setFont(t,'font-weight',b?'normal':'bold'));commit()},
@@ -400,14 +400,14 @@ $('mSide').addEventListener('keydown',e=>/^(Enter|Escape)$/.test(e.key)&&e.targe
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
 $('mPre').onchange=e=>{const v=e.target.value;if(v)[$('mNW').value,$('mNH').value]=v.split(',')};
 $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').returnValue!=='ok'||!(w>0&&h>0))return;
-  if(dirty&&!confirm('当前修改尚未导出，确定放弃？'))return;load(blank(fm(w),fm(h)),'figure.svg');msg(`新建画布 ${fm(w)}×${fm(h)} mm`)};
+  if(dirty&&!confirm('Discard changes that have not been exported?'))return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 view.addEventListener('mousedown',e=>e.target.closest('.ed')||e.preventDefault());
 view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>mouse=null);
 view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const f=Math.exp(-e.deltaY*(e.deltaMode?0.05:0.0015)),z=Z*k*f;z>1e-3&&z<1e4&&zoomAt(vp(e),f)},{passive:false});
 addEventListener('resize',()=>hud());
 addEventListener('dragover',e=>e.preventDefault());
-addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];f&&readFile(f,!!(root&&cands(root).length&&confirm(`把 ${f.name} 导入到当前画布？\n（取消 = 作为新文件打开）`)))});
+addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
 addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 addEventListener('keyup',e=>{if(e.key===' ')space=false});addEventListener('blur',()=>space=false);
 addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(INPUT|SELECT|TEXTAREA)$/.test(tg.tagName)||$('mNew').open)return;
@@ -419,7 +419,7 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(INP
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),l:()=>setTool('line'),a:()=>setTool('arrow')}[K.length>1?K:kl];
   if(f){e.preventDefault();f()}});
-load(blank(210,297),'figure.svg');msg('打开或拖入 SVG 文件；新建画布；滚轮缩放，空格+拖动平移');
+load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Wheel zooms, Space+drag pans.');
 </script>
 </body>
 </html>
