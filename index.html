@@ -56,7 +56,7 @@ input,select{font:inherit}
 <div id="mBar"><b>minisvgbench</b><i></i>
 <button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O)">Open</button><button data-a="imp" title="Import SVG into this canvas (Ctrl+I)">Import</button><i></i>
 <button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
-<span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="通过打印对话框另存为 PDF（矢量）；推荐 Chrome/Edge">PDF</button><i></i>
+<span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">PDF</button><i></i>
 <button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="theme">◐</button>
 </div>
 <div id="mTools">
@@ -156,20 +156,36 @@ function setT(e,m){const v=[fm(m.a),fm(m.b),fm(m.c),fm(m.d),fc(m.e),fc(m.f)];
   if(v.join()==='1,0,0,1,0,0')e.removeAttribute('transform');
   else e.setAttribute('transform',v.slice(0,4).join()==='1,0,0,1'?`translate(${v[4]},${v[5]})`:`matrix(${v})`)}
 const rb=(x,y,w,h)=>({x,y,w,h});
-function tb(b,m){if(!b)return null;const p=[[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]].map(([x,y])=>m.transformPoint({x,y})),xs=p.map(q=>q.x),ys=p.map(q=>q.y),x=Math.min(...xs),y=Math.min(...ys);return rb(x,y,Math.max(...xs)-x,Math.max(...ys)-y)}
+function pb(p,m){p=p.map(([x,y])=>m.transformPoint({x,y}));const xs=p.map(q=>q.x),ys=p.map(q=>q.y),x=Math.min(...xs),y=Math.min(...ys);return rb(x,y,Math.max(...xs)-x,Math.max(...ys)-y)}
+const tb=(b,m)=>b&&pb([[b.x,b.y],[b.x+b.w,b.y],[b.x,b.y+b.h],[b.x+b.w,b.y+b.h]],m);
 function un(a,b){if(!a||!b)return a||b;const x=Math.min(a.x,b.x),y=Math.min(a.y,b.y);return rb(x,y,Math.max(a.x+a.w,b.x+b.w)-x,Math.max(a.y+a.h,b.y+b.h)-y)}
 function isect(a,b){const x=Math.max(a.x,b.x),y=Math.max(a.y,b.y),w=Math.min(a.x+a.w,b.x+b.w)-x,h=Math.min(a.y+a.h,b.y+b.h)-y;return w<0||h<0?null:rb(x,y,w,h)}
 let memo=null;
 const cached=(m,k,f)=>{if(!memo)return f();const c=memo[m];c.has(k)||c.set(k,f());return c.get(k)},memoize=f=>{memo={c:new Map(),k:new Map()};try{return f()}finally{memo=null}};
 function lbox(e){let b=null;
-  if(isGrp(e)&&e.querySelector('[clip-path]')){for(const c of e.children)if(isG(c))b=un(b,tb(lbox(c),lm(c)))}
+  if(isGrp(e)&&e.querySelector('[clip-path]')){for(const c of e.children)if(isG(c))b=un(b,mbox(c,lm(c)))}
   else try{const r=e.getBBox();if(r.width||r.height)b=rb(r.x,r.y,r.width,r.height)}catch(_){}
   const cp=byId(refId(e.getAttribute('clip-path')||e.style.clipPath));
   if(b&&cp&&cp.getAttribute('clipPathUnits')!=='objectBoundingBox'){const c=cached('k',cp,()=>{let c=null;
     for(const r of cp.children)if(isG(r))c=un(c,tb(r.localName==='rect'?rb(r.x.baseVal.value,r.y.baseVal.value,r.width.baseVal.value,r.height.baseVal.value):lbox(r),lm(r)));return tb(c,lm(cp))});
     if(c)b=isect(b,c)}
   return b}
-const bbox=e=>tb(lbox(e),cached('c',e.parentNode,()=>ctm(e.parentNode)).multiply(lm(e)));
+function pts(e){const n=e.localName,v=a=>e[a].baseVal.value,d=n==='path'&&e.getAttribute('d')||'';
+  if(n==='line')return[[v('x1'),v('y1')],[v('x2'),v('y2')]];if(/^poly/.test(n))return[...e.points].map(q=>[q.x,q.y]);if(!d||/[^MLHVZ\d\s,.e+-]/i.test(d))return null;
+  const t=d.match(/[MLHVZ]|[-+]?(\d*\.\d+|\d+\.?)(e[-+]?\d+)?/gi),p=[];let c='',x=0,y=0,sx=0,sy=0,i=0;
+  while(i<t.length){if(/[a-z]/i.test(t[i]))c=t[i++];if(!c)return null;const r=c===c.toLowerCase(),C=c.toUpperCase(),a=+t[i];
+    if(C==='Z'){x=sx;y=sy;if(i<t.length&&!/[a-z]/i.test(t[i]))return null;continue}
+    if(C==='H')x=r?x+a:a,i++;else if(C==='V')y=r?y+a:a,i++;else{x=r?x+a:a;y=r?y+ +t[i+1]:+t[i+1];i+=2;if(C==='M')sx=x,sy=y,c=r?'l':'L'}
+    if(isNaN(x+y))return null;p.push([x,y])}
+  return p.length?p:null}
+function mbox(e,M){if(!M.b&&!M.c||!M.a&&!M.d||isGrp(e)&&e.getElementsByTagName('*').length>2e3)return tb(lbox(e),M);let b=null,p;const n=e.localName,v=a=>e[a].baseVal.value;
+  if(isGrp(e)){for(const c of e.children)if(isG(c))b=un(b,mbox(c,c.hasAttribute('transform')?M.multiply(lm(c)):M))}
+  else if(n==='circle'||n==='ellipse'){const rx=v(n==='circle'?'r':'rx'),ry=v(n==='circle'?'r':'ry'),q=M.transformPoint({x:v('cx'),y:v('cy')}),w=Math.hypot(M.a*rx,M.c*ry),h=Math.hypot(M.b*rx,M.d*ry);b=rb(q.x-w,q.y-h,2*w,2*h)}
+  else b=(p=pts(e))?pb(p,M):tb(lbox(e),M);
+  const cp=byId(refId(e.getAttribute('clip-path')||e.style.clipPath));
+  if(b&&cp&&cp.getAttribute('clipPathUnits')!=='objectBoundingBox'){let c=null;const K=M.multiply(lm(cp));for(const r of cp.children)if(isG(r))c=un(c,mbox(r,K.multiply(lm(r))));if(c)b=isect(b,c)}
+  return b}
+const bbox=e=>mbox(e,cached('c',e.parentNode,()=>ctm(e.parentNode)).multiply(lm(e)));
 function applyM(M,els=sel){for(const e of els){const P=ctm(e.parentNode);setT(e,P.inverse().multiply(M).multiply(P).multiply(lm(e)))}}
 
 // style
@@ -499,8 +515,8 @@ $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v
   /checkbox|select|color/.test(t.type)&&t.blur();commit()});
 $('mSide').addEventListener('keydown',e=>/^(Enter|Escape)$/.test(e.key)&&e.target.blur());
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
-const nd=()=>{const v=$('mPre').value,l=document.querySelector('[name=mOr]:checked').value==='l';let w=+$('mNW').value,h=+$('mNH').value;if(v)[w,h]=v.split(',').map(Number);if(l!==w>h&&w!==h)[w,h]=[h,w];$('mNW').value=w;$('mNH').value=h};
-$('mNew').onchange=e=>/mPre|mOr/.test(e.target.id+e.target.name)&&nd();$('mNW').oninput=$('mNH').oninput=()=>$('mPre').value='';
+const nd=o=>{const v=$('mPre').value,l=document.querySelector('[name=mOr]:checked').value==='l';let w=+$('mNW').value,h=+$('mNH').value;if(v&&!o)[w,h]=v.split(',').map(Number);if(w!==h&&(o?l!==w>h:l&&w<h))[w,h]=[h,w];$('mNW').value=w;$('mNH').value=h;if(w!==h)document.querySelector(`[name=mOr][value=${w>h?'l':'p'}]`).checked=true};
+$('mNew').onchange=e=>e.target.id==='mPre'?nd():e.target.name==='mOr'&&nd(1);$('mNW').oninput=$('mNH').oninput=()=>$('mPre').value='';
 $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').returnValue!=='ok'||!(w>0&&h>0))return;
   if(!discard())return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
