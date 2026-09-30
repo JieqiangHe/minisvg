@@ -113,7 +113,8 @@ input,select{font:inherit}
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
 <dialog id="mNew"><form method="dialog">
-<p><select id="mPre"><option value="210,297" selected>A4 (210×297 mm)</option><option value="85,85">Single column 85 mm</option><option value="180,120">Double column 180 mm</option><option value="">Custom</option></select></p>
+<p><select id="mPre"><option value="210,297" selected>A4 (210×297 mm)</option><option value="297,420">A3 (297×420 mm)</option><option value="148,210">A5 (148×210 mm)</option><option value="215.9,279.4">US Letter (216×279 mm)</option><option value="85,85">Single column 85 mm</option><option value="180,120">Double column 180 mm</option><option value="">Custom</option></select></p>
+<p><label><input type="radio" name="mOr" value="p" checked> Portrait</label> <label><input type="radio" name="mOr" value="l"> Landscape</label></p>
 <p><label>Width <input id="mNW" type="number" value="210" min="1" step="0.1"></label> <label>Height <input id="mNH" type="number" value="297" min="1" step="0.1"></label> mm</p>
 <p><button value="ok">Create</button> <button value="">Cancel</button></p>
 </form></dialog>
@@ -495,7 +496,8 @@ $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v
   /checkbox|select|color/.test(t.type)&&t.blur();commit()});
 $('mSide').addEventListener('keydown',e=>/^(Enter|Escape)$/.test(e.key)&&e.target.blur());
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
-$('mPre').onchange=e=>{const v=e.target.value;if(v)[$('mNW').value,$('mNH').value]=v.split(',')};
+const nd=()=>{const v=$('mPre').value,l=document.querySelector('[name=mOr]:checked').value==='l';let w=+$('mNW').value,h=+$('mNH').value;if(v)[w,h]=v.split(',').map(Number);if(l!==w>h&&w!==h)[w,h]=[h,w];$('mNW').value=w;$('mNH').value=h};
+$('mNew').onchange=e=>/mPre|mOr/.test(e.target.id+e.target.name)&&nd();$('mNW').oninput=$('mNH').oninput=()=>$('mPre').value='';
 $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').returnValue!=='ok'||!(w>0&&h>0))return;
   if(!discard())return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
