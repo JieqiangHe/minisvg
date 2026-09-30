@@ -17,10 +17,12 @@ button{font:inherit;padding:2px 5px;border:1px solid var(--btnb);border-radius:3
 button:hover{background:var(--btnh)}button.on{background:var(--on);border-color:var(--onb);color:var(--onfg)}
 input,select{font:inherit}
 #mBar{grid-column:1/4;display:flex;flex-wrap:wrap;align-items:center;gap:3px;padding:4px;background:var(--bar);border-bottom:1px solid var(--line)}
+#mBar button{border-color:transparent;background:transparent}#mBar button:hover{background:var(--btnh)}#mBar>b{padding:0 6px 0 4px}#mBar .sp{flex:1}#mBar .lb{color:var(--h4);margin-right:2px}
 #mBar>i{width:1px;height:18px;background:var(--line);margin:0 4px}
 #mTools{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;background:var(--bar);border-right:1px solid var(--line)}
 #mTools button{width:30px;height:30px;padding:0;display:grid;place-items:center}
 #mTools svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+#mTools a{margin-top:auto;width:30px;height:30px;display:grid;place-items:center;color:inherit;opacity:.6}#mTools a:hover{opacity:1}
 #mTools>i{width:22px;height:1px;background:var(--line);margin:3px 0}
 #mView{position:relative;overflow:hidden;background:var(--view)}
 #mStage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
@@ -30,23 +32,27 @@ input,select{font:inherit}
 #mGhost{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
 #mCap{position:absolute;inset:0}
 #mHud{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#mRx,#mRy{position:absolute;left:0;top:0;width:100%;height:18px;pointer-events:none}#mRy{width:18px;height:100%}
 #mHud [data-h]{pointer-events:all;cursor:pointer}
 #mHud [data-h=nw],#mHud [data-h=se]{cursor:nwse-resize}#mHud [data-h=ne],#mHud [data-h=sw]{cursor:nesw-resize}#mHud [data-h=n],#mHud [data-h=s]{cursor:ns-resize}#mHud [data-h=e],#mHud [data-h=w]{cursor:ew-resize}
 #mSide{overflow:auto;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}
-#mSide h4{margin:10px 0 4px;color:var(--h4);border-bottom:1px solid var(--h4b)}
-#mSide label{display:inline-flex;align-items:center;gap:3px;margin:2px 6px 2px 0}
-#mSide input[type=number]{width:58px}
+#mSide h4{margin:12px 0 6px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
+#mSide label{display:inline-flex;align-items:center;gap:4px;margin:2px 0}
+#mSide .g2{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#mSide .g2 label{min-width:0}#mSide .g2 input[type=number]{flex:1;min-width:40px;width:auto}
+#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes label{flex:1}#mSizes input{width:48px!important}#mSide .w{display:flex}#mSide .w input{flex:1;min-width:0}
+#mSide .row{display:flex;gap:3px;margin:3px 0}#mSide .row button{flex:1;min-width:0;padding:2px}
+.ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
+#mSide select{width:100%}
+#mSide input[type=number]{width:62px;-moz-appearance:textfield}#mSide input::-webkit-inner-spin-button{display:none}
 #mSt{grid-column:1/4;height:22px;display:flex;gap:18px;padding:2px 8px;background:var(--bar);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
 .ed{position:absolute;white-space:pre;outline:1px solid #1a73e8;background:#fffd;min-width:4px;line-height:1.2;padding:0 1px}
 </style>
 </head>
 <body>
-<div id="mBar">
-<button data-a="new" title="New canvas">New</button><button data-a="open" title="Ctrl+O">Open</button><button data-a="imp" title="Ctrl+I">Import</button><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><i></i>
-<button data-a="undo" title="Ctrl+Z">Undo</button><button data-a="redo" title="Ctrl+Shift+Z">Redo</button><i></i>
-<button data-a="group" title="Ctrl+G">Group</button><button data-a="ungroup" title="Ctrl+Shift+G">Ungroup</button><i></i>
-<button data-a="top" title="Raise to top (Home)">Top</button><button data-a="up" title="Raise one step (PageUp)">Up</button><button data-a="dn" title="Lower one step (PageDown)">Down</button><button data-a="bot" title="Lower to bottom (End)">Bottom</button><i></i>
-<button data-a="copy" title="Ctrl+C">Copy</button><button data-a="paste" title="Ctrl+V">Paste</button><button data-a="del" title="Delete (Del)">Del</button><i></i>
+<div id="mBar"><b>minisvgbench</b><i></i>
+<button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O)">Open</button><button data-a="imp" title="Import SVG into this canvas (Ctrl+I)">Import</button><i></i>
+<button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
+<span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><i></i>
 <button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="theme">◐</button>
 </div>
 <div id="mTools">
@@ -57,37 +63,47 @@ input,select{font:inherit}
 <button data-t="arrow" title="Arrow (A)"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M10 5h9v9"/></svg></button><i></i>
 <button data-a="label" title="Panel labels: place the letter below at the top-left of each selected panel"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" stroke-dasharray="2 2"/><text x="2" y="11" font-size="11" font-weight="bold" font-family="Arial" fill="currentColor" stroke="none">A</text></svg></button>
 <input id="mLbl" value="A" maxlength="1" title="Next label letter" style="width:30px;text-align:center">
+<a href="https://github.com/JieqiangHe/minisvgbench" target="_blank" rel="noopener" title="minisvgbench on GitHub"><svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </div>
-<div id="mView"><div id="mStage"><div id="mPage"></div><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg></div>
+<div id="mView"><div id="mStage"><div id="mPage"></div><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg><canvas id="mRx"></canvas><canvas id="mRy"></canvas></div>
 <div id="mSide">
-<h4>Position &amp; size (mm)</h4>
-<label>X<input type="number" step="0.1" data-f="x"></label><label>Y<input type="number" step="0.1" data-f="y"></label>
+<h4>Transform <small>mm</small></h4>
+<div class="g2"><label>X<input type="number" step="0.1" data-f="x"></label><label>Y<input type="number" step="0.1" data-f="y"></label>
 <label>W<input type="number" step="0.1" data-f="w"></label><label>H<input type="number" step="0.1" data-f="h"></label>
-<label><input type="checkbox" id="mLock" checked>Lock ratio</label><label>Rotate<input type="number" data-f="r" value="0">°</label>
-<h4>Align &amp; distribute</h4>
-<select id="mRel"><option value="">Relative to selection</option><option value="1">Relative to page</option></select><br>
-<button data-a="al">Left</button><button data-a="ac">Center</button><button data-a="ar">Right</button><br>
-<button data-a="at">Top</button><button data-a="am">Middle</button><button data-a="ab">Bottom</button><br>
-<button data-a="dh">Distribute H</button><button data-a="dv">Distribute V</button>
+<label title="Rotate the selection by this angle">↻<input type="number" data-f="r" value="0"></label><label><input type="checkbox" id="mLock" checked>Lock ratio</label></div>
+<h4>Align</h4>
+<div class="row ic">
+<button data-a="al" title="Align left"><svg viewBox="0 0 16 16"><path d="M2 1v14"/><rect x="4" y="3" width="10" height="4"/><rect x="4" y="9" width="6" height="4"/></svg></button>
+<button data-a="ac" title="Align horizontal centers"><svg viewBox="0 0 16 16"><path d="M8 1v14"/><rect x="3" y="3" width="10" height="4"/><rect x="5" y="9" width="6" height="4"/></svg></button>
+<button data-a="ar" title="Align right"><svg viewBox="0 0 16 16"><path d="M14 1v14"/><rect x="2" y="3" width="10" height="4"/><rect x="6" y="9" width="6" height="4"/></svg></button>
+<button data-a="at" title="Align top"><svg viewBox="0 0 16 16"><path d="M1 2h14"/><rect x="3" y="4" width="4" height="10"/><rect x="9" y="4" width="4" height="6"/></svg></button>
+<button data-a="am" title="Align vertical centers"><svg viewBox="0 0 16 16"><path d="M1 8h14"/><rect x="3" y="3" width="4" height="10"/><rect x="9" y="5" width="4" height="6"/></svg></button>
+<button data-a="ab" title="Align bottom"><svg viewBox="0 0 16 16"><path d="M1 14h14"/><rect x="3" y="2" width="4" height="10"/><rect x="9" y="6" width="4" height="6"/></svg></button>
+<button data-a="dh" title="Distribute horizontally (equal gaps)"><svg viewBox="0 0 16 16"><rect x="1" y="4" width="3" height="8"/><rect x="6.5" y="4" width="3" height="8"/><rect x="12" y="4" width="3" height="8"/></svg></button>
+<button data-a="dv" title="Distribute vertically (equal gaps)"><svg viewBox="0 0 16 16"><rect x="4" y="1" width="8" height="3"/><rect x="4" y="6.5" width="8" height="3"/><rect x="4" y="12" width="8" height="3"/></svg></button></div>
+<select id="mRel"><option value="">Relative to selection</option><option value="1">Relative to page</option></select>
+<h4>Arrange</h4>
+<div class="row"><button data-a="group" title="Group (Ctrl+G)">Group</button><button data-a="ungroup" title="Ungroup (Ctrl+Shift+G)">Ungroup</button></div>
+<div class="row"><button data-a="top" title="Bring to front (Home)">Bring to front</button><button data-a="up" title="Bring forward (PageUp)">Forward</button></div>
+<div class="row"><button data-a="bot" title="Send to back (End)">Send to back</button><button data-a="dn" title="Send backward (PageDown)">Backward</button></div>
 <h4>Text</h4>
-<label>Size<input type="number" step="0.5" min="0.5" data-f="fs">pt</label>
-<label>Font<input list="mFonts" data-f="ff" size="13"></label>
-<label>Color<input type="color" data-f="tc"></label><br>
-<button data-a="bold"><b>B</b></button><button data-a="ital"><i>I</i></button><button data-a="sup" title="Applies to selected characters while editing">X²</button><button data-a="sub" title="Applies to selected characters while editing">X₂</button>
+<div class="g2"><label>Size<input type="number" step="0.5" min="0.5" data-f="fs">pt</label><label>Color<input type="color" data-f="tc"></label></div>
+<label class="w">Font<input list="mFonts" data-f="ff"></label>
+<div class="row"><button data-a="bold" title="Bold"><b>B</b></button><button data-a="ital" title="Italic"><i>I</i></button><button data-a="sup" title="Superscript: applies to selected characters while editing">X²</button><button data-a="sub" title="Subscript: applies to selected characters while editing">X₂</button></div>
 <datalist id="mFonts"><option>Arial<option>Helvetica<option>Liberation Sans<option>Times New Roman<option>Courier New<option>Symbol</datalist>
 <h4>All text</h4>
-<button data-a="allText">Select all text</button><button data-a="arial">All to Arial</button>
+<div class="row"><button data-a="allText">Select all</button><button data-a="arial">All to Arial</button></div>
 <div id="mSizes"></div>
-<h4>Style</h4>
-<label>Fill<input type="color" data-f="fill"></label><label><input type="checkbox" data-f="nofill">None</label><br>
-<label>Stroke<input type="color" data-f="stroke"></label><label><input type="checkbox" data-f="nostroke">None</label><br>
-<label>Width<input type="number" step="0.1" min="0" data-f="sw">pt</label><label>Opacity<input type="number" min="0" max="100" step="5" data-f="op">%</label>
+<h4>Appearance</h4>
+<div class="g2"><label>Fill<input type="color" data-f="fill"></label><label><input type="checkbox" data-f="nofill">None</label>
+<label>Stroke<input type="color" data-f="stroke"></label><label><input type="checkbox" data-f="nostroke">None</label>
+<label>Width<input type="number" step="0.1" min="0" data-f="sw">pt</label><label>Opacity<input type="number" min="0" max="100" step="5" data-f="op">%</label></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
 <dialog id="mNew"><form method="dialog">
-<p><select id="mPre"><option value="210,297">A4 (210×297 mm)</option><option value="85,85">Single column 85 mm</option><option value="180,120" selected>Double column 180 mm</option><option value="">Custom</option></select></p>
-<p><label>Width <input id="mNW" type="number" value="180" min="1" step="0.1"></label> <label>Height <input id="mNH" type="number" value="120" min="1" step="0.1"></label> mm</p>
+<p><select id="mPre"><option value="210,297" selected>A4 (210×297 mm)</option><option value="85,85">Single column 85 mm</option><option value="180,120">Double column 180 mm</option><option value="">Custom</option></select></p>
+<p><label>Width <input id="mNW" type="number" value="210" min="1" step="0.1"></label> <label>Height <input id="mNH" type="number" value="297" min="1" step="0.1"></label> mm</p>
 <p><button value="ok">Create</button> <button value="">Cancel</button></p>
 </form></dialog>
 <script>
@@ -245,7 +261,18 @@ function refresh(){if(!root)return;sb=null;sbs=[];memoize(()=>{for(const e of se
   for(let e=ctx;e&&e!==root.parentNode;e=e.parentNode)c.unshift(lab(e));
   $('mCtx').textContent='Context: '+c.join(' › ');
   const e=sel[0];$('mSel').textContent=!e?'':sel.length>1?`${sel.length} objects selected`:`Selected ${e.localName}${e.id?'#'+e.id:''}`+(isGrp(e)?` (${e.getElementsByTagName('*').length} descendants)`:'')}
-function hud(M){H.replaceChildren();if(!root)return;
+function rulers(){if(!root)return;const d=devicePixelRatio||1,cs=getComputedStyle(document.documentElement),v=n=>cs.getPropertyValue(n),pm=Z*k/U,st=[1,2,5,10,20,50,100,200,500,1000].find(s=>s*pm>=45)||1000,m=st/5,R=18;
+  for(const[c,h]of[[$('mRx'),1],[$('mRy'),0]]){const W=c.clientWidth,Hh=c.clientHeight,L=h?W:Hh,o=h?tx:ty,g=c.getContext('2d');
+    if(c.width!==W*d||c.height!==Hh*d){c.width=W*d;c.height=Hh*d}
+    g.setTransform(d,0,0,d,0,0);g.fillStyle=v('--bar');g.fillRect(0,0,W,Hh);
+    if(sb){const a=o+(h?sb.x-vb.x:sb.y-vb.y)*Z*k,b=(h?sb.w:sb.h)*Z*k;g.fillStyle='#1a73e855';h?g.fillRect(a,0,b,R):g.fillRect(0,a,R,b)}
+    g.strokeStyle=g.fillStyle=v('--fg');g.lineWidth=1;g.font='9px system-ui,sans-serif';g.beginPath();
+    for(let x=Math.floor(-o/pm/m)*m;o+x*pm<L;x+=m){const p=Math.round(o+x*pm)+.5,M=Math.abs(x/st-Math.round(x/st))<1e-6,t=M?R:R/3;
+      h?(g.moveTo(p,R),g.lineTo(p,R-t)):(g.moveTo(R,p),g.lineTo(R-t,p));
+      if(M){const s=String(+x.toFixed(3));if(h)g.fillText(s,p+2,9);else{g.save();g.translate(9,p-2);g.rotate(-Math.PI/2);g.fillText(s,0,0);g.restore()}}}
+    g.stroke();g.strokeStyle=v('--line');g.beginPath();h?(g.moveTo(0,R-.5),g.lineTo(W,R-.5)):(g.moveTo(R-.5,0),g.lineTo(R-.5,Hh));g.stroke();
+    if(mouse){const p=Math.round(h?mouse[0]:mouse[1])+.5;g.strokeStyle='#e8711a';g.beginPath();h?(g.moveTo(p,0),g.lineTo(p,R)):(g.moveTo(0,p),g.lineTo(R,p));g.stroke()}}}
+function hud(M){H.replaceChildren();if(!root)return;rulers();
   const poly=(b,st,m)=>{const p=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]].map(([x,y])=>{const q=m?m.transformPoint({x,y}):{x,y};return[tx+(q.x-vb.x)*Z*k,ty+(q.y-vb.y)*Z*k]});mk('polygon',{points:p.join(' '),style:'fill:none;'+st},H);return p};
   cb&&poly(cb,'stroke:#999;stroke-dasharray:1 3');
   for(const b of sbs)poly(b,'stroke:#1a73e8;stroke-dasharray:2 2',M);
@@ -288,7 +315,7 @@ function down(e){if(!root||e.target.closest('.ed'))return;finish(true);document.
   if(!t||e.shiftKey){D={t:'band',p,u,add:e.shiftKey,h:t};return cap()}
   let[el,c]=e.ctrlKey||e.metaKey?[t.closest('text')||t]:pick(t);c=c||el.parentNode;
   const was=sel.includes(el);if(!was){ctx=c;setSel([el])}D={t:'move',p,u,el,was};cap()}
-function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textContent=`${((u.x-vb.x)*U).toFixed(1)}, ${((u.y-vb.y)*U).toFixed(1)} mm`;if(!D)return;
+function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textContent=`${((u.x-vb.x)*U).toFixed(1)}, ${((u.y-vb.y)*U).toFixed(1)} mm`;if(!D)return rulers();
   let dx=p[0]-D.p[0],dy=p[1]-D.p[1];
   if(D.t==='pan'){tx=D.tx+dx;ty=D.ty+dy;return place()}
   if(!D.on){if(Math.hypot(dx,dy)<3)return;D.on=1;/^(move|sc|rot)$/.test(D.t)&&ghostOn()}
@@ -422,7 +449,7 @@ $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').re
   if(dirty&&!confirm('Discard changes that have not been exported?'))return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 view.addEventListener('mousedown',e=>e.target.closest('.ed')||e.preventDefault());
-view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>mouse=null);
+view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>{mouse=null;rulers()});
 view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const f=Math.exp(-e.deltaY*(e.deltaMode?0.05:0.0015)),z=Z*k*f;z>1e-3&&z<1e4&&zoomAt(vp(e),f)},{passive:false});
 addEventListener('resize',()=>hud());
 addEventListener('dragover',e=>e.preventDefault());
@@ -438,7 +465,7 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(INP
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),l:()=>setTool('line'),a:()=>setTool('arrow')}[K.length>1?K:kl];
   if(f){e.preventDefault();f()}});
-function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';document.querySelector('[data-a=theme]').title=d?'Switch to light interface':'Switch to dark interface'}
+function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';document.querySelector('[data-a=theme]').title=d?'Switch to light interface':'Switch to dark interface';rulers()}
 setTheme(document.documentElement.dataset.theme==='dark');
 load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Wheel zooms, Space+drag pans.');
 </script>
