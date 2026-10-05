@@ -63,7 +63,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O)">Open</button><button data-a="imp" title="Import SVG into this canvas (Ctrl+I)">Import</button><i></i>
 <button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
 <span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">PDF</button><i></i>
-<button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="chat" title="Draw with GLM: describe a figure and it is placed on the canvas">Chat</button><button data-a="theme">◐</button>
+<button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="chat" title="Draw with AI (GLM or DeepSeek): describe a figure and it is placed on the canvas">Chat</button><button data-a="theme">◐</button>
 </div>
 <div id="mTools">
 <button data-t="sel" class="on" title="Select (V)"><svg viewBox="0 0 24 24"><path d="M6 3v16l4.5-4.5 3 6.5 2.5-1.2-3-6.3H19z" fill="currentColor"/></svg></button>
@@ -116,10 +116,12 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
 </div>
 <div id="mChat">
-<details id="mCfg"><summary>GLM settings</summary>
+<details id="mCfg"><summary>AI settings</summary>
+<label>API<select id="mProv"><option value="Glm">GLM</option><option value="Ds">DeepSeek</option></select></label>
+<label>Think<select id="mThink" title="Reasoning effort"><option value="low">Low</option><option value="high" selected>Medium</option><option value="max">High</option></select></label>
 <label>Key<input id="mKey" type="password" autocomplete="off" placeholder="API key"></label>
-<label>Model<input id="mModel" value="glm-5.3"></label>
-<label>URL<input id="mEp" value="https://open.bigmodel.cn/api/paas/v4/chat/completions"></label>
+<label>Model<input id="mModel"></label>
+<label>URL<input id="mEp"></label>
 </details>
 <div id="mLog"></div>
 <textarea id="mAsk" rows="4" placeholder="Describe a figure, or ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea>
@@ -495,7 +497,7 @@ function flip(p,v,on){const ts=selTexts();if(!ts.length)return;const x=on(getCom
 function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
-// glm chat
+// ai chat
 let hist=[],aiG=null,ac=null;
 const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. When asked for changes, return the full updated SVG. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
   bub=(c,t)=>{const d=document.createElement('div');d.className=c;d.textContent=t;LG.append(d);LG.scrollTop=LG.scrollHeight;return d},
@@ -505,15 +507,15 @@ function svgOf(t){let s=(/<svg[\s\S]*<\/svg>/i.exec(t)||[])[0];if(!s)return null
   const d=parse(s);d.querySelectorAll('script,foreignObject').forEach(e=>e.remove());
   for(const e of d.getElementsByTagName('*'))for(const a of[...e.attributes])(/^on/i.test(a.name)||/^\s*javascript:/i.test(a.value))&&e.removeAttribute(a.name);
   return new XMLSerializer().serializeToString(d)}
-function put(s,open){if(open)return discard()&&(load(s,'glm.svg'),msg('Opened the GLM figure as a new canvas'));
+function put(s,open){if(open)return discard()&&(load(s,'ai.svg'),msg('Opened the AI figure as a new canvas'));
   const o=aiG&&root.contains(aiG)?aiG:null,b=o&&bbox(o);if(o){o.contains(ctx)&&(ctx=o.parentNode);o.remove()}
-  doImport(s,'glm');aiG=sel[0];const n=b&&bbox(aiG),k=undos.length;
+  doImport(s,'ai');aiG=sel[0];const n=b&&bbox(aiG),k=undos.length;
   if(n){applyM(T(b.x-n.x,b.y-n.y));commit();if(undos.length>k){const x=undos.pop();undos.push(undos.pop().concat(x))}}
-  msg(o?'Replaced the GLM figure (Ctrl+Z to undo)':'Placed the GLM figure (Ctrl+Z to undo)')}
-async function ask(){if(ac)return ac.abort();const q=$('mAsk').value.trim(),key=$('mKey').value.trim();if(!q)return;if(!key){$('mCfg').open=true;return msg('Enter a GLM API key first')}
+  msg(o?'Replaced the AI figure (Ctrl+Z to undo)':'Placed the AI figure (Ctrl+Z to undo)')}
+async function ask(){if(ac)return ac.abort();const q=$('mAsk').value.trim(),key=$('mKey').value.trim();if(!q)return;if(!key){$('mCfg').open=true;return msg('Enter an API key first')}
   $('mAsk').value='';hist.push({role:'user',content:q});bub('u',q);const b=bub('a','…');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0;
   try{const r=await fetch($('mEp').value.trim(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},signal:ac.signal,
-      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,max_tokens:32768})});
+      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,max_tokens:32768,thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
     if(!r.ok)throw Error(`${r.status} ${(await r.text()).slice(0,300)}`);
     const rd=r.body.pipeThrough(new TextDecoderStream()).getReader();let buf='';
     for(;;){const{value,done}=await rd.read();if(done)break;const ls=(buf+=value).split('\n');buf=ls.pop();
@@ -525,7 +527,12 @@ async function ask(){if(ac)return ac.abort();const q=$('mAsk').value.trim(),key=
   hist.push({role:'assistant',content:out});let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
   const p=document.createElement('p'),btn=(t,f)=>{const x=document.createElement('button');x.textContent=t;x.onclick=f;p.append(x)};
   btn('Insert copy',()=>{aiG=null;put(s)});btn('Open as new',()=>put(s,1));b.append(p);put(s)}
-for(const[i,k]of[['mKey','msbGlmKey'],['mModel','msbGlmModel'],['mEp','msbGlmEp']]){const e=$(i);try{localStorage[k]&&(e.value=localStorage[k])}catch(_){}e.onchange=()=>{try{localStorage[k]=e.value.trim()}catch(_){}}}
+const AI={Glm:['glm-5.3','https://open.bigmodel.cn/api/paas/v4/chat/completions'],Ds:['deepseek-v4-pro','https://api.deepseek.com/chat/completions']},
+  ls=(k,v)=>{try{return v==null?localStorage[k]:localStorage[k]=v}catch(_){}},aiF=[['mKey','Key',''],['mModel','Model',0],['mEp','Ep',1]],
+  aiLoad=()=>{const p=$('mProv').value;for(const[i,k,d]of aiF)$(i).value=ls('msb'+p+k)||(d===''?'':AI[p][d])};
+for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);v&&[...e.options].some(o=>o.value===v)&&(e.value=v);e.onchange=()=>{ls(k,e.value);i==='mProv'&&aiLoad()}}
+for(const[i,k]of aiF)$(i).onchange=()=>ls('msb'+$('mProv').value+k,$(i).value.trim());
+aiLoad();
 $('mSend').onclick=ask;$('mClr').onclick=()=>{ac&&ac.abort();hist=[];aiG=null;LG.replaceChildren()};
 $('mAsk').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();ac||ask()}};
 
