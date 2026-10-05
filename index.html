@@ -56,7 +56,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 #mLog{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px}#mLog>div{white-space:pre-wrap;overflow-wrap:anywhere;padding:4px 6px;border-radius:4px}#mLog .u{align-self:flex-end;max-width:90%;background:var(--btnh)}#mLog .a{border:1px solid var(--line)}#mLog p{display:flex;gap:3px;margin:4px 0 0}
 #mAsk{width:100%;resize:vertical;font:inherit}[data-theme=dark] #mAsk{background:#262626;color:#f5f5f5;border:1px solid #404040;border-radius:3px}
 #mChat .row{display:flex;gap:3px}#mChat .row button{flex:1}
-#mImgs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}#mImgs img{height:44px;border:1px solid var(--line);cursor:pointer}#mImgs span{color:#e5534b}#mLog .u img{display:block;max-height:60px;max-width:100%;margin-top:3px}
+#mImgs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}#mImgs img{height:44px;border:1px solid var(--line);cursor:pointer}#mImgs .w{color:#e5534b}#mImgs .f,#mLog .f{border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:12px}#mImgs .f{cursor:pointer}#mLog .u img{display:block;max-height:60px;max-width:100%;margin-top:3px}
 </style>
 </head>
 <body class="chat">
@@ -126,8 +126,8 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 </details>
 <div id="mLog"></div>
 <div id="mImgs"></div>
-<textarea id="mAsk" rows="4" placeholder="Describe a figure, or attach / paste a reference image to redraw. Ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea>
-<div class="row"><button id="mAtt" title="Attach a reference image to redraw (you can also paste or drop one). Needs a model that can see images: glm-5.3-flash or deepseek-flash">Image</button><input type="file" id="mImgF" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
+<textarea id="mAsk" rows="4" placeholder="Describe a figure, attach a file to draw from, or (vision models) a reference image to redraw. Ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea>
+<div class="row"><button id="mAtt" title="Redraw: attach a reference image for the AI to copy as editable vector shapes (you can also paste or drop one). Shown only for models that can see images">Redraw</button><input type="file" id="mImgF" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden><button id="mDoc" title="File: attach a text file (txt, csv, tsv, md, json, fasta…) for the AI to read and draw from. Works with every model">File</button><input type="file" id="mDocF" multiple hidden><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
@@ -501,7 +501,7 @@ function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
 // ai chat
-let hist=[],aiG=null,ac=null,imgs=[];
+let hist=[],aiG=null,ac=null,imgs=[],files=[];
 const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. When asked for changes, return the full updated SVG. If the user attaches an image, redraw that figure as editable vector SVG: keep its layout, shapes, arrows, colours and text labels (as <text>); simplify photos and textures into flat shapes. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
   bub=(c,t)=>{const d=document.createElement('div');d.className=c;d.textContent=t;LG.append(d);LG.scrollTop=LG.scrollHeight;return d},
   brief=t=>t.replace(/```\w*\s*/g,'').replace(/<svg[\s\S]*?(<\/svg>|$)/gi,m=>`[SVG, ${m.length} chars]`).trim();
@@ -516,15 +516,24 @@ function put(s,open){if(open)return discard()&&(load(s,'ai.svg'),msg('Opened the
   if(n){applyM(T(b.x-n.x,b.y-n.y));commit();if(undos.length>k){const x=undos.pop();undos.push(undos.pop().concat(x))}}
   msg(o?'Replaced the AI figure (Ctrl+Z to undo)':'Placed the AI figure (Ctrl+Z to undo)')}
 const VIS=['glm-5.3-flash','deepseek-flash'],vis=()=>VIS.includes($('mModel').value),noVis=()=>`${$('mModel').value} cannot see images. Switch Model to glm-5.3-flash or deepseek-flash in AI settings.`,
-  img=u=>{const m=new Image();m.src=u;return m};
-function thumbs(){$('mImgs').replaceChildren(...imgs.map((u,i)=>{const m=img(u);m.title='Click to remove';m.onclick=()=>{imgs.splice(i,1);thumbs()};return m}));if(imgs.length&&!vis()){const w=document.createElement('span');w.textContent=noVis();$('mImgs').append(w)}}
+  img=u=>{const m=new Image();m.src=u;return m},
+  chip=(c,t)=>{const e=document.createElement('span');e.className=c;e.textContent=t;return e};
+function thumbs(){$('mAtt').hidden=!vis();$('mImgs').replaceChildren(...imgs.map((u,i)=>{const m=img(u);m.title='Click to remove';m.onclick=()=>{imgs.splice(i,1);thumbs()};return m}),
+    ...files.map((f,i)=>{const e=chip('f',f.n+' ×');e.title='Click to remove';e.onclick=()=>{files.splice(i,1);thumbs()};return e}));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
 const shrink=f=>new Promise((ok,no)=>{const m=new Image(),u=URL.createObjectURL(f);m.onerror=()=>{URL.revokeObjectURL(u);no(Error('Cannot read '+f.name))};
   m.onload=()=>{const r=Math.min(1,1600/Math.max(m.width,m.height)),c=document.createElement('canvas'),g=c.getContext('2d');c.width=Math.round(m.width*r);c.height=Math.round(m.height*r);
     g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(m,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/png');d.length>4e6&&(d=c.toDataURL('image/jpeg',.9));ok(d)};m.src=u});
-async function attach(fs){document.body.classList.contains('chat')||A.chat();for(const f of fs)if(/^image\/(png|jpeg|gif|webp)$/.test(f.type))try{imgs.push(await shrink(f))}catch(e){msg(e.message)}thumbs()}
-async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t||(imgs.length?'Redraw this figure.':''),key=$('mKey').value.trim();if(!q)return;if(!key){$('mCfg').open=true;return msg('Enter an API key first')}
+const isImg=f=>/^image\/(png|jpeg|gif|webp)$/.test(f.type);
+async function attach(fs,txt){document.body.classList.contains('chat')||A.chat();
+  for(const f of fs)try{if(!txt&&isImg(f)){if(!vis())return msg(noVis());imgs.push(await shrink(f));continue}
+    if(/\.(pdf|docx?|xlsx?|pptx?|zip)$/i.test(f.name)||isImg(f)){msg(`${f.name}: only plain-text files can be read here; save or copy the text as .txt`);continue}
+    const t=await f.text();if(/\0/.test(t.slice(0,4096))){msg(`${f.name} is not a text file`);continue}
+    files.push({n:f.name,t:t.slice(0,3e5)});t.length>3e5&&msg(`${f.name} was cut to the first 300,000 characters`)}catch(e){msg(e.message)}
+  thumbs()}
+async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t||(imgs.length?'Redraw this figure.':files.length?'Draw a figure from the attached file.':''),key=$('mKey').value.trim();if(!q)return;if(!key){$('mCfg').open=true;return msg('Enter an API key first')}
   if(imgs.length&&!vis()){$('mCfg').open=true;return msg(noVis())}
-  const sent=imgs;imgs=[];thumbs();$('mAsk').value='';hist.push({role:'user',content:sent.length?[...sent.map(url=>({type:'image_url',image_url:{url}})),{type:'text',text:q}]:q});bub('u',q).append(...sent.map(img));const b=bub('a','…');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0;
+  const sent=imgs,fl=files,qf=q+fl.map(f=>`\n\nAttached file "${f.n}":\n\`\`\`\n${f.t}\n\`\`\``).join('');imgs=[];files=[];thumbs();$('mAsk').value='';
+  hist.push({role:'user',content:sent.length?[...sent.map(url=>({type:'image_url',image_url:{url}})),{type:'text',text:qf}]:qf});bub('u',q).append(...sent.map(img),...fl.map(f=>chip('f',f.n)));const b=bub('a','…');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0;
   try{const r=await fetch($('mEp').value.trim(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},signal:ac.signal,
       body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...(vis()?hist:hist.map(m=>Array.isArray(m.content)?{...m,content:m.content.filter(c=>c.type==='text').map(c=>c.text).join('')+' [image omitted]'}:m))],stream:true,max_tokens:32768,thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
     if(!r.ok)throw Error(`${r.status} ${(await r.text()).slice(0,300)}`);
@@ -533,7 +542,7 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
       for(const l of ls){const d=l.startsWith('data:')&&l.slice(5).trim();if(!d||d==='[DONE]')continue;const j=JSON.parse(d);if(j.error)throw Error(j.error.message||JSON.stringify(j.error));
         const c=j.choices?.[0]?.delta||{};out+=c.content||'';th+=(c.reasoning_content||'').length;b.textContent=out?brief(out):`Thinking… ${th} chars`;LG.scrollTop=LG.scrollHeight}}
     if(!out)throw Error('Empty reply');
-  }catch(e){hist.pop();$('mAsk').value||($('mAsk').value=t);imgs=sent.concat(imgs);thumbs();b.textContent=e.name==='AbortError'?'Stopped':e.message+(e.name==='TypeError'?' (network, URL or CORS problem)':'');return}
+  }catch(e){hist.pop();$('mAsk').value||($('mAsk').value=t);imgs=sent.concat(imgs);files=fl.concat(files);thumbs();b.textContent=e.name==='AbortError'?'Stopped':e.message+(e.name==='TypeError'?' (network, URL or CORS problem)':'');return}
   finally{ac=null;$('mSend').textContent='Send'}
   hist.push({role:'assistant',content:out});let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
   const p=document.createElement('p'),btn=(t,f)=>{const x=document.createElement('button');x.textContent=t;x.onclick=f;p.append(x)};
@@ -545,9 +554,10 @@ const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3'
 for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);v&&[...e.options].some(o=>o.value===v)&&(e.value=v);e.onchange=()=>{ls(k,e.value);i==='mProv'&&aiLoad()}}
 for(const[i,k]of aiF)$(i).onchange=()=>{ls('msb'+$('mProv').value+k,$(i).value.trim());thumbs()};
 aiLoad();
-$('mSend').onclick=ask;$('mClr').onclick=()=>{ac&&ac.abort();hist=[];aiG=null;imgs=[];thumbs();LG.replaceChildren()};
-$('mAtt').onclick=()=>$('mImgF').click();$('mImgF').onchange=e=>{attach([...e.target.files]);e.target.value=''};
-$('mAsk').onpaste=e=>{const fs=[...e.clipboardData.files].filter(f=>/^image\//.test(f.type));if(fs.length){e.preventDefault();attach(fs)}};
+$('mSend').onclick=ask;$('mClr').onclick=()=>{ac&&ac.abort();hist=[];aiG=null;imgs=[];files=[];thumbs();LG.replaceChildren()};
+$('mAtt').onclick=()=>$('mImgF').click();$('mDoc').onclick=()=>$('mDocF').click();
+for(const[i,x]of[['mImgF',0],['mDocF',1]])$(i).onchange=e=>{attach([...e.target.files],x);e.target.value=''};
+$('mAsk').onpaste=e=>{const fs=[...e.clipboardData.files];if(fs.length){e.preventDefault();attach(fs)}};
 $('mAsk').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();ac||ask()}};
 
 Object.assign(A,{
@@ -599,7 +609,7 @@ view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const m=e.d
   if(e.shiftKey&&!dx)[dx,dy]=[dy,0];tx-=dx;ty-=dy;place()},{passive:false});
 addEventListener('resize',()=>hud());
 addEventListener('dragover',e=>e.preventDefault());
-addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&/^image\/(png|jpeg|gif|webp)$/.test(f.type))return attach([...e.dataTransfer.files]);f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
+addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&!/\.svg$/i.test(f.name)&&f.type!=='image/svg+xml')return attach([...e.dataTransfer.files]);f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
 addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 addEventListener('keyup',e=>{if(e.key===' ')space=false});addEventListener('blur',()=>space=false);
 addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SELECT|TEXTAREA)$/.test(tg.tagName)||tg.tagName==='INPUT'&&!/checkbox|color/.test(tg.type)||$('mNew').open)return;
