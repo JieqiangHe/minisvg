@@ -667,7 +667,7 @@ let pv=0;addEventListener('paste',e=>{if(e.target.closest&&e.target.closest('#mC
 const opts={rulers:true,grid:false};try{opts.rulers=localStorage.msbRulers!=='0';opts.grid=localStorage.msbGrid==='1'}catch(_){}
 function views(){document.body.classList.toggle('noR',!opts.rulers);grid();for(const k in opts)document.querySelector(`[data-a=${k}]`).classList.toggle('on',opts[k]);rulers()}
 function toggle(k){opts[k]=!opts[k];try{localStorage['msb'+k[0].toUpperCase()+k.slice(1)]=opts[k]?1:0}catch(_){}views()}
-function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';document.querySelector('[data-a=theme]').title=d?'Switch to light interface':'Switch to dark interface';rulers()}
+function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';const b=document.querySelector('[data-a=theme]');b.textContent='Theme: '+(d?'Dark':'Light');b.title=d?'Switch to light interface':'Switch to dark interface';rulers()}
 setTheme(document.documentElement.dataset.theme==='dark');
 views();load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Scroll to move around, Ctrl+scroll (or pinch) to zoom.');
 </script>
