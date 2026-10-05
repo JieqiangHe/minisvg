@@ -19,7 +19,7 @@ body{display:grid;grid-template:auto 1fr auto/40px 1fr 236px}
 button{font:inherit;padding:2px 5px;border:1px solid var(--btnb);border-radius:3px;background:var(--btn);color:var(--bfg);cursor:pointer}
 button:hover{background:var(--btnh)}button.on{background:var(--on);border-color:var(--onb);color:var(--onfg)}
 input,select{font:inherit}
-#mBar{grid-column:1/4;display:flex;flex-wrap:wrap;align-items:center;gap:3px;padding:4px;background:var(--bar);border-bottom:1px solid var(--line)}
+#mBar{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:3px;padding:4px;background:var(--bar);border-bottom:1px solid var(--line)}
 #mBar button{border-color:transparent;background:transparent}#mBar button:hover{background:var(--btnh)}#mBar button.on{background:var(--on);color:var(--onfg)}#mBar>b{padding:0 6px 0 4px}#mBar .sp{flex:1}#mBar .lb{color:var(--h4);margin-right:2px}
 #mBar>i{width:1px;height:18px;background:var(--line);margin:0 4px}
 #mTools{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;background:var(--bar);border-right:1px solid var(--line)}
@@ -48,8 +48,14 @@ input,select{font:inherit}
 .ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
 #mSide select{width:100%}#mPg{flex:1;width:auto!important;min-width:0}#mSide .row .ori{flex:0 0 28px}
 #mSide input[type=number]{width:62px;-moz-appearance:textfield}#mSide input::-webkit-inner-spin-button{display:none}
-#mSt{grid-column:1/4;height:22px;display:flex;gap:18px;padding:2px 8px;background:var(--bar);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
+#mSt{grid-column:1/-1;height:22px;display:flex;gap:18px;padding:2px 8px;background:var(--bar);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
 .ed{position:absolute;white-space:pre;width:max-content;max-width:none;overflow:visible;overflow-wrap:normal;outline:1px solid #1a73e8;background:#fffd;min-width:4px;line-height:1.2;padding:0 1px}
+body.chat{grid-template-columns:40px 1fr 236px 300px}
+#mChat{display:none;grid-area:2/4;flex-direction:column;gap:4px;overflow:hidden;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}.chat #mChat{display:flex}
+#mChat summary{cursor:pointer;color:var(--h4)}#mChat details label{display:grid;grid-template-columns:40px 1fr;align-items:center;margin:2px 0}#mChat details input{min-width:0}
+#mLog{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px}#mLog>div{white-space:pre-wrap;overflow-wrap:anywhere;padding:4px 6px;border-radius:4px}#mLog .u{align-self:flex-end;max-width:90%;background:var(--btnh)}#mLog .a{border:1px solid var(--line)}#mLog p{display:flex;gap:3px;margin:4px 0 0}
+#mAsk{width:100%;resize:vertical;font:inherit}[data-theme=dark] #mAsk{background:#262626;color:#f5f5f5;border:1px solid #404040;border-radius:3px}
+#mChat .row{display:flex;gap:3px}#mChat .row button{flex:1}
 </style>
 </head>
 <body>
@@ -57,7 +63,7 @@ input,select{font:inherit}
 <button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O)">Open</button><button data-a="imp" title="Import SVG into this canvas (Ctrl+I)">Import</button><i></i>
 <button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
 <span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">PDF</button><i></i>
-<button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="theme">◐</button>
+<button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="chat" title="Draw with GLM: describe a figure and it is placed on the canvas">Chat</button><button data-a="theme">◐</button>
 </div>
 <div id="mTools">
 <button data-t="sel" class="on" title="Select (V)"><svg viewBox="0 0 24 24"><path d="M6 3v16l4.5-4.5 3 6.5 2.5-1.2-3-6.3H19z" fill="currentColor"/></svg></button>
@@ -108,6 +114,16 @@ input,select{font:inherit}
 <span>Stroke</span><div><input type="color" data-f="stroke"><label><input type="checkbox" data-f="nostroke">None</label></div>
 <span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt<select data-f="dash" title="Line style"><option value="">Solid</option><option value="d">Dashed</option><option value="o">Dotted</option></select></div>
 <span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
+</div>
+<div id="mChat">
+<details id="mCfg"><summary>GLM settings</summary>
+<label>Key<input id="mKey" type="password" autocomplete="off" placeholder="API key"></label>
+<label>Model<input id="mModel" value="glm-5.3"></label>
+<label>URL<input id="mEp" value="https://open.bigmodel.cn/api/paas/v4/chat/completions"></label>
+</details>
+<div id="mLog"></div>
+<textarea id="mAsk" rows="4" placeholder="Describe a figure, or ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea>
+<div class="row"><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
@@ -479,6 +495,40 @@ function flip(p,v,on){const ts=selTexts();if(!ts.length)return;const x=on(getCom
 function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
+// glm chat
+let hist=[],aiG=null,ac=null;
+const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. When asked for changes, return the full updated SVG. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
+  bub=(c,t)=>{const d=document.createElement('div');d.className=c;d.textContent=t;LG.append(d);LG.scrollTop=LG.scrollHeight;return d},
+  brief=t=>t.replace(/```\w*\s*/g,'').replace(/<svg[\s\S]*?(<\/svg>|$)/gi,m=>`[SVG, ${m.length} chars]`).trim();
+function svgOf(t){let s=(/<svg[\s\S]*<\/svg>/i.exec(t)||[])[0];if(!s)return null;s=s.replace(/&nbsp;/g,'&#160;');
+  /^<svg[^>]*\sxmlns=/i.test(s)||(s=s.replace(/^<svg/i,`<svg xmlns="${NS.svg}"`));/xlink:/.test(s)&&!/xmlns:xlink=/.test(s)&&(s=s.replace(/^<svg/i,`<svg xmlns:xlink="${NS.xlink}"`));
+  const d=parse(s);d.querySelectorAll('script,foreignObject').forEach(e=>e.remove());
+  for(const e of d.getElementsByTagName('*'))for(const a of[...e.attributes])(/^on/i.test(a.name)||/^\s*javascript:/i.test(a.value))&&e.removeAttribute(a.name);
+  return new XMLSerializer().serializeToString(d)}
+function put(s,open){if(open)return discard()&&(load(s,'glm.svg'),msg('Opened the GLM figure as a new canvas'));
+  const o=aiG&&root.contains(aiG)?aiG:null,b=o&&bbox(o);if(o){o.contains(ctx)&&(ctx=o.parentNode);o.remove()}
+  doImport(s,'glm');aiG=sel[0];const n=b&&bbox(aiG),k=undos.length;
+  if(n){applyM(T(b.x-n.x,b.y-n.y));commit();if(undos.length>k){const x=undos.pop();undos.push(undos.pop().concat(x))}}
+  msg(o?'Replaced the GLM figure (Ctrl+Z to undo)':'Placed the GLM figure (Ctrl+Z to undo)')}
+async function ask(){if(ac)return ac.abort();const q=$('mAsk').value.trim(),key=$('mKey').value.trim();if(!q)return;if(!key){$('mCfg').open=true;return msg('Enter a GLM API key first')}
+  $('mAsk').value='';hist.push({role:'user',content:q});bub('u',q);const b=bub('a','…');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0;
+  try{const r=await fetch($('mEp').value.trim(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},signal:ac.signal,
+      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,max_tokens:32768})});
+    if(!r.ok)throw Error(`${r.status} ${(await r.text()).slice(0,300)}`);
+    const rd=r.body.pipeThrough(new TextDecoderStream()).getReader();let buf='';
+    for(;;){const{value,done}=await rd.read();if(done)break;const ls=(buf+=value).split('\n');buf=ls.pop();
+      for(const l of ls){const d=l.startsWith('data:')&&l.slice(5).trim();if(!d||d==='[DONE]')continue;const j=JSON.parse(d);if(j.error)throw Error(j.error.message||JSON.stringify(j.error));
+        const c=j.choices?.[0]?.delta||{};out+=c.content||'';th+=(c.reasoning_content||'').length;b.textContent=out?brief(out):`Thinking… ${th} chars`;LG.scrollTop=LG.scrollHeight}}
+    if(!out)throw Error('Empty reply');
+  }catch(e){hist.pop();$('mAsk').value||($('mAsk').value=q);b.textContent=e.name==='AbortError'?'Stopped':e.message+(e.name==='TypeError'?' (network, URL or CORS problem)':'');return}
+  finally{ac=null;$('mSend').textContent='Send'}
+  hist.push({role:'assistant',content:out});let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
+  const p=document.createElement('p'),btn=(t,f)=>{const x=document.createElement('button');x.textContent=t;x.onclick=f;p.append(x)};
+  btn('Insert copy',()=>{aiG=null;put(s)});btn('Open as new',()=>put(s,1));b.append(p);put(s)}
+for(const[i,k]of[['mKey','msbGlmKey'],['mModel','msbGlmModel'],['mEp','msbGlmEp']]){const e=$(i);try{localStorage[k]&&(e.value=localStorage[k])}catch(_){}e.onchange=()=>{try{localStorage[k]=e.value.trim()}catch(_){}}}
+$('mSend').onclick=ask;$('mClr').onclick=()=>{ac&&ac.abort();hist=[];aiG=null;LG.replaceChildren()};
+$('mAsk').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();ac||ask()}};
+
 Object.assign(A,{
   new:newDoc,open:()=>chooseFile(0),imp:()=>chooseFile(1),
   svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;msg('Exported '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),pdf,
@@ -492,6 +542,7 @@ Object.assign(A,{
   fitPage:()=>{const b=memoize(()=>cands(root).reduce((a,e)=>un(a,bbox(e)),null)),m=1/U;b?setPage(b.x-m,b.y-m,b.w+2*m,b.h+2*m):msg('Nothing to fit')},
   allText:()=>{ctx=root;setSel(texts())},arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}});
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
+A.chat=()=>{const on=document.body.classList.toggle('chat');document.querySelector('[data-a=chat]').classList.toggle('on',on);hud();on&&$('mAsk').focus()};
 
 document.body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!root&&!/new|open/.test(b.dataset.a))return;b.dataset.a&&A[b.dataset.a]?A[b.dataset.a]():b.dataset.t&&setTool(b.dataset.t)});
 document.body.addEventListener('mousedown',e=>e.target.closest('#mBar button,#mTools button,#mSide button')&&e.preventDefault());
