@@ -20,7 +20,7 @@ button{font:inherit;padding:2px 5px;border:1px solid var(--btnb);border-radius:3
 button:hover{background:var(--btnh)}button.on{background:var(--on);border-color:var(--onb);color:var(--onfg)}
 input,select{font:inherit}
 #mBar{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:3px;padding:4px;background:var(--bar);border-bottom:1px solid var(--line)}
-#mBar button{border-color:transparent;background:transparent}#mBar button:hover{background:var(--btnh)}#mBar button.on{background:var(--on);color:var(--onfg)}#mBar>b{padding:0 6px 0 4px}#mBar .sp{flex:1}#mBar .lb{color:var(--h4);margin-right:2px}
+#mBar button{border-color:transparent;background:transparent}#mBar button:hover{background:var(--btnh)}#mBar button.on{background:var(--on);color:var(--onfg)}#mBar>b{padding:0 6px 0 4px}#mBar .sp{flex:1}#mSt button{margin-left:auto;flex:none;padding:0 8px;line-height:16px;border-color:transparent;background:transparent}#mSt button:hover{background:var(--btnh)}#mMsg{min-width:0;overflow:hidden;text-overflow:ellipsis}#mBar .lb{color:var(--h4);margin-right:2px}
 #mBar>i{width:1px;height:18px;background:var(--line);margin:0 4px}
 #mTools{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;background:var(--bar);border-right:1px solid var(--line)}
 #mTools button{width:30px;height:30px;padding:0;display:grid;place-items:center}
@@ -48,15 +48,15 @@ input,select{font:inherit}
 .ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
 #mSide select{width:100%}#mPg{flex:1;width:auto!important;min-width:0}#mSide .row .ori{flex:0 0 28px}
 #mSide input[type=number]{width:62px;-moz-appearance:textfield}#mSide input::-webkit-inner-spin-button{display:none}
-#mSt{grid-column:1/-1;height:22px;display:flex;gap:18px;padding:2px 8px;background:var(--bar);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
+#mSt{grid-column:1/-1;height:22px;display:flex;align-items:center;gap:18px;padding:2px 2px 2px 8px;background:var(--bar);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
 .ed{position:absolute;white-space:pre;width:max-content;max-width:none;overflow:visible;overflow-wrap:normal;outline:1px solid #1a73e8;background:#fffd;min-width:4px;line-height:1.2;padding:0 1px}
 body.chat{grid-template-columns:40px 1fr 236px 300px}
 #mChat{display:none;grid-area:2/4;flex-direction:column;gap:4px;overflow:hidden;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}.chat #mChat{display:flex}
 #mChat summary{cursor:pointer;color:var(--h4)}#mChat details label{display:grid;grid-template-columns:40px 1fr;align-items:center;margin:2px 0}#mChat details input{min-width:0}
 #mLog{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px}#mLog>div{white-space:pre-wrap;overflow-wrap:anywhere;padding:4px 6px;border-radius:4px}#mLog .u{align-self:flex-end;max-width:90%;background:var(--btnh)}#mLog .a{border:1px solid var(--line)}#mLog p{display:flex;gap:3px;margin:4px 0 0}
-#mAsk{width:100%;resize:vertical;font:inherit}[data-theme=dark] #mAsk{background:#262626;color:#f5f5f5;border:1px solid #404040;border-radius:3px}
+#mAskW{position:relative}#mAsk{width:100%;resize:none;display:block;font:inherit}#mGrip{position:absolute;top:2px;right:2px;width:11px;height:11px;cursor:ns-resize;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 11'%3E%3Cpath d='M2 0l9 9M6 0l5 5' stroke='%23888' stroke-width='1.2'/%3E%3C/svg%3E")}#mImgs .rq{flex-basis:100%;display:flex;align-items:center;gap:4px;flex-wrap:wrap}[data-theme=dark] #mAsk{background:#262626;color:#f5f5f5;border:1px solid #404040;border-radius:3px}
 #mChat .row{display:flex;gap:3px}#mChat .row button{flex:1}
-#mImgs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}#mImgs img{height:44px;max-width:110px;object-fit:contain;display:block;border:1px solid var(--line)}#mImgs .t{position:relative}#mImgs button,#mSelC button{width:16px;height:16px;padding:0;border:0;border-radius:50%;background:#555;color:#fff;font-size:12px;line-height:16px;cursor:pointer}#mImgs .t button{position:absolute;top:-5px;right:-5px}#mImgs .f button,#mSelC .f button{margin-left:4px;vertical-align:1px}#mImgs .w{color:#e5534b}#mSelC:empty{display:none}#mImgs .f,#mLog .f,#mSelC .f{border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:12px}#mLog details{margin-bottom:4px}#mLog summary{font-size:12px}#mLog .th{max-height:180px;overflow:auto;font-size:11px;opacity:.75;border-left:2px solid var(--line);padding-left:6px;margin-top:2px}#mLog .u img{display:block;max-height:60px;max-width:100%;margin-top:3px}
+#mImgs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}#mImgs img{height:44px;max-width:110px;object-fit:contain;display:block;border:1px solid var(--line)}#mImgs .t{position:relative}#mImgs .t button,#mImgs .f button,#mSelC button{width:16px;height:16px;padding:0;border:0;border-radius:50%;background:#555;color:#fff;font-size:12px;line-height:16px;cursor:pointer}#mImgs .t button{position:absolute;top:-5px;right:-5px}#mImgs .f button,#mSelC .f button{margin-left:4px;vertical-align:1px}#mImgs .w{color:#e5534b}#mSelC:empty{display:none}#mImgs .f,#mLog .f,#mSelC .f{border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:12px}#mLog details{margin-bottom:4px}#mLog summary{font-size:12px}#mLog .th{max-height:180px;overflow:auto;font-size:11px;opacity:.75;border-left:2px solid var(--line);padding-left:6px;margin-top:2px}#mLog .u img{display:block;max-height:60px;max-width:100%;margin-top:3px}
 </style>
 </head>
 <body class="chat">
@@ -64,7 +64,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O); a PNG or JPG is placed on the canvas">Open</button><button data-a="imp" title="Import an SVG, PNG or JPG into this canvas (Ctrl+I)">Import</button><i></i>
 <button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
 <span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">PDF</button><i></i>
-<button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="chat" class="on" title="Draw with AI (GLM or DeepSeek): describe a figure and it is placed on the canvas">Chat</button><button data-a="theme">◐</button>
+<button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="chat" class="on" title="Draw with AI (GLM or DeepSeek): describe a figure and it is placed on the canvas">Chat</button>
 </div>
 <div id="mTools">
 <button data-t="sel" class="on" title="Select (V)"><svg viewBox="0 0 24 24"><path d="M6 3v16l4.5-4.5 3 6.5 2.5-1.2-3-6.3H19z" fill="currentColor"/></svg></button>
@@ -127,10 +127,10 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div id="mLog"></div>
 <div id="mSelC"></div>
 <div id="mImgs"></div>
-<textarea id="mAsk" rows="4" placeholder="Describe a figure, or attach an image to redraw or a text file to draw from. Ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea>
+<div id="mAskW"><textarea id="mAsk" rows="4" placeholder="Describe a figure, or attach an image to redraw or a text file to draw from. Ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea><div id="mGrip" title="Drag up to enlarge"></div></div>
 <div class="row"><button id="mAtt" title="Attach for the AI (or paste / drop into this panel): an image (PNG, JPG, GIF, WebP) to redraw or look at, which needs a model that can see images (glm-5.3-flash or deepseek-flash); or a text file (txt, csv, tsv, md, json, fasta…) to read, with any model">Attach</button><input type="file" id="mAttF" multiple hidden><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
 </div>
-<div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
+<div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span><button data-a="theme">Theme</button></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp" hidden>
 <dialog id="mNew"><form method="dialog">
 <p><select id="mPre"><option value="210,297" selected>A4 (210×297 mm)</option><option value="297,420">A3 (297×420 mm)</option><option value="148,210">A5 (148×210 mm)</option><option value="215.9,279.4">US Letter (216×279 mm)</option><option value="85,85">Single column 85 mm</option><option value="180,120">Double column 180 mm</option><option value="">Custom</option></select></p>
@@ -502,7 +502,7 @@ function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
 // ai chat
-let hist=[],aiG=null,ac=null,imgs=[],files=[],notes=[];
+let hist=[],aiG=null,ac=null,imgs=[],files=[],notes=[],rq=0;
 const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. When asked for changes, return the full updated SVG. If the user attaches an image, redraw that figure as editable vector SVG: keep its layout, shapes, arrows, colours and text labels (as <text>); simplify photos and textures into flat shapes. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
   bub=(c,t)=>{const d=document.createElement('div');d.className=c;d.textContent=t;LG.append(d);LG.scrollTop=LG.scrollHeight;return d},
   brief=t=>t.replace(/```\w*\s*/g,'').replace(/<svg[\s\S]*?(<\/svg>|$)/gi,m=>`[SVG, ${m.length} chars]`).trim();
@@ -520,14 +520,15 @@ const VIS=['glm-5.3-flash','deepseek-flash'],vis=()=>VIS.includes($('mModel').va
   img=u=>{const m=new Image();m.src=u;return m},
   chip=(c,t)=>{const e=document.createElement('span');e.className=c;e.textContent=t;return e};
 function thumbs(){const rm=(e,a,i)=>{const x=document.createElement('button');x.textContent='×';x.title='Remove';x.onclick=()=>{a.splice(i,1);thumbs()};e.append(x);return e};
-  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...imgs.map((u,i)=>{const e=chip('t','');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
+  const q=document.createElement('div'),bt=(t,f)=>{const x=document.createElement('button');x.textContent=t;x.onclick=f;q.append(x)};q.className='rq';q.append('Redraw this image as an editable figure?');bt('Redraw',ask);bt('Not now',()=>{rq=0;thumbs();$('mAsk').focus()});
+  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...(rq&&imgs.length&&vis()?[q]:[]),...imgs.map((u,i)=>{const e=chip('t','');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
 const shrink=(f,fit)=>new Promise((ok,no)=>{const m=new Image(),u=URL.createObjectURL(f);m.onerror=()=>{URL.revokeObjectURL(u);no(Error('Cannot read '+f.name))};
   m.onload=()=>{const r=fit?fit/Math.max(m.width,m.height):Math.min(1,1600/Math.max(m.width,m.height)),c=document.createElement('canvas'),g=c.getContext('2d');c.width=Math.round(m.width*r);c.height=Math.round(m.height*r);
     g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(m,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/png');d.length>4e6&&(d=c.toDataURL('image/jpeg',.9));ok(d)};m.src=u});
 const isImg=f=>/^image\/(png|jpeg|gif|webp)$/.test(f.type);
 function note(t){msg(t);notes.push(t);thumbs();setTimeout(()=>{notes=notes.filter(x=>x!==t);thumbs()},8e3)}
 async function attach(fs){document.body.classList.contains('chat')||A.chat();
-  for(const f of fs)try{if(isImg(f)){vis()?imgs.push(await shrink(f)):note(`${f.name}: ${noVis()}`);continue}
+  for(const f of fs)try{if(isImg(f)){vis()?(imgs.push(await shrink(f)),rq=1):note(`${f.name}: ${noVis()}`);continue}
     if(/\.(pdf|docx?|xlsx?|pptx?|zip)$/i.test(f.name)||/^image\/(?!svg)/.test(f.type)){note(`${f.name}: can't read this type; attach an image or a plain-text file (save or copy the text as .txt)`);continue}
     const t=await f.text();if(/\0/.test(t.slice(0,4096))){note(`${f.name} is not a text file`);continue}
     files.push({n:f.name,t:t.slice(0,3e5)});t.length>3e5&&note(`${f.name} was cut to the first 300,000 characters`)}catch(e){note(e.message)}
@@ -593,7 +594,9 @@ for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);
 for(const[i,k]of aiF)$(i).onchange=()=>{ls('msb'+$('mProv').value+k,$(i).value.trim());thumbs()};
 aiLoad();
 $('mSend').onclick=ask;$('mClr').onclick=()=>{ac&&ac.abort();hist=[];aiG=null;imgs=[];files=[];thumbs();LG.replaceChildren()};
-$('mAtt').onclick=()=>$('mAttF').click();$('mAttF').onchange=e=>{attach([...e.target.files]);e.target.value=''};
+$('mAtt').onclick=()=>$('mAttF').click();
+$('mGrip').onpointerdown=e=>{e.preventDefault();const t=$('mAsk'),y=e.clientY,h=t.offsetHeight,mv=v=>t.style.height=Math.max(40,Math.min($('mChat').clientHeight*.7,h+y-v.clientY))+'px',
+  up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up)};addEventListener('pointermove',mv);addEventListener('pointerup',up)};$('mAttF').onchange=e=>{attach([...e.target.files]);e.target.value=''};
 $('mChat').ondrop=e=>{e.preventDefault();e.stopPropagation();attach([...e.dataTransfer.files])};
 $('mAsk').onpaste=e=>{const fs=[...e.clipboardData.files];if(fs.length){e.preventDefault();attach(fs)}};
 $('mAsk').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();ac||ask()}};
