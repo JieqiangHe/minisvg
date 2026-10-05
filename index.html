@@ -21,8 +21,8 @@ button{font:inherit;padding:2px 5px;border:1px solid var(--btnb);border-radius:3
 button:hover{background:var(--btnh)}button:disabled{opacity:.4;cursor:default}#mBar button:disabled:hover{background:transparent}button.on{background:var(--on);border-color:var(--onb);color:var(--onfg)}
 input,select{font:inherit}
 #mBar{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:3px;padding:4px;background:var(--bar);border-bottom:1px solid var(--line)}
-#mBar button,#mSt button{border-color:transparent;background:transparent}#mBar button:hover,#mSt button:hover{background:var(--btnh)}#mBar button.on{background:var(--on);color:var(--onfg)}#mBar .sp{flex:1}#mSt button{margin-left:auto;flex:none;padding:0 8px;line-height:16px}#mSt button+button{margin-left:0}
-#mHelp{padding:0;max-width:min(1160px,96vw);max-height:92vh}#mHelp form{padding:12px 18px;font-size:12.5px;line-height:1.45}#mHelp h3{margin:0 0 6px}#mHelp .cols{columns:3 300px;column-gap:26px}#mHelp section{break-inside:avoid;margin-bottom:8px}#mHelp h4{margin:0 0 3px}#mHelp dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;margin:0}#mHelp dd{margin:0}#mHelp .ft{display:flex;align-items:center;gap:12px;margin:6px 0 0;opacity:.85}#mHelp .ft button{margin-left:auto}kbd{font:11px ui-monospace,monospace;padding:0 4px;border:1px solid var(--line);border-radius:3px;background:var(--btn)}#mMsg{min-width:0;overflow:hidden;text-overflow:ellipsis}#mBar .lb{color:var(--h4);margin-right:2px}
+#mBar button,#mSt button{border-color:transparent;background:transparent}#mBar button:hover,#mSt button:hover{background:var(--btnh)}#mBar button.on{background:var(--on);color:var(--onfg)}#mSt button{margin-left:auto;flex:none;padding:0 8px;line-height:16px}#mSt button+button{margin-left:0}
+#mHelp{padding:0;max-width:min(1160px,96vw);max-height:92vh}#mHelp form{padding:12px 18px;font-size:12.5px;line-height:1.45}#mHelp h3{margin:0 0 6px}#mHelp .cols{columns:3 300px;column-gap:26px}#mHelp section{break-inside:avoid;margin-bottom:8px}#mHelp h4{margin:0 0 3px}#mHelp dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;margin:0}#mHelp dd{margin:0}#mHelp .ft{display:flex;align-items:center;gap:12px;margin:6px 0 0;opacity:.85}#mHelp .ft button{margin-left:auto}kbd{font:11px ui-monospace,monospace;padding:0 4px;border:1px solid var(--line);border-radius:3px;background:var(--btn)}#mMsg{min-width:0;overflow:hidden;text-overflow:ellipsis}.dd{position:relative}.menu{display:none;position:absolute;left:0;top:100%;margin-top:3px;z-index:20;min-width:170px;padding:4px;background:var(--btn);border:1px solid var(--btnb);border-radius:4px;box-shadow:0 4px 12px #0003}.dd.open .menu{display:block}#mBar .dd.open>.ddb{background:var(--btnh)}#mBar .menu button{display:flex;justify-content:space-between;gap:16px;width:100%;padding:3px 8px 3px 22px;position:relative;text-align:left}#mBar .menu button.on{background:transparent;color:var(--bfg)}#mBar .menu button:hover{background:var(--btnh)}.menu button.on::before{content:'✓';position:absolute;left:7px}.menu kbd{border:0;background:none;padding:0;opacity:.6}
 #mBar>i{width:1px;height:18px;background:var(--line);margin:0 4px}
 #mTools{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;background:var(--bar);border-right:1px solid var(--line)}
 #mTools button{width:30px;height:30px;padding:0;display:grid;place-items:center}
@@ -63,10 +63,10 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 </head>
 <body class="chat">
 <div id="mBar">
-<button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O); a PNG or JPG is placed on the canvas">Open</button><button data-a="imp" title="Import an SVG, PNG or JPG into this canvas (Ctrl+I)">Import</button><i></i>
-<button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste copied objects at the cursor (Ctrl+V also pastes images)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
-<span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">PDF</button><i></i>
-<span class="lb">View</span><button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><i></i><button data-a="chat" class="on" title="Draw with AI (GLM or DeepSeek): describe a figure and it is placed on the canvas">Chat</button>
+<button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O); a PNG or JPG is placed on the canvas">Open</button><button data-a="imp" title="Import an SVG, PNG or JPG into this canvas (Ctrl+I)">Import</button>
+<div class="dd"><button class="ddb" title="Export the page">Export ▾</button><div class="menu"><button data-a="svg" title="Inkscape-compatible SVG named name_YYMMDD.svg">SVG<kbd>Ctrl+S</kbd></button><button data-a="p300">PNG 300 dpi</button><button data-a="p600">PNG 600 dpi</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">PDF (print)</button></div></div><i></i>
+<button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste copied objects at the cursor (Ctrl+V also pastes images)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button><i></i>
+<div class="dd"><button class="ddb">View ▾</button><div class="menu"><button data-a="rulers">Rulers</button><button data-a="grid" title="Page grid; spacing follows zoom; not exported">Grid</button><button data-a="fit">Fit to window<kbd>5</kbd></button></div></div><button data-a="chat" class="on" title="Draw with AI (GLM or DeepSeek): describe a figure and it is placed on the canvas">Chat</button>
 </div>
 <div id="mTools">
 <button data-t="sel" class="on" title="Select (V)"><svg viewBox="0 0 24 24"><path d="M6 3v16l4.5-4.5 3 6.5 2.5-1.2-3-6.3H19z" fill="currentColor"/></svg></button>
@@ -636,6 +636,9 @@ A.chat=()=>{const on=document.body.classList.toggle('chat');qa('chat').classList
 
 document.body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!root&&!/new|open/.test(b.dataset.a))return;b.dataset.a&&A[b.dataset.a]?A[b.dataset.a]():b.dataset.t&&setTool(b.dataset.t)});
 document.body.addEventListener('mousedown',e=>e.target.closest('#mBar button,#mTools button,#mSide button')&&e.preventDefault());
+const menuOff=x=>document.querySelectorAll('.dd.open').forEach(d=>d!==x&&d.classList.remove('open'));
+addEventListener('click',e=>{const d=e.target.closest('.dd');menuOff(d);d&&(e.target.closest('.ddb')?d.classList.toggle('open'):e.target.closest('.menu button')&&d.classList.remove('open'))});
+$('mBar').addEventListener('mouseover',e=>{const d=e.target.closest('.dd');d&&!d.classList.contains('open')&&document.querySelector('.dd.open')&&(menuOff(),d.classList.add('open'))});
 $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v=+t.value;if(!f||!root||t.type==='number'&&(t.value===''||isNaN(v)))return;
   if(f==='pg'){t.blur();if(!t.value)return;let[w,h]=t.value.split(',').map(Number);if(vb.w>vb.h&&w<h)[w,h]=[h,w];return setPage(vb.x,vb.y,w/U,h/U)}
   if(f==='pw'||f==='ph')return setPage(vb.x,vb.y,f==='pw'?v/U:vb.w,f==='ph'?v/U:vb.h);
@@ -675,6 +678,7 @@ addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue='
 addEventListener('keyup',e=>{if(e.key===' ')space=false});addEventListener('blur',()=>space=false);
 addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SELECT|TEXTAREA)$/.test(tg.tagName)||tg.tagName==='INPUT'&&!/checkbox|color/.test(tg.type)||$('mNew').open||$('mHelp').open)return;
   const c=e.ctrlKey||e.metaKey,K=e.key,kl=K.toLowerCase(),ar={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[K];let f;
+  if(K==='Escape'&&document.querySelector('.dd.open'))return menuOff();
   if(K===' '){space=true;e.preventDefault();return}
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
