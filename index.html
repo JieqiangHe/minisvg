@@ -254,7 +254,10 @@ function undo(r){finish(true);if(D)return;if(flush()){undos.push(pend);pend=[]}
   if(!root.contains(ctx))ctx=root;sel=sel.filter(e=>root.contains(e));sizes();refresh()}
 
 // document
-function parse(txt){const d=new DOMParser().parseFromString(txt,'image/svg+xml');if(d.documentElement.localName!=='svg'||d.getElementsByTagName('parsererror').length)throw Error('not a valid SVG');return d}
+function parse(txt){const d=new DOMParser().parseFromString(txt,'image/svg+xml');if(d.documentElement.localName!=='svg'||d.getElementsByTagName('parsererror').length)throw Error('not a valid SVG');
+  for(const e of[...d.getElementsByTagName('*')])if(/^(iframe|frame|object|embed)$/i.test(e.localName))e.remove();else for(const a of[...e.attributes])
+    (/^on|^srcdoc$/i.test(a.localName)||/^\s*javascript:/i.test(a.value)||/^(values|to|from|by)$/.test(a.localName)&&/javascript:/i.test(a.value))&&e.removeAttributeNode(a);
+  return d}
 function load(txt,nm){const d=parse(txt);prolog='';
   for(let n=d.firstChild;n!==d.documentElement;n=n.nextSibling)n.nodeType===8?prolog+=`<!--${n.data}-->\n`:n.nodeType===7&&(prolog+=`<?${n.target} ${n.data}?>\n`);
   finish(false);root&&root.remove();mo&&mo.disconnect();
@@ -523,9 +526,7 @@ const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-c
   brief=t=>t.replace(/```\w*\s*/g,'').replace(/<svg[\s\S]*?(<\/svg>|$)/gi,m=>`[SVG, ${m.length} chars]`).trim();
 function svgOf(t){let s=(/<svg[\s\S]*<\/svg>/i.exec(t)||[])[0];if(!s)return null;s=s.replace(/&nbsp;/g,'&#160;');
   /^<svg[^>]*\sxmlns=/i.test(s)||(s=s.replace(/^<svg/i,`<svg xmlns="${NS.svg}"`));/xlink:/.test(s)&&!/xmlns:xlink=/.test(s)&&(s=s.replace(/^<svg/i,`<svg xmlns:xlink="${NS.xlink}"`));
-  const d=parse(s);d.querySelectorAll('script,foreignObject').forEach(e=>e.remove());
-  for(const e of d.getElementsByTagName('*'))for(const a of[...e.attributes])(/^on/i.test(a.name)||/^\s*javascript:/i.test(a.value))&&e.removeAttribute(a.name);
-  return new XMLSerializer().serializeToString(d)}
+  const d=parse(s);d.querySelectorAll('script,foreignObject').forEach(e=>e.remove());return new XMLSerializer().serializeToString(d)}
 function put(s,open){if(open)return discard()&&(load(s,'ai.svg'),msg('Opened the AI figure as a new canvas'));
   const o=aiG&&root.contains(aiG)?aiG:null,b=o&&bbox(o);if(o){o.contains(ctx)&&(ctx=o.parentNode);o.remove()}
   doImport(s,'ai');aiG=sel[0];const n=b&&bbox(aiG),k=undos.length;
@@ -535,7 +536,7 @@ const VIS=['glm-5.3-flash','deepseek-flash'],vis=()=>VIS.includes($('mModel').va
   img=u=>Object.assign(new Image(),{src:u}),chip=(c,t)=>el('span',c,t),xb=(f,ti)=>Object.assign(btn('×',f,ti),{className:'x'});
 function thumbs(){const rm=(e,a,i)=>(e.append(xb(()=>{a.splice(i,1);thumbs()},'Remove')),e),q=el('div','rq','Redraw this image as an editable figure?');
   q.append(btn('Redraw',ask),btn('Not now',()=>{rq=0;thumbs();$('mAsk').focus()}));
-  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...(rq&&imgs.length&&vis()?[q]:[]),...imgs.map((u,i)=>{const e=chip('t');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
+  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...(rq&&imgs.length&&vis()&&!ac?[q]:[]),...imgs.map((u,i)=>{const e=chip('t');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
 const shrink=(f,fit)=>new Promise((ok,no)=>{const m=new Image(),u=URL.createObjectURL(f);m.onerror=()=>{URL.revokeObjectURL(u);no(Error('Cannot read '+f.name))};
   m.onload=()=>{const r=fit?fit/Math.max(m.width,m.height):Math.min(1,1600/Math.max(m.width,m.height)),c=cv(Math.round(m.width*r),Math.round(m.height*r)),g=c.getContext('2d');
     g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(m,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/png');d.length>4e6&&(d=c.toDataURL('image/jpeg',.9));ok(d)};m.src=u});
@@ -593,8 +594,8 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
         if(c.content){out+=c.content;tx.textContent=brief(out);dt&&!shut&&(shut=1,dt.open=false)}
         tsum();end&&(LG.scrollTop=LG.scrollHeight)}}
     if(!out)throw Error('Empty reply');
-  }catch(e){hist.pop();$('mAsk').value||($('mAsk').value=t);imgs=sent.concat(imgs);files=fl.concat(files);thumbs();tx.textContent=e.name==='AbortError'?'Stopped':e.message+(e.name==='TypeError'?' (network, URL or CORS problem)':'');return}
-  finally{ac=null;tsum();$('mSend').textContent='Send'}
+  }catch(e){if(!LG.contains(b))return;hist.pop();$('mAsk').value||($('mAsk').value=t);imgs=sent.concat(imgs);files=fl.concat(files);thumbs();tx.textContent=e.name==='AbortError'?'Stopped':e.message+(e.name==='TypeError'?' (network, URL or CORS problem)':'');return}
+  finally{ac=null;tsum();$('mSend').textContent='Send';thumbs()}
   if(part){const u=hist.at(-1),f=c=>c.replace(sx,'\n\n[A selected part of the figure was attached here as SVG.]');
     u.content=Array.isArray(u.content)?u.content.filter(c=>c.image_url?.url!==pi).map(c=>c.type==='text'?{...c,text:f(c.text)}:c):f(u.content)}
   hist.push({role:'assistant',content:out});let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
