@@ -594,7 +594,7 @@ const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3'
     $('mModel').value=ms.includes(m)?m:ms[0];$('mKey').value=ls('msb'+p+'Key')||'';$('mEp').value=ls('msb'+p+'Ep')||u;thumbs()};
 for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);v&&[...e.options].some(o=>o.value===v)&&(e.value=v);e.onchange=()=>{ls(k,e.value);i==='mProv'&&aiLoad()}}
 for(const[i,k]of aiF)$(i).onchange=()=>{ls('msb'+$('mProv').value+k,$(i).value.trim());thumbs()};
-aiLoad();
+aiLoad();$('mCfg').open=!$('mKey').value;
 $('mSend').onclick=ask;$('mClr').onclick=()=>{ac&&ac.abort();hist=[];aiG=null;imgs=[];files=[];thumbs();LG.replaceChildren()};
 $('mAtt').onclick=()=>$('mAttF').click();
 $('mAttF').onchange=e=>{attach([...e.target.files]);e.target.value=''};
