@@ -120,7 +120,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <label>API<select id="mProv"><option value="Glm">GLM</option><option value="Ds">DeepSeek</option></select></label>
 <label>Think<select id="mThink" title="Reasoning effort"><option value="low">Low</option><option value="high" selected>Medium</option><option value="max">High</option></select></label>
 <label>Key<input id="mKey" type="password" autocomplete="off" placeholder="API key"></label>
-<label>Model<input id="mModel"></label>
+<label>Model<select id="mModel"></select></label>
 <label>URL<input id="mEp"></label>
 </details>
 <div id="mLog"></div>
@@ -527,9 +527,10 @@ async function ask(){if(ac)return ac.abort();const q=$('mAsk').value.trim(),key=
   hist.push({role:'assistant',content:out});let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
   const p=document.createElement('p'),btn=(t,f)=>{const x=document.createElement('button');x.textContent=t;x.onclick=f;p.append(x)};
   btn('Insert copy',()=>{aiG=null;put(s)});btn('Open as new',()=>put(s,1));b.append(p);put(s)}
-const AI={Glm:['glm-5.3','https://open.bigmodel.cn/api/paas/v4/chat/completions'],Ds:['deepseek-v4-pro','https://api.deepseek.com/chat/completions']},
-  ls=(k,v)=>{try{return v==null?localStorage[k]:localStorage[k]=v}catch(_){}},aiF=[['mKey','Key',''],['mModel','Model',0],['mEp','Ep',1]],
-  aiLoad=()=>{const p=$('mProv').value;for(const[i,k,d]of aiF)$(i).value=ls('msb'+p+k)||(d===''?'':AI[p][d])};
+const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3','glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions','deepseek-flash','deepseek-v4-pro']},
+  ls=(k,v)=>{try{return v==null?localStorage[k]:localStorage[k]=v}catch(_){}},aiF=[['mKey','Key'],['mModel','Model'],['mEp','Ep']],
+  aiLoad=()=>{const p=$('mProv').value,[u,...ms]=AI[p],m=ls('msb'+p+'Model');$('mModel').replaceChildren(...ms.map(x=>new Option(x)));
+    $('mModel').value=ms.includes(m)?m:ms[0];$('mKey').value=ls('msb'+p+'Key')||'';$('mEp').value=ls('msb'+p+'Ep')||u};
 for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);v&&[...e.options].some(o=>o.value===v)&&(e.value=v);e.onchange=()=>{ls(k,e.value);i==='mProv'&&aiLoad()}}
 for(const[i,k]of aiF)$(i).onchange=()=>ls('msb'+$('mProv').value+k,$(i).value.trim());
 aiLoad();
