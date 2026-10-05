@@ -423,9 +423,9 @@ function create(t,a,b){const p=curParent(),Pi=ctm(p).inverse(),A=Pi.transformPoi
   else if(t==='ellipse')e=mk('ellipse',{id:uid('ellipse'),cx:fc((A.x+B.x)/2),cy:fc((A.y+B.y)/2),rx:fc(Math.abs(B.x-A.x)/2),ry:fc(Math.abs(B.y-A.y)/2),style:s},p);
   else e=mk('path',{id:uid('path'),d:`M ${fc(A.x)},${fc(A.y)} L ${fc(B.x)},${fc(B.y)}`,style:s+';stroke-linecap:butt'+(t in MK?`;marker-end:url(#${mark(t)})`:'')},p);
   ctx=p;setTool('sel');setSel([e],1);commit()}
-const MK={arrow:['ArrowMsb','M 0,0 10,5 0,10 z',3,6],inhibit:['TeeMsb','M 0,0 H 1.25 V 10 H 0 z',1.25,8]};
-function mark(t){const[id,d,r,w]=MK[t];byId(id)||mk('path',{d,style:'fill:context-stroke;stroke:none'},
-  mk('marker',{id,viewBox:'0 0 10 10',refX:r,refY:'5',markerWidth:w,markerHeight:w,orient:'auto-start-reverse',style:'overflow:visible','inkscape:stockid':id},defs()));return id}
+const MK={arrow:['ArrowMsb','M 0,0 10,5 0,10 z',10,10,3],inhibit:['TeeMsb','M 0,0 H 1 V 12 H 0 z',1,12,1]};
+function mark(t){const[id,d,w,h,r]=MK[t];byId(id)||mk('path',{d,style:'fill:context-stroke;stroke:none'},
+  mk('marker',{id,viewBox:`0 0 ${w} ${h}`,refX:r,refY:h/2,markerWidth:w,markerHeight:h,orient:'auto-start-reverse',style:'overflow:visible','inkscape:stockid':id},defs()));return id}
 function newText(u,txt){const p=curParent(),m=ctm(p),q=m.inverse().transformPoint(u),mark=flush();
   const t=mk('text',{'xml:space':'preserve',id:uid('text'),x:fc(q.x),y:fc(q.y),style:`font-size:${f6(8/PT/U/sc(m))}px;font-family:Arial;fill:#000000`},p,txt);
   ctx=p;setSel([t]);txt==null&&edit(t,null,mark);return t}
