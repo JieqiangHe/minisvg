@@ -548,7 +548,9 @@ const same=(a,b)=>a.length===b.length&&a.every((e,i)=>e===b[i]),selOn=()=>sel.le
 function selChip(){const c=$('mSelC');same(sel,skip)||(skip=[]);if(!selOn())return c.replaceChildren();const e=chip('f','Selection: '+nObj(sel.length));
   e.title='The selected objects are sent with your message';e.append(xb(()=>{skip=sel.slice();selChip()},'Send without the selection'));c.replaceChildren(e)}
 refresh=(f=>()=>{f();selChip()})(refresh);
-function selPart(){if(!selOn())return null;const els=order(sel),b=memoize(()=>els.reduce((a,e)=>un(a,bbox(e)),null));if(!b)return null;
+const selPart=()=>selOn()?frag(order(sel)):null,copyOut=()=>{copy();if(!sel.length)return;const n=sel.reduce((n,e)=>n+e.getElementsByTagName('*').length,0),f=n<2e4&&frag(order(sel));
+  navigator.clipboard?.writeText(f?f.x:`minisvg: ${nObj(sel.length)} copied`).catch(()=>{})};
+function frag(els){const b=memoize(()=>els.reduce((a,e)=>un(a,bbox(e)),null));if(!b)return null;
   const s=mk('svg',{width:fm(b.w*U)+'mm',height:fm(b.h*U)+'mm',viewBox:[b.x,b.y,b.w,b.h].map(fm).join(' ')}),d=mk('defs',{},s),P=['fill','stroke','stroke-width','font-family','font-size','font-weight','font-style','text-anchor'],seen=new Set();
   for(const e of els){const st=[],g=mk('g',{},s);for(let a=e.parentNode;a;a=a===root?null:a.parentNode){const v=[...P.filter(k=>a.hasAttribute(k)).map(k=>k+':'+a.getAttribute(k)),a.getAttribute('style')].filter(Boolean).join(';');v&&st.unshift(v)}
     setT(g,ctm(e.parentNode));st.length&&g.setAttribute('style',st.join(';'));g.append(e.cloneNode(true))}
@@ -608,7 +610,7 @@ Object.assign(A,{
   new:newDoc,open:()=>chooseFile(0),imp:()=>chooseFile(1),
   svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;msg('Exported '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),pdf,
   undo:()=>undo(0),redo:()=>undo(1),label:labels,group,ungroup,top:()=>zorder('top'),up:()=>zorder('up'),dn:()=>zorder('dn'),bot:()=>zorder('bot'),
-  copy,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
+  copy:copyOut,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
   bold:()=>flip('font-weight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','italic',c=>c.fontStyle==='italic'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);try{localStorage.msbTheme=d?'dark':'light'}catch(_){}},
@@ -662,7 +664,7 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SEL
   if(K===' '){space=true;e.preventDefault();return}
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
-  else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copy,x:()=>{copy();del()},v:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},d:()=>{const k=clip;copy();paste(true);clip=k},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
+  else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copyOut,x:()=>{copyOut();del()},v:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},d:()=>{const k=clip;copy();paste(true);clip=k},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),e:()=>setTool('ellipse'),l:()=>setTool('line'),a:()=>setTool('arrow'),i:()=>setTool('inhibit')}[K.length>1?K:kl];
   if(f){c&&kl==='v'||e.preventDefault();f()}});
