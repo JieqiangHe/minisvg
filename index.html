@@ -540,7 +540,7 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
     const rd=r.body.pipeThrough(new TextDecoderStream()).getReader();let buf='';
     for(;;){const{value,done}=await rd.read();if(done)break;const ls=(buf+=value).split('\n');buf=ls.pop();
       for(const l of ls){const d=l.startsWith('data:')&&l.slice(5).trim();if(!d||d==='[DONE]')continue;const j=JSON.parse(d);if(j.error)throw Error(j.error.message||JSON.stringify(j.error));
-        const c=j.choices?.[0]?.delta||{};out+=c.content||'';th+=(c.reasoning_content||'').length;b.textContent=out?brief(out):`Thinking… ${th} chars`;LG.scrollTop=LG.scrollHeight}}
+        const c=j.choices?.[0]?.delta||{};out+=c.content||'';th+=(c.reasoning_content||'').length;const end=LG.scrollHeight-LG.scrollTop-LG.clientHeight<30;b.textContent=out?brief(out):`Thinking… ${th} chars`;end&&(LG.scrollTop=LG.scrollHeight)}}
     if(!out)throw Error('Empty reply');
   }catch(e){hist.pop();$('mAsk').value||($('mAsk').value=t);imgs=sent.concat(imgs);files=fl.concat(files);thumbs();b.textContent=e.name==='AbortError'?'Stopped':e.message+(e.name==='TypeError'?' (network, URL or CORS problem)':'');return}
   finally{ac=null;$('mSend').textContent='Send'}
