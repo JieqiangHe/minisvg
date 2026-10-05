@@ -21,7 +21,8 @@ button{font:inherit;padding:2px 5px;border:1px solid var(--btnb);border-radius:3
 button:hover{background:var(--btnh)}button.on{background:var(--on);border-color:var(--onb);color:var(--onfg)}
 input,select{font:inherit}
 #mBar{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:3px;padding:4px;background:var(--bar);border-bottom:1px solid var(--line)}
-#mBar button{border-color:transparent;background:transparent}#mBar button:hover{background:var(--btnh)}#mBar button.on{background:var(--on);color:var(--onfg)}#mBar .sp{flex:1}#mSt button{margin-left:auto;flex:none;padding:0 8px;line-height:16px;border-color:transparent;background:transparent}#mSt button:hover{background:var(--btnh)}#mMsg{min-width:0;overflow:hidden;text-overflow:ellipsis}#mBar .lb{color:var(--h4);margin-right:2px}
+#mBar button{border-color:transparent;background:transparent}#mBar button:hover{background:var(--btnh)}#mBar button.on{background:var(--on);color:var(--onfg)}#mBar .sp{flex:1}#mSt button{margin-left:auto;flex:none;padding:0 8px;line-height:16px;border-color:transparent;background:transparent}#mSt button:hover{background:var(--btnh)}#mSt button+button{margin-left:0}
+#mHelp{padding:0;max-width:min(1160px,96vw);max-height:92vh}#mHelp form{padding:12px 18px;font-size:12.5px;line-height:1.45}#mHelp h3{margin:0 0 6px}#mHelp .cols{columns:3 300px;column-gap:26px}#mHelp section{break-inside:avoid;margin-bottom:8px}#mHelp h4{margin:0 0 3px}#mHelp dl{display:grid;grid-template-columns:max-content 1fr;gap:2px 10px;margin:0}#mHelp dd{margin:0}#mHelp .ft{display:flex;align-items:center;gap:12px;margin:6px 0 0;opacity:.85}#mHelp .ft button{margin-left:auto}kbd{font:11px ui-monospace,monospace;padding:0 4px;border:1px solid var(--line);border-radius:3px;background:var(--btn)}#mMsg{min-width:0;overflow:hidden;text-overflow:ellipsis}#mBar .lb{color:var(--h4);margin-right:2px}
 #mBar>i{width:1px;height:18px;background:var(--line);margin:0 4px}
 #mTools{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;background:var(--bar);border-right:1px solid var(--line)}
 #mTools button{width:30px;height:30px;padding:0;display:grid;place-items:center}
@@ -133,8 +134,18 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div id="mAskW"><textarea id="mAsk" rows="4" placeholder="Describe a figure, or attach an image to redraw or a text file to draw from. Ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea><div id="mGrip" title="Drag up to enlarge"></div></div>
 <div class="row"><button id="mAtt" title="Attach for the AI (or paste / drop into this panel): an image (PNG, JPG, GIF, WebP) to redraw or look at, which needs a model that can see images (glm-5.3-flash or deepseek-flash); or a text file (txt, csv, tsv, md, json, fasta…) to read, with any model">Attach</button><input type="file" id="mAttF" multiple hidden><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
 </div>
-<div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span><button data-a="theme">Theme</button></div>
+<div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span><button data-a="help" title="Shortcuts and tips (?)">Help</button><button data-a="theme">Theme</button></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp" hidden>
+<dialog id="mHelp"><form method="dialog"><h3>Shortcuts and tips</h3><div class="cols">
+<section><h4>Select</h4><dl><dt>Click</dt><dd>Select an object (the whole group)</dd><dt>Double-click</dt><dd>Enter a group; on text, edit it</dd><dt><kbd>Ctrl</kbd> click</dt><dd>Select the object inside a group directly</dd><dt><kbd>Shift</kbd> click</dt><dd>Add to the selection</dd><dt>Drag on empty space</dt><dd>Box select (<kbd>Shift</kbd> adds)</dd><dt><kbd>Esc</kbd></dt><dd>Go up one group level, then deselect</dd><dt><kbd>Ctrl</kbd>+<kbd>A</kbd></dt><dd>Select all in the current group</dd></dl></section>
+<section><h4>Move and transform</h4><dl><dt>Drag</dt><dd>Move; <kbd>Ctrl</kbd> keeps it horizontal or vertical</dd><dt><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></dt><dd>Nudge 0.1 mm; <kbd>Shift</kbd> 1 mm</dd><dt>Corner handles</dt><dd>Scale proportionally; <kbd>Shift</kbd> scales freely</dd><dt>Edge handles</dt><dd>Stretch one side</dd><dt>Rotate handle</dt><dd>Rotate; <kbd>Ctrl</kbd> snaps to 15°</dd><dt>Round handle</dt><dd>Corner radius of a rectangle</dd><dt>End handles</dt><dd>Move the ends of a line or arrow</dd><dt>Right panel</dt><dd>Exact X, Y, W, H (mm) and rotation</dd></dl></section>
+<section><h4>Tools</h4><dl><dt><kbd>V</kbd></dt><dd>Select</dd><dt><kbd>T</kbd></dt><dd>Text</dd><dt><kbd>R</kbd></dt><dd>Rectangle (<kbd>Shift</kbd> square)</dd><dt><kbd>E</kbd></dt><dd>Ellipse (<kbd>Shift</kbd> circle)</dd><dt><kbd>L</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow: activation</dd><dt><kbd>I</kbd></dt><dd>Inhibition: blunt end</dd><dt>Lines</dt><dd><kbd>Shift</kbd> snaps to 45°</dd><dt>A button</dt><dd>Panel labels for the selected panels</dd></dl></section>
+<section><h4>Edit</h4><dl><dt><kbd>Ctrl</kbd>+<kbd>C</kbd> <kbd>Ctrl</kbd>+<kbd>X</kbd></dt><dd>Copy, cut</dd><dt><kbd>Ctrl</kbd>+<kbd>V</kbd></dt><dd>Paste what you copied last: objects or an image</dd><dt><kbd>Ctrl</kbd>+<kbd>D</kbd></dt><dd>Duplicate</dd><dt><kbd>Delete</kbd></dt><dd>Delete</dd><dt><kbd>Ctrl</kbd>+<kbd>G</kbd></dt><dd>Group; <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>G</kbd> ungroups</dd><dt><kbd>Home</kbd> <kbd>End</kbd></dt><dd>Bring to front, send to back</dd><dt><kbd>PgUp</kbd> <kbd>PgDn</kbd></dt><dd>Forward, backward one step</dd><dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>Undo; <kbd>Ctrl</kbd>+<kbd>Y</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd> redo</dd></dl></section>
+<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt>X² X₂</dt><dd>Superscript or subscript the selected characters</dd><dt>Text panel</dt><dd>Font, size in pt, colour, bold, italic for all selected text</dd></dl></section>
+<section><h4>View</h4><dl><dt>Wheel</dt><dd>Scroll; <kbd>Shift</kbd> scrolls sideways</dd><dt><kbd>Ctrl</kbd> wheel, pinch</dt><dd>Zoom</dd><dt><kbd>Space</kbd> drag</dt><dd>Pan</dd><dt><kbd>5</kbd></dt><dd>Fit the page to the window</dd></dl></section>
+<section><h4>Files</h4><dl><dt><kbd>Ctrl</kbd>+<kbd>O</kbd></dt><dd>Open an SVG</dd><dt><kbd>Ctrl</kbd>+<kbd>I</kbd></dt><dd>Import an SVG, PNG or JPG into this canvas</dd><dt><kbd>Ctrl</kbd>+<kbd>S</kbd></dt><dd>Export SVG (name_YYMMDD.svg)</dd><dt>Drop, paste</dt><dd>An SVG opens; a PNG or JPG on the canvas is placed in the figure</dd><dt>Export</dt><dd>PNG at 300 or 600 dpi; vector PDF through the print dialog (best in Chrome or Edge)</dd></dl></section>
+<section><h4>AI chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw (also paste or drop into the chat)</dd><dt>Images</dt><dd>Need glm-5.3-flash or deepseek-flash</dd><dt>Selection</dt><dd>Select part of the figure to ask about it or have it changed in place</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift</kbd>+<kbd>Enter</kbd> new line</dd></dl></section>
+</div><p class="ft"><span>On a Mac, shortcuts also work with <kbd>⌘</kbd>. Everything runs in your browser; nothing is uploaded except what you send to the AI provider.</span><button value="">Close</button></p></form></dialog>
 <dialog id="mNew"><form method="dialog">
 <p><select id="mPre"><option value="210,297" selected>A4 (210×297 mm)</option><option value="297,420">A3 (297×420 mm)</option><option value="148,210">A5 (148×210 mm)</option><option value="215.9,279.4">US Letter (216×279 mm)</option><option value="85,85">Single column 85 mm</option><option value="180,120">Double column 180 mm</option><option value="">Custom</option></select></p>
 <p><label><input type="radio" name="mOr" value="p" checked> Portrait</label> <label><input type="radio" name="mOr" value="l"> Landscape</label></p>
@@ -614,7 +625,7 @@ Object.assign(A,{
   bold:()=>flip('font-weight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','italic',c=>c.fontStyle==='italic'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);try{localStorage.msbTheme=d?'dark':'light'}catch(_){}},
-  rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
+  help:()=>{$('mHelp').showModal();$('mHelp').scrollTop=0},rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
   portrait:()=>vb.w>vb.h&&setPage(vb.x,vb.y,vb.h,vb.w),landscape:()=>vb.h>vb.w&&setPage(vb.x,vb.y,vb.h,vb.w),
   fitPage:()=>{const b=memoize(()=>cands(root).reduce((a,e)=>un(a,bbox(e)),null)),m=1/U;b?setPage(b.x-m,b.y-m,b.w+2*m,b.h+2*m):msg('Nothing to fit')},
   allText:()=>{ctx=root;setSel(texts())},arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}});
@@ -644,6 +655,7 @@ $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v
 $('mSide').addEventListener('keydown',e=>/^(Enter|Escape)$/.test(e.key)&&e.target.blur());
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
 const nd=o=>{const v=$('mPre').value,l=document.querySelector('[name=mOr]:checked').value==='l';let w=+$('mNW').value,h=+$('mNH').value;if(v&&!o)[w,h]=v.split(',').map(Number);if(w!==h&&(o?l!==w>h:l&&w<h))[w,h]=[h,w];$('mNW').value=w;$('mNH').value=h;if(w!==h)document.querySelector(`[name=mOr][value=${w>h?'l':'p'}]`).checked=true};
+$('mHelp').onclick=e=>{e.target===$('mHelp')&&$('mHelp').close()};
 $('mNew').onchange=e=>e.target.id==='mPre'?nd():e.target.name==='mOr'&&nd(1);$('mNW').oninput=$('mNH').oninput=()=>$('mPre').value='';
 $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').returnValue!=='ok'||!(w>0&&h>0))return;
   if(!discard())return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
@@ -659,14 +671,14 @@ addEventListener('drop',e=>{e.preventDefault();const fs=[...e.dataTransfer.files
   if(f&&!/\.svg$/i.test(f.name)&&f.type!=='image/svg+xml')return attach(fs);f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
 addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 addEventListener('keyup',e=>{if(e.key===' ')space=false});addEventListener('blur',()=>space=false);
-addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SELECT|TEXTAREA)$/.test(tg.tagName)||tg.tagName==='INPUT'&&!/checkbox|color/.test(tg.type)||$('mNew').open)return;
+addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SELECT|TEXTAREA)$/.test(tg.tagName)||tg.tagName==='INPUT'&&!/checkbox|color/.test(tg.type)||$('mNew').open||$('mHelp').open)return;
   const c=e.ctrlKey||e.metaKey,K=e.key,kl=K.toLowerCase(),ar={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[K];let f;
   if(K===' '){space=true;e.preventDefault();return}
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
   else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copyOut,x:()=>{copyOut();del()},v:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},d:()=>{const k=clip;copy();paste(true);clip=k},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
-  else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),e:()=>setTool('ellipse'),l:()=>setTool('line'),a:()=>setTool('arrow'),i:()=>setTool('inhibit')}[K.length>1?K:kl];
+  else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),e:()=>setTool('ellipse'),l:()=>setTool('line'),a:()=>setTool('arrow'),i:()=>setTool('inhibit'),'?':A.help}[K.length>1?K:kl];
   if(f){c&&kl==='v'||e.preventDefault();f()}});
 let pv=0;addEventListener('paste',e=>{if(e.target.closest&&e.target.closest('#mChat,input,textarea,.ed'))return;const f=[...e.clipboardData.files].find(isImg);if(f&&root){pv=0;e.preventDefault();placeImg(f)}});
 const opts={rulers:true,grid:false};try{opts.rulers=localStorage.msbRulers!=='0';opts.grid=localStorage.msbGrid==='1'}catch(_){}
