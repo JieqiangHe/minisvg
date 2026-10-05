@@ -71,7 +71,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <button data-t="rect" title="Rectangle (R), Shift for square"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12"/></svg></button>
 <button data-t="ellipse" title="Ellipse (E), Shift for circle"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8.5" ry="6.5"/></svg></button>
 <button data-t="line" title="Line (L)"><svg viewBox="0 0 24 24"><path d="M5 19 19 5"/></svg></button>
-<button data-t="arrow" title="Arrow (A)"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M10 5h9v9"/></svg></button><i></i>
+<button data-t="arrow" title="Arrow (A): activation, positive regulation"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M10 5h9v9"/></svg></button><button data-t="inhibit" title="Inhibition (I): blunt-ended line, negative regulation"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M14 2l8 8"/></svg></button><i></i>
 <button data-a="label" title="Panel labels: place the letter below at the top-left of each selected panel"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" stroke-dasharray="2 2"/><text x="2" y="11" font-size="11" font-weight="bold" font-family="Arial" fill="currentColor" stroke="none">A</text></svg></button>
 <input id="mLbl" value="A" maxlength="1" title="Next label letter" style="width:30px;text-align:center">
 <a href="https://github.com/JieqiangHe/minisvg" target="_blank" rel="noopener" title="minisvg on GitHub"><svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
@@ -346,7 +346,7 @@ function hud(M){H.replaceChildren();if(!root)return;rulers();
       mk('circle',{cx:(p[0][0]+p[1][0])/2,cy:p[0][1]-18,r:5,'data-h':'rot',style:'fill:#fff;stroke:#e8711a'},H);
       const e=sel[0];if(sel.length===1&&e.localName==='rect'){const m=ctm(e),[x,y,w,h,r]=rgeo(e),o=Math.min(Math.max(r,14/(Z*k*sc(m))),w/2,h/2),q=m.transformPoint({x:x+o,y:y+o});
         mk('title',{},mk('circle',{cx:tx+(q.x-vb.x)*Z*k,cy:ty+(q.y-vb.y)*Z*k,r:4.5,'data-h':'rad',style:'fill:#fff;stroke:#1a73e8;stroke-width:1.5;cursor:default'},H),'Drag to round the corners')}}}
-  if(D&&D.q){const[a,b]=[D.p,D.q];D.t==='line'||D.t==='arrow'?mk('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:'stroke:#1a73e8'},H)
+  if(D&&D.q){const[a,b]=[D.p,D.q];/^(line|arrow|inhibit)$/.test(D.t)?mk('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],style:'stroke:#1a73e8'},H)
     :D.t==='ellipse'?mk('ellipse',{cx:(a[0]+b[0])/2,cy:(a[1]+b[1])/2,rx:Math.abs(a[0]-b[0])/2,ry:Math.abs(a[1]-b[1])/2,style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)
     :mk('rect',{x:Math.min(a[0],b[0]),y:Math.min(a[1],b[1]),width:Math.abs(a[0]-b[0]),height:Math.abs(a[1]-b[1]),style:'fill:#1a73e811;stroke:#1a73e8;stroke-dasharray:3 2'},H)}}
 function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3);
@@ -402,7 +402,7 @@ function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textCo
     let sx=vx?(u.x-ax)/vx:1,sy=vy?(u.y-ay)/vy:1;if(ex&&ey&&!e.shiftKey)sx=sy=((u.x-ax)*vx+(u.y-ay)*vy)/(vx*vx+vy*vy);
     M=about(S(sx||1e-3,sy||1e-3),ax,ay)}
   else if(D.t==='rot'){const cx=b.x+b.w/2,cy=b.y+b.h/2;let a=(Math.atan2(u.y-cy,u.x-cx)-Math.atan2(D.u.y-cy,D.u.x-cx))*180/Math.PI;if(e.ctrlKey)a=Math.round(a/15)*15;M=about(Rot(a),cx,cy)}
-  else{if(e.shiftKey&&/line|arrow/.test(D.t)){const a=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,r=Math.hypot(dx,dy);dx=r*Math.cos(a);dy=r*Math.sin(a)}
+  else{if(e.shiftKey&&/line|arrow|inhibit/.test(D.t)){const a=Math.round(Math.atan2(dy,dx)/(Math.PI/4))*Math.PI/4,r=Math.hypot(dx,dy);dx=r*Math.cos(a);dy=r*Math.sin(a)}
     if(e.shiftKey&&/rect|ellipse/.test(D.t)){const m=Math.max(Math.abs(dx),Math.abs(dy));dx=dx<0?-m:m;dy=dy<0?-m:m}D.q=[D.p[0]+dx,D.p[1]+dy];return hud()}
   D.M=M;gw.style.transform=S(Z).multiply(T(-vb.x,-vb.y)).multiply(M).multiply(T(vb.x,vb.y)).multiply(S(1/Z)).toString();hud(M)}
 function up(){if(!D)return;const d=D;D=null;
@@ -421,10 +421,11 @@ function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=h
 function create(t,a,b){const p=curParent(),Pi=ctm(p).inverse(),A=Pi.transformPoint(a),B=Pi.transformPoint(b),w=f6(0.5/PT/U/sc(ctm(p))),s=`fill:none;stroke:#000000;stroke-width:${w}`;let e;
   if(t==='rect')e=mk('rect',{id:uid('rect'),x:fc(Math.min(A.x,B.x)),y:fc(Math.min(A.y,B.y)),width:fc(Math.abs(B.x-A.x)),height:fc(Math.abs(B.y-A.y)),style:s},p);
   else if(t==='ellipse')e=mk('ellipse',{id:uid('ellipse'),cx:fc((A.x+B.x)/2),cy:fc((A.y+B.y)/2),rx:fc(Math.abs(B.x-A.x)/2),ry:fc(Math.abs(B.y-A.y)/2),style:s},p);
-  else e=mk('path',{id:uid('path'),d:`M ${fc(A.x)},${fc(A.y)} L ${fc(B.x)},${fc(B.y)}`,style:s+';stroke-linecap:butt'+(t==='arrow'?`;marker-end:url(#${arrowDef()})`:'')},p);
+  else e=mk('path',{id:uid('path'),d:`M ${fc(A.x)},${fc(A.y)} L ${fc(B.x)},${fc(B.y)}`,style:s+';stroke-linecap:butt'+(t in MK?`;marker-end:url(#${mark(t)})`:'')},p);
   ctx=p;setTool('sel');setSel([e],1);commit()}
-function arrowDef(){const id='ArrowMsb';byId(id)||mk('path',{d:'M 0,0 10,5 0,10 z',style:'fill:context-stroke;stroke:none'},
-  mk('marker',{id,viewBox:'0 0 10 10',refX:'3',refY:'5',markerWidth:'6',markerHeight:'6',orient:'auto-start-reverse',style:'overflow:visible','inkscape:stockid':id},defs()));return id}
+const MK={arrow:['ArrowMsb','M 0,0 10,5 0,10 z',3,6],inhibit:['TeeMsb','M 0,0 H 1.25 V 10 H 0 z',1.25,8]};
+function mark(t){const[id,d,r,w]=MK[t];byId(id)||mk('path',{d,style:'fill:context-stroke;stroke:none'},
+  mk('marker',{id,viewBox:'0 0 10 10',refX:r,refY:'5',markerWidth:w,markerHeight:w,orient:'auto-start-reverse',style:'overflow:visible','inkscape:stockid':id},defs()));return id}
 function newText(u,txt){const p=curParent(),m=ctm(p),q=m.inverse().transformPoint(u),mark=flush();
   const t=mk('text',{'xml:space':'preserve',id:uid('text'),x:fc(q.x),y:fc(q.y),style:`font-size:${f6(8/PT/U/sc(m))}px;font-family:Arial;fill:#000000`},p,txt);
   ctx=p;setSel([t]);txt==null&&edit(t,null,mark);return t}
@@ -596,7 +597,7 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SEL
   else if(!root)return;
   else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copy,x:()=>{copy();del()},v:()=>paste(),d:()=>{const k=clip;copy();paste(true);clip=k},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
-  else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),e:()=>setTool('ellipse'),l:()=>setTool('line'),a:()=>setTool('arrow')}[K.length>1?K:kl];
+  else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),e:()=>setTool('ellipse'),l:()=>setTool('line'),a:()=>setTool('arrow'),i:()=>setTool('inhibit')}[K.length>1?K:kl];
   if(f){e.preventDefault();f()}});
 const opts={rulers:true,grid:false};try{opts.rulers=localStorage.msbRulers!=='0';opts.grid=localStorage.msbGrid==='1'}catch(_){}
 function views(){document.body.classList.toggle('noR',!opts.rulers);grid();for(const k in opts)document.querySelector(`[data-a=${k}]`).classList.toggle('on',opts[k]);rulers()}
