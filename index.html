@@ -56,7 +56,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 #mLog{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px}#mLog>div{white-space:pre-wrap;overflow-wrap:anywhere;padding:4px 6px;border-radius:4px}#mLog .u{align-self:flex-end;max-width:90%;background:var(--btnh)}#mLog .a{border:1px solid var(--line)}#mLog p{display:flex;gap:3px;margin:4px 0 0}
 #mAskW{position:relative}#mAsk{width:100%;resize:none;display:block;font:inherit}#mGrip{position:absolute;top:2px;right:2px;width:11px;height:11px;cursor:ns-resize;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 11'%3E%3Cpath d='M2 0l9 9M6 0l5 5' stroke='%23888' stroke-width='1.2'/%3E%3C/svg%3E")}#mImgs .rq{flex-basis:100%;display:flex;align-items:center;gap:4px;flex-wrap:wrap}[data-theme=dark] #mAsk{background:#262626;color:#f5f5f5;border:1px solid #404040;border-radius:3px}
 #mChat .row{display:flex;gap:3px}#mChat .row button{flex:1}
-#mImgs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}#mImgs img{height:44px;max-width:110px;object-fit:contain;display:block;border:1px solid var(--line)}#mImgs .t{position:relative}#mImgs .t button,#mImgs .f button,#mSelC button{width:16px;height:16px;padding:0;border:0;border-radius:50%;background:#555;color:#fff;font-size:12px;line-height:16px;cursor:pointer}#mImgs .t button{position:absolute;top:-5px;right:-5px}#mImgs .f button,#mSelC .f button{margin-left:4px;vertical-align:1px}#mImgs .w{color:#e5534b}#mSelC:empty{display:none}#mImgs .f,#mLog .f,#mSelC .f{border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:12px}#mLog details{margin-bottom:4px}#mLog summary{font-size:12px}#mLog .th{max-height:180px;overflow:auto;font-size:11px;opacity:.75;border-left:2px solid var(--line);padding-left:6px;margin-top:2px}#mLog .u img{display:block;max-height:60px;max-width:100%;margin-top:3px}
+#mImgs{display:flex;flex-wrap:wrap;gap:4px;align-items:center}#mImgs img{height:44px;max-width:110px;object-fit:contain;display:block;border:1px solid var(--line)}#mImgs .t{position:relative}#mChat .x{width:16px;height:16px;padding:0;border:0;border-radius:50%;background:#555;color:#fff;font-size:12px;line-height:16px;cursor:pointer}#mChat .t .x{position:absolute;top:-5px;right:-5px}#mChat .f .x{margin-left:4px;vertical-align:1px}#mChat .w{color:#e5534b}#mSelC:empty{display:none}#mChat .f{border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:12px}#mLog details{margin-bottom:4px}#mLog summary{font-size:12px}#mLog .th{max-height:180px;overflow:auto;font-size:11px;opacity:.75;border-left:2px solid var(--line);padding-left:6px;margin-top:2px}#mLog .u img{display:block;max-height:60px;max-width:100%;margin-top:3px}
 </style>
 </head>
 <body class="chat">
@@ -156,6 +156,7 @@ const byId=i=>i&&document.getElementById(i);
 const refId=v=>(v&&/url\(\s*['"]?#([^'")]+)/.exec(v)||[])[1];
 function setA(e,n,v){const i=n.indexOf(':');i>0?e.setAttributeNS(NS[n.slice(0,i)],n,v):e.setAttribute(n,v)}
 function mk(t,a,p,txt){const e=document.createElementNS(NS.svg,t);for(const n in a)setA(e,n,a[n]);if(txt!=null)e.textContent=txt;p&&p.appendChild(e);return e}
+const el=(t,c,x)=>{const e=document.createElement(t);c&&(e.className=c);x!=null&&(e.textContent=x);return e},btn=(t,f,ti)=>{const e=el('button',0,t);e.onclick=f;ti&&(e.title=ti);return e};
 const isG=e=>e&&e.namespaceURI===NS.svg&&GR.test(e.localName);
 const isGrp=e=>/^(g|a|switch)$/.test(e.localName);
 const isLayer=e=>e.localName==='g'&&e.getAttributeNS(NS.inkscape,'groupmode')==='layer';
@@ -450,7 +451,7 @@ function edit(t,h,mark){finish(true);let r=t;
   d.className='ed';d.contentEditable='true';
   Object.assign(d.style,{left:tx+(q.x-vb.x)*Z*k+'px',top:ty+(q.y-vb.y)*Z*k-fs*0.95+'px',fontSize:fs+'px',fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,
     color:/^rgb/.test(cs.fill)?cs.fill:'#000',transform:`translateX(${{middle:-50,end:-100}[cs.textAnchor]||0}%)`});
-  for(const[x,s]of r0){if(s){const e=document.createElement(s==='super'?'sup':'sub');e.textContent=x;d.append(e)}else d.append(x)}
+  for(const[x,s]of r0){if(s)d.append(el(s==='super'?'sup':'sub',0,x));else d.append(x)}
   view.append(d);ed={t,r,d,r0:JSON.stringify(r0),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
   d.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();finish(true)}else if(e.key==='Escape')finish(false)};
   d.onblur=()=>finish(true);d.onpaste=e=>{e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain'))};
@@ -504,7 +505,7 @@ function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 // ai chat
 let hist=[],aiG=null,ac=null,imgs=[],files=[],notes=[],rq=0;
 const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. When asked for changes, return the full updated SVG. If the user attaches an image, redraw that figure as editable vector SVG: keep its layout, shapes, arrows, colours and text labels (as <text>); simplify photos and textures into flat shapes. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
-  bub=(c,t)=>{const d=document.createElement('div');d.className=c;d.textContent=t;LG.append(d);LG.scrollTop=LG.scrollHeight;return d},
+  bub=(c,t)=>{const d=el('div',c,t);LG.append(d);LG.scrollTop=LG.scrollHeight;return d},merge=k=>{if(undos.length>k){const x=undos.pop();undos.push(undos.pop().concat(x))}},
   brief=t=>t.replace(/```\w*\s*/g,'').replace(/<svg[\s\S]*?(<\/svg>|$)/gi,m=>`[SVG, ${m.length} chars]`).trim();
 function svgOf(t){let s=(/<svg[\s\S]*<\/svg>/i.exec(t)||[])[0];if(!s)return null;s=s.replace(/&nbsp;/g,'&#160;');
   /^<svg[^>]*\sxmlns=/i.test(s)||(s=s.replace(/^<svg/i,`<svg xmlns="${NS.svg}"`));/xlink:/.test(s)&&!/xmlns:xlink=/.test(s)&&(s=s.replace(/^<svg/i,`<svg xmlns:xlink="${NS.xlink}"`));
@@ -514,14 +515,13 @@ function svgOf(t){let s=(/<svg[\s\S]*<\/svg>/i.exec(t)||[])[0];if(!s)return null
 function put(s,open){if(open)return discard()&&(load(s,'ai.svg'),msg('Opened the AI figure as a new canvas'));
   const o=aiG&&root.contains(aiG)?aiG:null,b=o&&bbox(o);if(o){o.contains(ctx)&&(ctx=o.parentNode);o.remove()}
   doImport(s,'ai');aiG=sel[0];const n=b&&bbox(aiG),k=undos.length;
-  if(n){applyM(T(b.x-n.x,b.y-n.y));commit();if(undos.length>k){const x=undos.pop();undos.push(undos.pop().concat(x))}}
+  if(n){applyM(T(b.x-n.x,b.y-n.y));commit();merge(k)}
   msg(o?'Replaced the AI figure (Ctrl+Z to undo)':'Placed the AI figure (Ctrl+Z to undo)');selChip()}
-const VIS=['glm-5.3-flash','deepseek-flash'],vis=()=>VIS.includes($('mModel').value),noVis=()=>`${$('mModel').value} cannot see images. Switch Model to glm-5.3-flash or deepseek-flash in AI settings.`,
-  img=u=>{const m=new Image();m.src=u;return m},
-  chip=(c,t)=>{const e=document.createElement('span');e.className=c;e.textContent=t;return e};
-function thumbs(){const rm=(e,a,i)=>{const x=document.createElement('button');x.textContent='×';x.title='Remove';x.onclick=()=>{a.splice(i,1);thumbs()};e.append(x);return e};
-  const q=document.createElement('div'),bt=(t,f)=>{const x=document.createElement('button');x.textContent=t;x.onclick=f;q.append(x)};q.className='rq';q.append('Redraw this image as an editable figure?');bt('Redraw',ask);bt('Not now',()=>{rq=0;thumbs();$('mAsk').focus()});
-  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...(rq&&imgs.length&&vis()?[q]:[]),...imgs.map((u,i)=>{const e=chip('t','');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
+const VIS=['glm-5.3-flash','deepseek-flash'],vis=()=>VIS.includes($('mModel').value),noVis=()=>`${$('mModel').value} cannot see images. Switch Model to ${VIS.join(' or ')} in AI settings.`,
+  img=u=>Object.assign(new Image(),{src:u}),chip=(c,t)=>el('span',c,t),xb=(f,ti)=>Object.assign(btn('×',f,ti),{className:'x'});
+function thumbs(){const rm=(e,a,i)=>(e.append(xb(()=>{a.splice(i,1);thumbs()},'Remove')),e),q=el('div','rq','Redraw this image as an editable figure?');
+  q.append(btn('Redraw',ask),btn('Not now',()=>{rq=0;thumbs();$('mAsk').focus()}));
+  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...(rq&&imgs.length&&vis()?[q]:[]),...imgs.map((u,i)=>{const e=chip('t');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
 const shrink=(f,fit)=>new Promise((ok,no)=>{const m=new Image(),u=URL.createObjectURL(f);m.onerror=()=>{URL.revokeObjectURL(u);no(Error('Cannot read '+f.name))};
   m.onload=()=>{const r=fit?fit/Math.max(m.width,m.height):Math.min(1,1600/Math.max(m.width,m.height)),c=document.createElement('canvas'),g=c.getContext('2d');c.width=Math.round(m.width*r);c.height=Math.round(m.height*r);
     g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(m,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/png');d.length>4e6&&(d=c.toDataURL('image/jpeg',.9));ok(d)};m.src=u});
@@ -542,8 +542,8 @@ async function placeImg(f,u){let d=await new Promise((ok,no)=>{const r=new FileR
   setT(e,ctm(p).inverse());ctx=p;setTool('sel');setSel([e]);commit();msg(`Placed ${f.name}: ${m.naturalWidth}×${m.naturalHeight} px at ${Math.round(300/r)} dpi`)}
 let skip=[];
 const same=(a,b)=>a.length===b.length&&a.every((e,i)=>e===b[i]),selOn=()=>sel.length&&!skip.length&&!(sel.length===1&&sel[0]===aiG),nObj=n=>n+' object'+(n>1?'s':'');
-function selChip(){const c=$('mSelC');same(sel,skip)||(skip=[]);if(!selOn())return c.replaceChildren();const e=chip('f','Selection: '+nObj(sel.length)),x=document.createElement('button');
-  e.title='The selected objects are sent with your message';x.textContent='×';x.title='Send without the selection';x.onclick=()=>{skip=sel.slice();selChip()};e.append(x);c.replaceChildren(e)}
+function selChip(){const c=$('mSelC');same(sel,skip)||(skip=[]);if(!selOn())return c.replaceChildren();const e=chip('f','Selection: '+nObj(sel.length));
+  e.title='The selected objects are sent with your message';e.append(xb(()=>{skip=sel.slice();selChip()},'Send without the selection'));c.replaceChildren(e)}
 refresh=(f=>()=>{f();selChip()})(refresh);
 function selPart(){if(!selOn())return null;const els=order(sel),b=memoize(()=>els.reduce((a,e)=>un(a,bbox(e)),null));if(!b)return null;
   const s=mk('svg',{width:fm(b.w*U)+'mm',height:fm(b.h*U)+'mm',viewBox:[b.x,b.y,b.w,b.h].map(fm).join(' ')}),d=mk('defs',{},s),P=['fill','stroke','stroke-width','font-family','font-size','font-weight','font-style','text-anchor'],seen=new Set();
@@ -556,7 +556,7 @@ function swap(s,t){const els=t.els.filter(e=>root.contains(e));if(!els.length)re
   const par=els[0].parentNode;let ref=els[0].nextSibling;while(ref&&els.includes(ref))ref=ref.nextSibling;
   for(const e of els){e.contains(ctx)&&(ctx=e.parentNode);e.remove()}
   doImport(s,'ai');const g=sel[0],k=undos.length;setT(g,ctm(par).inverse().multiply(ctm(g.parentNode)).multiply(lm(g)));par.insertBefore(g,ref&&ref.parentNode===par?ref:null);ctx=par;
-  applyM(T(t.b.x-vb.x,t.b.y-vb.y),[g]);setSel([g]);commit();if(undos.length>k){const x=undos.pop();undos.push(undos.pop().concat(x))}
+  applyM(T(t.b.x-vb.x,t.b.y-vb.y),[g]);setSel([g]);commit();merge(k)
   msg('Replaced the selection (Ctrl+Z to undo)')}
 async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t||(imgs.length?'Redraw this figure.':files.length?'Draw a figure from the attached file.':''),key=$('mKey').value.trim();if(!q)return;if(!key){$('mCfg').open=true;return msg('Enter an API key first')}
   if(imgs.length&&!vis()){$('mCfg').open=true;return msg(noVis())}
@@ -564,7 +564,7 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
   const sx=part?`\n\nSelected part of the figure (${nObj(part.els.length)}, ${fm(part.b.w*U)} × ${fm(part.b.h*U)} mm at x ${fm((part.b.x-vb.x)*U)}, y ${fm((part.b.y-vb.y)*U)} mm on the page), as SVG:\n\`\`\`svg\n${part.x}\n\`\`\`\nIf the user asks to change it, reply with an SVG of only this part that keeps the same width, height and viewBox, so it can replace the selection in place.`:'',
     pi=part&&vis()?await shrink(new Blob([part.x],{type:'image/svg+xml'}),1000).catch(()=>null):null;
   const sent=imgs,fl=files,qf=q+sx+fl.map(f=>`\n\nAttached file "${f.n}":\n\`\`\`\n${f.t}\n\`\`\``).join('');imgs=[];files=[];thumbs();$('mAsk').value='';
-  const ims=pi?[...sent,pi]:sent;hist.push({role:'user',content:ims.length?[...ims.map(url=>({type:'image_url',image_url:{url}})),{type:'text',text:qf}]:qf});bub('u',q).append(...sent.map(img),...(part?[chip('f','Selection: '+nObj(part.els.length))]:[]),...fl.map(f=>chip('f',f.n)));const b=bub('a',''),tx=document.createElement('span'),near=e=>e.scrollHeight-e.scrollTop-e.clientHeight<30;tx.textContent='…';b.append(tx);let dt,sm,pr,shut=0;
+  const ims=pi?[...sent,pi]:sent;hist.push({role:'user',content:ims.length?[...ims.map(url=>({type:'image_url',image_url:{url}})),{type:'text',text:qf}]:qf});bub('u',q).append(...sent.map(img),...(part?[chip('f','Selection: '+nObj(part.els.length))]:[]),...fl.map(f=>chip('f',f.n)));const b=bub('a',''),tx=el('span',0,'…'),near=e=>e.scrollHeight-e.scrollTop-e.clientHeight<30;b.append(tx);let dt,sm,pr,shut=0;
   const tsum=()=>dt&&(sm.textContent=(out||!ac?'Thought for ':'Thinking… ')+th.toLocaleString('en')+' chars');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0;
   try{const r=await fetch($('mEp').value.trim(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},signal:ac.signal,
       body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...(vis()?hist:hist.map(m=>Array.isArray(m.content)?{...m,content:m.content.filter(c=>c.type==='text').map(c=>c.text).join('')+' [image omitted]'}:m))],stream:true,max_tokens:32768,thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
@@ -573,7 +573,7 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
     for(;;){const{value,done}=await rd.read();if(done)break;const ls=(buf+=value).split('\n');buf=ls.pop();
       for(const l of ls){const d=l.startsWith('data:')&&l.slice(5).trim();if(!d||d==='[DONE]')continue;const j=JSON.parse(d);if(j.error)throw Error(j.error.message||JSON.stringify(j.error));
         const c=j.choices?.[0]?.delta||{},r=c.reasoning_content||'',end=near(LG);
-        if(r){if(!dt){dt=document.createElement('details');sm=document.createElement('summary');pr=document.createElement('div');pr.className='th';dt.open=true;dt.append(sm,pr);b.prepend(dt);tx.textContent=''}
+        if(r){if(!dt){dt=el('details');sm=el('summary');pr=el('div','th');dt.open=true;dt.append(sm,pr);b.prepend(dt);tx.textContent=''}
           const pe=near(pr);pr.append(r);th+=r.length;pe&&(pr.scrollTop=pr.scrollHeight)}
         if(c.content){out+=c.content;tx.textContent=brief(out);dt&&!shut&&(shut=1,dt.open=false)}
         tsum();end&&(LG.scrollTop=LG.scrollHeight)}}
@@ -583,9 +583,8 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
   if(part){const u=hist.at(-1),f=c=>c.replace(sx,'\n\n[A selected part of the figure was attached here as SVG.]');
     u.content=Array.isArray(u.content)?u.content.filter(c=>c.image_url?.url!==pi).map(c=>c.type==='text'?{...c,text:f(c.text)}:c):f(u.content)}
   hist.push({role:'assistant',content:out});let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
-  const p=document.createElement('p'),btn=(t,f)=>{const x=document.createElement('button');x.textContent=t;x.onclick=f;p.append(x)};
-  if(part){btn('Replace selection',()=>swap(s,part));btn('Insert copy',()=>{aiG=null;put(s)});return b.append(p)}
-  btn('Insert copy',()=>{aiG=null;put(s)});btn('Open as new',()=>put(s,1));b.append(p);put(s)}
+  const p=el('p'),ins=btn('Insert copy',()=>{aiG=null;put(s)});b.append(p);
+  if(part)return p.append(btn('Replace selection',()=>swap(s,part)),ins);p.append(ins,btn('Open as new',()=>put(s,1)));put(s)}
 const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3','glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions','deepseek-flash','deepseek-v4-pro']},
   ls=(k,v)=>{try{return v==null?localStorage[k]:localStorage[k]=v}catch(_){}},aiF=[['mKey','Key'],['mModel','Model'],['mEp','Ep']],
   aiLoad=()=>{const p=$('mProv').value,[u,...ms]=AI[p],m=ls('msb'+p+'Model');$('mModel').replaceChildren(...ms.map(x=>new Option(VIS.includes(x)?x+' (sees images)':x,x)));
@@ -595,8 +594,9 @@ for(const[i,k]of aiF)$(i).onchange=()=>{ls('msb'+$('mProv').value+k,$(i).value.t
 aiLoad();
 $('mSend').onclick=ask;$('mClr').onclick=()=>{ac&&ac.abort();hist=[];aiG=null;imgs=[];files=[];thumbs();LG.replaceChildren()};
 $('mAtt').onclick=()=>$('mAttF').click();
+$('mAttF').onchange=e=>{attach([...e.target.files]);e.target.value=''};
 $('mGrip').onpointerdown=e=>{e.preventDefault();const t=$('mAsk'),y=e.clientY,h=t.offsetHeight,mv=v=>t.style.height=Math.max(40,Math.min($('mChat').clientHeight*.7,h+y-v.clientY))+'px',
-  up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up)};addEventListener('pointermove',mv);addEventListener('pointerup',up)};$('mAttF').onchange=e=>{attach([...e.target.files]);e.target.value=''};
+  up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up)};addEventListener('pointermove',mv);addEventListener('pointerup',up)};
 $('mChat').ondrop=e=>{e.preventDefault();e.stopPropagation();attach([...e.dataTransfer.files])};
 $('mAsk').onpaste=e=>{const fs=[...e.clipboardData.files];if(fs.length){e.preventDefault();attach(fs)}};
 $('mAsk').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();ac||ask()}};
