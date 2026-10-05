@@ -61,7 +61,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 </head>
 <body class="chat">
 <div id="mBar"><b>minisvg</b><i></i>
-<button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O)">Open</button><button data-a="imp" title="Import SVG into this canvas (Ctrl+I)">Import</button><i></i>
+<button data-a="new" title="New canvas">New</button><button data-a="open" title="Open SVG (Ctrl+O); a PNG or JPG is placed on the canvas">Open</button><button data-a="imp" title="Import an SVG, PNG or JPG into this canvas (Ctrl+I)">Import</button><i></i>
 <button data-a="undo" title="Undo (Ctrl+Z)">Undo</button><button data-a="redo" title="Redo (Ctrl+Shift+Z)">Redo</button><button data-a="copy" title="Copy (Ctrl+C)">Copy</button><button data-a="paste" title="Paste at cursor (Ctrl+V)">Paste</button><button data-a="del" title="Delete (Del)">Delete</button>
 <span class="sp"></span><span class="lb">Export</span><button data-a="svg" title="Export SVG (Ctrl+S)">SVG</button><button data-a="p300" title="Export PNG at 300 dpi">PNG 300</button><button data-a="p600" title="Export PNG at 600 dpi">PNG 600</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">PDF</button><i></i>
 <button data-a="rulers" title="Show or hide rulers">Rulers</button><button data-a="grid" title="Show or hide the page grid (spacing follows zoom); not exported">Grid</button><button data-a="fit" title="Fit page to window (5)">Fit</button><button data-a="chat" class="on" title="Draw with AI (GLM or DeepSeek): describe a figure and it is placed on the canvas">Chat</button><button data-a="theme">◐</button>
@@ -127,11 +127,11 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div id="mLog"></div>
 <div id="mSelC"></div>
 <div id="mImgs"></div>
-<textarea id="mAsk" rows="4" placeholder="Describe a figure, attach a file to draw from, or (vision models) a reference image to redraw. Ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea>
-<div class="row"><button id="mAtt" title="Redraw: attach a reference image for the AI to copy as editable vector shapes (you can also paste or drop one). Shown only for models that can see images">Redraw</button><input type="file" id="mImgF" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden><button id="mDoc" title="File: attach a text file (txt, csv, tsv, md, json, fasta…) for the AI to read and draw from. Works with every model">File</button><input type="file" id="mDocF" multiple hidden><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
+<textarea id="mAsk" rows="4" placeholder="Describe a figure, or attach an image to redraw or a text file to draw from. Ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea>
+<div class="row"><button id="mAtt" title="Attach for the AI (or paste / drop into this panel): an image (PNG, JPG, GIF, WebP) to redraw or look at, which needs a model that can see images (glm-5.3-flash or deepseek-flash); or a text file (txt, csv, tsv, md, json, fasta…) to read, with any model">Attach</button><input type="file" id="mAttF" multiple hidden><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span></div>
-<input type="file" id="mFile" accept=".svg,image/svg+xml" hidden>
+<input type="file" id="mFile" accept=".svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp" hidden>
 <dialog id="mNew"><form method="dialog">
 <p><select id="mPre"><option value="210,297" selected>A4 (210×297 mm)</option><option value="297,420">A3 (297×420 mm)</option><option value="148,210">A5 (148×210 mm)</option><option value="215.9,279.4">US Letter (216×279 mm)</option><option value="85,85">Single column 85 mm</option><option value="180,120">Double column 180 mm</option><option value="">Custom</option></select></p>
 <p><label><input type="radio" name="mOr" value="p" checked> Portrait</label> <label><input type="radio" name="mOr" value="l"> Landscape</label></p>
@@ -272,7 +272,7 @@ function doImport(txt,nm){const r=document.adoptNode(parse(txt).documentElement)
   setT(g,ctm(p).inverse().multiply(T(vb.x,vb.y)).multiply(S(uI/U)).multiply(T(hv?-b.x:0,hv?-b.y:0)));
   p.appendChild(g);ctx=p;setSel([g],1);commit()}
 const discard=()=>!dirty||confirm('Discard changes that have not been exported?');
-async function readFile(f,imp){if(!f||!imp&&!discard())return;
+async function readFile(f,imp){if(f&&isImg(f))return placeImg(f);if(!f||!imp&&!discard())return;
   const t0=performance.now(),txt=await f.text();
   try{imp?doImport(txt,f.name):load(txt,f.name)}catch(e){return msg(`Cannot read ${f.name}: ${e.message}`)}
   requestAnimationFrame(()=>setTimeout(()=>msg(`${imp?'Imported':'Opened'} ${f.name} · ${(f.size/1048576).toFixed(1)} MB · ${root.getElementsByTagName('*').length} elements · ${Math.round(performance.now()-t0)} ms`)))}
@@ -502,7 +502,7 @@ function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
 // ai chat
-let hist=[],aiG=null,ac=null,imgs=[],files=[];
+let hist=[],aiG=null,ac=null,imgs=[],files=[],notes=[];
 const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. When asked for changes, return the full updated SVG. If the user attaches an image, redraw that figure as editable vector SVG: keep its layout, shapes, arrows, colours and text labels (as <text>); simplify photos and textures into flat shapes. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
   bub=(c,t)=>{const d=document.createElement('div');d.className=c;d.textContent=t;LG.append(d);LG.scrollTop=LG.scrollHeight;return d},
   brief=t=>t.replace(/```\w*\s*/g,'').replace(/<svg[\s\S]*?(<\/svg>|$)/gi,m=>`[SVG, ${m.length} chars]`).trim();
@@ -520,17 +520,25 @@ const VIS=['glm-5.3-flash','deepseek-flash'],vis=()=>VIS.includes($('mModel').va
   img=u=>{const m=new Image();m.src=u;return m},
   chip=(c,t)=>{const e=document.createElement('span');e.className=c;e.textContent=t;return e};
 function thumbs(){const rm=(e,a,i)=>{const x=document.createElement('button');x.textContent='×';x.title='Remove';x.onclick=()=>{a.splice(i,1);thumbs()};e.append(x);return e};
-  $('mAtt').hidden=!vis();$('mImgs').replaceChildren(...imgs.map((u,i)=>{const e=chip('t','');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
+  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...imgs.map((u,i)=>{const e=chip('t','');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
 const shrink=(f,fit)=>new Promise((ok,no)=>{const m=new Image(),u=URL.createObjectURL(f);m.onerror=()=>{URL.revokeObjectURL(u);no(Error('Cannot read '+f.name))};
   m.onload=()=>{const r=fit?fit/Math.max(m.width,m.height):Math.min(1,1600/Math.max(m.width,m.height)),c=document.createElement('canvas'),g=c.getContext('2d');c.width=Math.round(m.width*r);c.height=Math.round(m.height*r);
     g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(m,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/png');d.length>4e6&&(d=c.toDataURL('image/jpeg',.9));ok(d)};m.src=u});
 const isImg=f=>/^image\/(png|jpeg|gif|webp)$/.test(f.type);
-async function attach(fs,txt){document.body.classList.contains('chat')||A.chat();
-  for(const f of fs)try{if(!txt&&isImg(f)){if(!vis())return msg(noVis());imgs.push(await shrink(f));continue}
-    if(/\.(pdf|docx?|xlsx?|pptx?|zip)$/i.test(f.name)||isImg(f)){msg(`${f.name}: only plain-text files can be read here; save or copy the text as .txt`);continue}
-    const t=await f.text();if(/\0/.test(t.slice(0,4096))){msg(`${f.name} is not a text file`);continue}
-    files.push({n:f.name,t:t.slice(0,3e5)});t.length>3e5&&msg(`${f.name} was cut to the first 300,000 characters`)}catch(e){msg(e.message)}
+function note(t){msg(t);notes.push(t);thumbs();setTimeout(()=>{notes=notes.filter(x=>x!==t);thumbs()},8e3)}
+async function attach(fs){document.body.classList.contains('chat')||A.chat();
+  for(const f of fs)try{if(isImg(f)){vis()?imgs.push(await shrink(f)):note(`${f.name}: ${noVis()}`);continue}
+    if(/\.(pdf|docx?|xlsx?|pptx?|zip)$/i.test(f.name)||/^image\/(?!svg)/.test(f.type)){note(`${f.name}: can't read this type; attach an image or a plain-text file (save or copy the text as .txt)`);continue}
+    const t=await f.text();if(/\0/.test(t.slice(0,4096))){note(`${f.name} is not a text file`);continue}
+    files.push({n:f.name,t:t.slice(0,3e5)});t.length>3e5&&note(`${f.name} was cut to the first 300,000 characters`)}catch(e){note(e.message)}
   thumbs()}
+async function placeImg(f,u){let d=await new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=no;r.readAsDataURL(f)}).catch(()=>'');
+  const m=new Image();m.src=d;await m.decode().catch(()=>0);if(!m.naturalWidth)return msg('Cannot read '+f.name);
+  if(!/^data:image\/(png|jpeg)/.test(d)){const c=document.createElement('canvas');c.width=m.naturalWidth;c.height=m.naturalHeight;c.getContext('2d').drawImage(m,0,0);d=c.toDataURL('image/png')}
+  let w=m.naturalWidth/300*25.4/U,h=m.naturalHeight/300*25.4/U;const r=Math.min(1,vb.w*.9/w,vb.h*.9/h);w*=r;h*=r;u=u||{x:vb.x+vb.w/2,y:vb.y+vb.h/2};
+  root.hasAttribute('xmlns:xlink')||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:xlink',NS.xlink);
+  const p=curParent(),e=mk('image',{id:uid('image'),x:fc(u.x-w/2),y:fc(u.y-h/2),width:fc(w),height:fc(h),preserveAspectRatio:'none','xlink:href':d},p);
+  setT(e,ctm(p).inverse());ctx=p;setTool('sel');setSel([e]);commit();msg(`Placed ${f.name}: ${m.naturalWidth}×${m.naturalHeight} px at ${Math.round(300/r)} dpi`)}
 let skip=[];
 const same=(a,b)=>a.length===b.length&&a.every((e,i)=>e===b[i]),selOn=()=>sel.length&&!skip.length&&!(sel.length===1&&sel[0]===aiG),nObj=n=>n+' object'+(n>1?'s':'');
 function selChip(){const c=$('mSelC');same(sel,skip)||(skip=[]);if(!selOn())return c.replaceChildren();const e=chip('f','Selection: '+nObj(sel.length)),x=document.createElement('button');
@@ -585,8 +593,8 @@ for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);
 for(const[i,k]of aiF)$(i).onchange=()=>{ls('msb'+$('mProv').value+k,$(i).value.trim());thumbs()};
 aiLoad();
 $('mSend').onclick=ask;$('mClr').onclick=()=>{ac&&ac.abort();hist=[];aiG=null;imgs=[];files=[];thumbs();LG.replaceChildren()};
-$('mAtt').onclick=()=>$('mImgF').click();$('mDoc').onclick=()=>$('mDocF').click();
-for(const[i,x]of[['mImgF',0],['mDocF',1]])$(i).onchange=e=>{attach([...e.target.files],x);e.target.value=''};
+$('mAtt').onclick=()=>$('mAttF').click();$('mAttF').onchange=e=>{attach([...e.target.files]);e.target.value=''};
+$('mChat').ondrop=e=>{e.preventDefault();e.stopPropagation();attach([...e.dataTransfer.files])};
 $('mAsk').onpaste=e=>{const fs=[...e.clipboardData.files];if(fs.length){e.preventDefault();attach(fs)}};
 $('mAsk').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();ac||ask()}};
 
@@ -639,7 +647,8 @@ view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const m=e.d
   if(e.shiftKey&&!dx)[dx,dy]=[dy,0];tx-=dx;ty-=dy;place()},{passive:false});
 addEventListener('resize',()=>hud());
 addEventListener('dragover',e=>e.preventDefault());
-addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f&&!/\.svg$/i.test(f.name)&&f.type!=='image/svg+xml')return attach([...e.dataTransfer.files]);f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
+addEventListener('drop',e=>{e.preventDefault();const fs=[...e.dataTransfer.files],f=fs[0],r=view.getBoundingClientRect();if(f&&isImg(f))return fs.filter(isImg).forEach((g,i)=>placeImg(g,toU([e.clientX-r.x+i*20,e.clientY-r.y+i*20])));
+  if(f&&!/\.svg$/i.test(f.name)&&f.type!=='image/svg+xml')return attach(fs);f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
 addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 addEventListener('keyup',e=>{if(e.key===' ')space=false});addEventListener('blur',()=>space=false);
 addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SELECT|TEXTAREA)$/.test(tg.tagName)||tg.tagName==='INPUT'&&!/checkbox|color/.test(tg.type)||$('mNew').open)return;
@@ -647,10 +656,11 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SEL
   if(K===' '){space=true;e.preventDefault();return}
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
-  else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copy,x:()=>{copy();del()},v:()=>paste(),d:()=>{const k=clip;copy();paste(true);clip=k},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
+  else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copy,x:()=>{copy();del()},v:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},d:()=>{const k=clip;copy();paste(true);clip=k},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
   else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,v:()=>setTool('sel'),s:()=>setTool('sel'),t:()=>setTool('text'),r:()=>setTool('rect'),e:()=>setTool('ellipse'),l:()=>setTool('line'),a:()=>setTool('arrow'),i:()=>setTool('inhibit')}[K.length>1?K:kl];
-  if(f){e.preventDefault();f()}});
+  if(f){c&&kl==='v'||e.preventDefault();f()}});
+let pv=0;addEventListener('paste',e=>{if(e.target.closest&&e.target.closest('#mChat,input,textarea,.ed'))return;const f=[...e.clipboardData.files].find(isImg);if(f&&root){pv=0;e.preventDefault();placeImg(f)}});
 const opts={rulers:true,grid:false};try{opts.rulers=localStorage.msbRulers!=='0';opts.grid=localStorage.msbGrid==='1'}catch(_){}
 function views(){document.body.classList.toggle('noR',!opts.rulers);grid();for(const k in opts)document.querySelector(`[data-a=${k}]`).classList.toggle('on',opts[k]);rulers()}
 function toggle(k){opts[k]=!opts[k];try{localStorage['msb'+k[0].toUpperCase()+k.slice(1)]=opts[k]?1:0}catch(_){}views()}
