@@ -457,7 +457,7 @@ const MK={arrow:['ArrowMsb','M 0,0 10,5 0,10 z',10,10,3],inhibit:['TeeMsb','M 0,
 function mark(t){const[id,d,w,h,r]=MK[t];byId(id)||mk('path',{d,style:'fill:context-stroke;stroke:none'},
   mk('marker',{id,viewBox:`0 0 ${w} ${h}`,refX:r,refY:h/2,markerWidth:w,markerHeight:h,orient:'auto-start-reverse',style:'overflow:visible','inkscape:stockid':id},defs()));return id}
 function newText(u,txt){const p=curParent(),m=ctm(p),q=m.inverse().transformPoint(u),mark=flush();
-  const t=mk('text',{'xml:space':'preserve',id:uid('text'),x:fc(q.x),y:fc(q.y),style:`font-size:${f6(8/PT/U/sc(m))}px;font-family:Arial;fill:#000000`},p,txt);
+  const t=mk('text',{'xml:space':'preserve',id:uid('text'),x:fc(q.x),y:fc(q.y),style:`font-size:${f6(11/PT/U/sc(m))}px;font-family:Arial;fill:#000000`},p,txt);
   ctx=p;setSel([t]);txt==null&&edit(t,null,mark);return t}
 function labels(){const it=sel.map(e=>[e,bbox(e)]).filter(x=>x[1]).sort((a,b)=>Math.abs(a[1].y-b[1].y)>5/U?a[1].y-b[1].y:a[1].x-b[1].x);if(!it.length)return msg('Select one or more panels first');
   let c=($('mLbl').value||'A').charCodeAt(0);const out=[];
