@@ -143,7 +143,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 </div>
 <div>
 <section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>R</kbd></dt><dd>Rectangle</dd><dt><kbd>E</kbd></dt><dd>Ellipse</dd><dt><kbd>L</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>I</kbd></dt><dd>Inhibition (blunt end)</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt>Panel labels</dt><dd>Label the selected panels A, B, C… at their top-left; the box under the button sets the next letter</dd></dl></section>
-<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
+<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt><kbd>Shift+Enter</kbd></dt><dd>New line while editing</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
 <section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw (needs glm-5.3-flash or deepseek-flash); paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
 </div>
 <div>
@@ -242,7 +242,7 @@ function noTL(t){for(const x of[t,...t.getElementsByTagName('tspan')]){x.removeA
 const texts=()=>[...root.getElementsByTagName('text')].filter(t=>!t.closest('defs,clipPath,mask,marker,pattern,symbol'));
 const selTexts=()=>sel.flatMap(e=>e.localName==='text'?[e]:[...e.getElementsByTagName('text')]);
 const tsize=t=>parseFloat(getComputedStyle(t).fontSize)*sc(ctm(t))*U*PT;
-function setSize(t,pt){if(!(pt>0))return;setSt(t,'font-size',f6(pt/(sc(ctm(t))*U*PT))+'px');kids(t,'font-size',1);noTL(t)}
+function setSize(t,pt){if(!(pt>0))return;setSt(t,'font-size',f6(pt/(sc(ctm(t))*U*PT))+'px');kids(t,'font-size',1);noTL(t);relines(t)}
 function setFont(t,p,v){setSt(t,p,v);setSt(t,'-inkscape-font-specification',null);kids(t,p);kids(t,'-inkscape-font-specification');noTL(t)}
 const fam=f=>/\s/.test(f)&&!/^['"]/.test(f)?`'${f}'`:f;
 const hex=c=>{const m=/rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);return m?'#'+m.slice(1,4).map(x=>(+x).toString(16).padStart(2,'0')).join(''):'#000000'};
@@ -465,26 +465,49 @@ function labels(){const it=sel.map(e=>[e,bbox(e)]).filter(x=>x[1]).sort((a,b)=>M
     out.push(mk('text',{'xml:space':'preserve',id:uid('text'),x:fc(q.x),y:fc(q.y),style:`font-weight:bold;font-size:${f6(10/PT/U/sc(m))}px;font-family:Arial;fill:#000000`},p,String.fromCharCode(c++)))}
   $('mLbl').value=String.fromCharCode(c);setSel(out,1);commit()}
 
-// text editing
+// text editing; a line break makes Inkscape-style lines: one <tspan sodipodi:role="line"> per line, line-height apart
 function runsOf(n,s=''){const o=[];for(const c of n.childNodes)c.nodeType===3?o.push([c.data,s]):c.localName==='tspan'&&o.push(...runsOf(c,(/super|sub/.exec(stGet(c,'baseline-shift'))||[])[0]||s));return o}
-function edRuns(n,s=''){const o=[];for(const c of n.childNodes)c.nodeType===3?o.push([c.data,s]):c.nodeType===1&&o.push(...edRuns(c,{SUP:'super',SUB:'sub'}[c.tagName]||s));return o}
 const norm=rs=>rs.reduce((o,[x,s])=>{x=x.replace(/\n/g,'');if(x)o.length&&o[o.length-1][1]===s?o[o.length-1][0]+=x:o.push([x,s]);return o},[]);
-function edit(t,h,mark){finish(true);let r=t;
-  for(let x=h;x&&x!==t;x=x.parentNode)if(x.localName==='tspan'&&(x.hasAttribute('x')||x.hasAttribute('y')))r=x;
-  const c=t.children;if(r===t&&c.length===1&&c[0].localName==='tspan'&&c[0].hasAttribute('y')&&t.textContent.trim()===c[0].textContent.trim())r=c[0];
-  const X=(e,a)=>{const l=e[a]&&e[a].baseVal;return l&&l.numberOfItems?l.getItem(0).value:null},cs=getComputedStyle(t),m=ctm(t),fs=parseFloat(cs.fontSize)*sc(m)*Z*k,
-    q=m.transformPoint({x:X(r,'x')??X(t,'x')??0,y:X(r,'y')??X(t,'y')??0}),d=el('div','ed'),r0=norm(runsOf(r));
+const at=(e,a)=>{const l=e[a]&&e[a].baseVal;return l&&l.numberOfItems?l.getItem(0).value:null};
+const lnKids=t=>{const c=[...t.children];return c.length&&c.every(e=>e.localName==='tspan'&&e.getAttributeNS(NS.sodipodi,'role')==='line')?c:null};
+function lhRaw(t){const v=stGet(t,'line-height')||'',n=parseFloat(v),f=/%$/.test(v)?n/100:/[a-z]$/i.test(v)&&!/em$/i.test(v)?mmOf(v)/UNIT.px/parseFloat(getComputedStyle(t).fontSize):n;return f>0?f:0}
+const lhOf=t=>lhRaw(t)||1.25;
+function relines(t){const L=lnKids(t);if(!L)return;const y=at(L[0],'y')??at(t,'y')??0,h=parseFloat(getComputedStyle(t).fontSize)*lhOf(t);L.forEach((l,i)=>l.setAttribute('y',fc(y+i*h)))}
+// editor contents as lines of runs: a newline, <br> or <div> breaks a line; the trailing newline Chrome keeps as a caret placeholder is dropped
+function edLines(d){const L=[[]],nl=()=>L.push([]);let after=0;
+  const walk=(n,s)=>{for(const c of n.childNodes){
+    if(c.nodeType===3){if(!c.data)continue;after&&(nl(),after=0);c.data.split('\n').forEach((x,i)=>{i&&nl();x&&L.at(-1).push([x,s])})}
+    else if(c.tagName==='BR'){after&&(nl(),after=0);c===n.lastChild&&/^(DIV|P)$/.test(n.tagName)||nl()}
+    else if(c.nodeType===1){const b=/^(DIV|P)$/.test(c.tagName);b&&((L.at(-1).length||after)&&nl(),after=0);walk(c,{SUP:'super',SUB:'sub'}[c.tagName]||s);b&&(after=1)}}};
+  walk(d,'');const o=L.map(norm);while(o.length>1&&!o.at(-1).length)o.pop();return o}
+const runs=rs=>rs.map(([x,s])=>s?mk('tspan',{style:`font-size:65%;baseline-shift:${s}`},null,x):document.createTextNode(x));
+function setLines(t,r,ln,ls){const h=parseFloat(getComputedStyle(r).fontSize)*lhOf(t),L=ln&&lnKids(t);
+  if(L){let p;ls.forEach((l,i)=>{let n=L[i];if(!n){n=p.cloneNode(false);n.removeAttribute('id');n.setAttribute('y',fc((at(p,'y')??at(t,'y')??0)+h));p.after(n)}n.replaceChildren(...runs(l));p=n});L.slice(ls.length).forEach(n=>n.remove());return}
+  if(ls.length<2)return r.replaceChildren(...runs(ls[0]));
+  const x=at(r,'x')??at(t,'x')??0,y=at(r,'y')??at(t,'y')??0;
+  if(r===t){lhRaw(t)||setSt(t,'line-height','1.25');root.hasAttribute('xmlns:sodipodi')||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:sodipodi',NS.sodipodi);
+    return t.replaceChildren(...ls.map((l,i)=>{const n=mk('tspan',{'sodipodi:role':'line',x:fc(x),y:fc(y+i*h)});n.append(...runs(l));return n}))}
+  let p=r;r.replaceChildren(...runs(ls[0]));
+  ls.slice(1).forEach((l,i)=>{const n=r.cloneNode(false);for(const a of['id','dx','dy','rotate'])n.removeAttribute(a);n.setAttribute('x',fc(x));n.setAttribute('y',fc(y+(i+1)*h));n.append(...runs(l));p.after(n);p=n})}
+function edit(t,h,mark){finish(true);let r=t;const L=lnKids(t);
+  if(!L){for(let x=h;x&&x!==t;x=x.parentNode)if(x.localName==='tspan'&&(x.hasAttribute('x')||x.hasAttribute('y')))r=x;
+    const c=t.children;if(r===t&&c.length===1&&c[0].localName==='tspan'&&c[0].hasAttribute('y')&&t.textContent.trim()===c[0].textContent.trim())r=c[0]}
+  const a=L?L[0]:r,cs=getComputedStyle(t),m=ctm(t),fs=parseFloat(cs.fontSize)*sc(m)*Z*k,lh=lhOf(t),
+    q=m.transformPoint({x:at(a,'x')??at(t,'x')??0,y:at(a,'y')??at(t,'y')??0}),d=el('div','ed');
   d.contentEditable='true';
-  Object.assign(d.style,{left:tx+(q.x-vb.x)*Z*k+'px',top:ty+(q.y-vb.y)*Z*k-fs*0.95+'px',fontSize:fs+'px',fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,
-    color:/^rgb/.test(cs.fill)?cs.fill:'#000',transform:`translateX(${{middle:-50,end:-100}[cs.textAnchor]||0}%)`});
-  for(const[x,s]of r0){if(s)d.append(el(s==='super'?'sup':'sub',0,x));else d.append(x)}
-  view.append(d);ed={t,r,d,r0:JSON.stringify(r0),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
-  d.onkeydown=e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();finish(true)}else if(e.key==='Escape')finish(false)};
-  d.onblur=()=>finish(true);d.onpaste=e=>{e.preventDefault();document.execCommand('insertText',false,e.clipboardData.getData('text/plain'))};
+  Object.assign(d.style,{left:tx+(q.x-vb.x)*Z*k+'px',top:ty+(q.y-vb.y)*Z*k-fs*(lh/2+.35)+'px',fontSize:fs+'px',lineHeight:lh,fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,
+    color:/^rgb/.test(cs.fill)?cs.fill:'#000',textAlign:{middle:'center',end:'right'}[cs.textAnchor]||'left',transform:`translateX(${{middle:-50,end:-100}[cs.textAnchor]||0}%)`});
+  (L?L.map(l=>norm(runsOf(l))):[norm(runsOf(r))]).forEach((rs,i)=>{i&&d.append('\n');for(const[x,s]of rs)d.append(s?el(s==='super'?'sup':'sub',0,x):x)});
+  view.append(d);ed={t,r,L:!!L,d,r0:JSON.stringify(edLines(d)),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
+  d.onkeydown=e=>{e.stopPropagation();if(e.isComposing||e.keyCode===229)return;
+    if(e.key==='Enter'){e.preventDefault();e.shiftKey?document.execCommand('insertLineBreak'):finish(true)}else if(e.key==='Escape')finish(false)};
+  d.onblur=()=>finish(true);
+  d.onpaste=e=>{e.preventDefault();e.clipboardData.getData('text/plain').split(/\r\n?|\n/).forEach((x,i)=>{i&&document.execCommand('insertLineBreak');x&&document.execCommand('insertText',false,x)})};
+  msg('Shift+Enter starts a new line, Enter finishes, Esc cancels');
   d.focus();const g=getSelection(),rg=document.createRange();rg.selectNodeContents(d);g.removeAllRanges();g.addRange(rg)}
-function finish(ok){if(!ed)return;const{t,r,d,r0,vis,mark}=ed,rs=norm(edRuns(d));ed=null;d.remove();
+function finish(ok){if(!ed)return;const{t,r,L,d,r0,vis,mark}=ed,ls=edLines(d);ed=null;d.remove();
   quiet(()=>vis==null?t.removeAttribute('visibility'):t.setAttribute('visibility',vis));
-  if(ok&&JSON.stringify(rs)!==r0){r.replaceChildren(...rs.map(([x,s])=>s?mk('tspan',{style:`font-size:65%;baseline-shift:${s}`},null,x):document.createTextNode(x)));noTL(t)}
+  if(ok&&JSON.stringify(ls)!==r0){setLines(t,r,L,ls);noTL(t)}
   if(!t.textContent.trim()){t.remove();if(mark!=null){flush();pend.length=mark}setSel([],1)}
   commit()}
 
