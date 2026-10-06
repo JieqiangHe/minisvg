@@ -141,8 +141,8 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <input type="file" id="mFile" accept=".svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp" hidden>
 <dialog id="mHelp"><form method="dialog"><header><h3>Shortcuts and tips</h3><button value="" title="Close (Esc)" aria-label="Close">×</button></header><div class="cols">
 <div>
-<section><h4>Select</h4><dl><dt>Click</dt><dd>Select an object (its whole group)</dd><dt><kbd>Shift</kbd>+click</dt><dd>Add to or remove from the selection</dd><dt>Drag on empty</dt><dd>Box select; <kbd>Shift</kbd> adds to the selection</dd><dt>Double-click</dt><dd>Enter a group; on text, edit it</dd><dt><kbd>Ctrl</kbd>+click</dt><dd>Pick an object inside a group directly</dd><dt><kbd>Ctrl+A</kbd></dt><dd>Select all in the current group</dd><dt><kbd>Esc</kbd></dt><dd>Up one group level, then deselect</dd></dl></section>
-<section><h4>Move and resize</h4><dl><dt>Drag</dt><dd>Move; <kbd>Ctrl</kbd> keeps it horizontal or vertical</dd><dt><kbd>← ↑ → ↓</kbd></dt><dd>Nudge 0.1 mm; with <kbd>Shift</kbd> 1 mm</dd><dt>Corner handle</dt><dd>Scale in proportion; <kbd>Shift</kbd> scales freely</dd><dt>Side handle</dt><dd>Stretch one side</dd><dt>Rotate handle</dt><dd>Rotate; <kbd>Ctrl</kbd> snaps to 15°</dd><dt>Round handle</dt><dd>Round the corners of a rectangle</dd><dt>End handle</dt><dd>Move an end of a line or arrow; <kbd>Shift</kbd> snaps to 45°</dd><dt>Right panel</dt><dd>Exact X, Y, W, H (mm) and rotation</dd></dl></section>
+<section><h4>Select</h4><dl><dt>Click</dt><dd>Select an object (its whole group); clicking text selects that text</dd><dt><kbd>Shift</kbd>+click</dt><dd>Add to or remove from the selection</dd><dt>Drag on empty</dt><dd>Box select; <kbd>Shift</kbd> adds to the selection</dd><dt>Double-click</dt><dd>Enter a group; on text, edit it</dd><dt><kbd>Ctrl</kbd>+click</dt><dd>Pick an object inside a group directly</dd><dt><kbd>Ctrl+A</kbd></dt><dd>Select all in the current group</dd><dt><kbd>Esc</kbd></dt><dd>Up one group level, then deselect</dd></dl></section>
+<section><h4>Move and resize</h4><dl><dt>Drag</dt><dd>Move; <kbd>Ctrl</kbd> keeps it horizontal or vertical</dd><dt><kbd>← ↑ → ↓</kbd></dt><dd>Nudge 0.1 mm; with <kbd>Shift</kbd> 1 mm</dd><dt>Corner handle</dt><dd>Scale in proportion; <kbd>Shift</kbd> scales freely</dd><dt>Side handle</dt><dd>Stretch one side; on text, the left or right handle re-wraps the text at that width with the font size unchanged</dd><dt>Rotate handle</dt><dd>Rotate; <kbd>Ctrl</kbd> snaps to 15°</dd><dt>Round handle</dt><dd>Round the corners of a rectangle</dd><dt>End handle</dt><dd>Move an end of a line or arrow; <kbd>Shift</kbd> snaps to 45°</dd><dt>Right panel</dt><dd>Exact X, Y, W, H (mm) and rotation</dd></dl></section>
 <section><h4>View</h4><dl><dt>Wheel</dt><dd>Scroll; <kbd>Shift</kbd>+wheel scrolls sideways</dd><dt><kbd>Ctrl</kbd>+wheel</dt><dd>Zoom (or pinch)</dd><dt><kbd>Space</kbd>+drag</dt><dd>Pan (or drag with the middle button)</dd><dt><kbd>5</kbd></dt><dd>Fit the page to the window</dd><dt><kbd>?</kbd></dt><dd>This help</dd></dl></section>
 </div>
 <div>
@@ -421,7 +421,7 @@ function down(e){if(!root||e.target.closest('.ed'))return;finish(true);document.
   if(tool!=='sel'){D={t:tool,p,u};return cap()}
   const t=hit(e);
   if(!t||e.shiftKey){D={t:'band',p,u,add:e.shiftKey,h:t};return cap()}
-  let[el,c]=e.ctrlKey||e.metaKey?[t.closest('text')||t]:pick(t);c=c||el.parentNode;
+  const tt=t.closest('text');let[el,c]=e.ctrlKey||e.metaKey||tt?[tt||t]:pick(t);c=c||el.parentNode;
   const was=sel.includes(el);if(!was){ctx=c;setSel([el])}D={t:'move',p,u,el,was};cap()}
 function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textContent=`${((u.x-vb.x)*U).toFixed(1)}, ${((u.y-vb.y)*U).toFixed(1)} mm`;if(!D)return rulers();
   let dx=p[0]-D.p[0],dy=p[1]-D.p[1];
@@ -444,10 +444,11 @@ function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textCo
 function up(){if(!D)return;const d=D;D=null;
   if(d.t==='pan')return;
   if(d.t==='rad'||d.t==='pt')return commit();
-  if(/^(move|sc|rot)$/.test(d.t)){if(G)ghostOff(d.M);else if(d.t==='move'&&d.was)setSel([d.el]);return}
+  if(/^(move|sc|rot)$/.test(d.t)){if(d.t==='sc'&&d.on&&d.M&&/^[ew]$/.test(d.h)&&sel.length===1&&sel[0].localName==='text'&&tryWrap(sel[0],d.b,d.M,d.h))return;
+    if(G)ghostOff(d.M);else if(d.t==='move'&&d.was)setSel([d.el]);return}
   if(d.t==='band'){if(d.q){const a=toU(d.p),b=toU(d.q),R=rb(Math.min(a.x,b.x),Math.min(a.y,b.y),Math.abs(a.x-b.x),Math.abs(a.y-b.y));
       const got=memoize(()=>cands(top_(ctx)?root:ctx).filter(x=>{const q=bbox(x);return q&&q.x>=R.x&&q.y>=R.y&&q.x+q.w<=R.x+R.w&&q.y+q.h<=R.y+R.h}));setSel(d.add?[...sel,...got]:got)}
-    else if(d.add&&d.h){const[el,c]=pick(d.h);ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add)setSel([]);return hud()}
+    else if(d.add&&d.h){const q=d.h.closest('text'),[el,c]=q?[q]:pick(d.h);c=c||el.parentNode;ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add)setSel([]);return hud()}
   if(d.q)create(d.t,toU(d.p),toU(d.q));else hud()}
 function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e);if(!t)return top_(ctx)||esc();
   let[el]=pick(t);if(el.localName==='text')return edit(el,t);
@@ -495,6 +496,28 @@ function setLines(t,r,ln,ls){const h=parseFloat(getComputedStyle(r).fontSize)*lh
     return t.replaceChildren(...ls.map((l,i)=>{const n=mk('tspan',{'sodipodi:role':'line',x:fc(x),y:fc(y+i*h)});n.append(...runs(l));return n}))}
   let p=r;r.replaceChildren(...runs(ls[0]));
   ls.slice(1).forEach((l,i)=>{const n=r.cloneNode(false);for(const a of['id','dx','dy','rotate'])n.removeAttribute(a);n.setAttribute('x',fc(x));n.setAttribute('y',fc(y+(i+1)*h));n.append(...runs(l));p.after(n);p=n})}
+function tryWrap(t,b,M,h){if(!t.textContent.trim())return false;const m=ctm(t),s=sc(m);
+  if(!(s>0)||Math.hypot(m.b,m.c)>1e-9*s)return false;G&&ghostOff();
+  const Wu=Math.abs(M.a)*b.w,W=Wu/s,P=m.inverse(),l=P.transformPoint({x:h==='e'?b.x:b.x+b.w-Wu,y:b.y}).x,r=P.transformPoint({x:h==='e'?b.x+Wu:b.x+b.w,y:b.y}).x;
+  let line=[],cur='';const ls=[];
+  quiet(()=>{const ms=t.cloneNode(false),toks=[];
+    ['textLength','lengthAdjust'].forEach(a=>ms.removeAttribute(a));ms.setAttribute('visibility','hidden');t.parentNode.appendChild(ms);
+    const walk=(n,sh)=>{for(const c of n.childNodes){if(c.nodeType===3)toks.push([c.data,sh]);
+      else if(c.localName==='tspan'){const rl=c.getAttributeNS(NS.sodipodi,'role')==='line';rl&&toks.push([' ',sh]);walk(c,(/super|sub/.exec(stGet(c,'baseline-shift'))||[])[0]||sh);rl&&toks.push([' ',sh])}}};
+    walk(t,'');
+    const words=[];for(const[x,sh]of toks)for(const w of x.split(/ +/))w&&words.push([w,sh]);
+    const fit=v=>{ms.textContent=v;return ms.getComputedTextLength()<=W};
+    for(const[w,sh]of words){
+      if(fit(cur?cur+' '+w:w)){cur&&line.push([' ','']);for(const c of w)line.push([c,sh]);cur=cur?cur+' '+w:w;continue}
+      if(cur){ls.push(line);line=[];cur=''}
+      if(fit(w)){for(const c of w)line.push([c,sh]);cur=w;continue}
+      let cs='';for(const c of w){if(cs&&fit(cs+c))cs+=c;else{if(cs){ls.push(line);line=[]}cs=c}line.push([c,sh])}cur=cs}
+    ls.push(line);while(ls.length>1&&!ls.at(-1).length)ls.pop();ms.remove()});
+  const rs=ls.map(norm);
+  setLines(t,t,lnKids(t),rs);noTL(t);
+  if(rs.length>1){const an=getComputedStyle(t).textAnchor,x=an==='middle'?(l+r)/2:an==='end'?r:l;
+    t.setAttribute('x',fc(x));for(const q of t.getElementsByTagName('tspan'))q.hasAttribute('x')&&q.setAttribute('x',fc(x))}
+  commit();msg(rs.length>1?`Wrapped to ${rs.length} lines`:'Unwrapped');return true}
 function edit(t,h,mark){finish(true);let r=t;const L=lnKids(t);
   if(!L){for(let x=h;x&&x!==t;x=x.parentNode)if(x.localName==='tspan'&&(x.hasAttribute('x')||x.hasAttribute('y')))r=x;
     const c=t.children;if(r===t&&c.length===1&&c[0].localName==='tspan'&&c[0].hasAttribute('y')&&t.textContent.trim()===c[0].textContent.trim())r=c[0]}
