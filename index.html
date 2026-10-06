@@ -472,36 +472,48 @@ function labels(){const it=sel.map(e=>[e,bbox(e)]).filter(x=>x[1]).sort((a,b)=>M
     out.push(mk('text',{'xml:space':'preserve',id:uid('text'),x:fc(q.x),y:fc(q.y),style:`font-weight:bold;font-size:${f6(10/PT/U/sc(m))}px;font-family:Arial;fill:#000000`},p,String.fromCharCode(c++)))}
   $('mLbl').value=String.fromCharCode(c);setSel(out,1);commit()}
 
-// text editing; a line break makes Inkscape-style lines: one <tspan sodipodi:role="line"> per line, line-height apart
-function runsOf(n,s=''){const o=[];for(const c of n.childNodes)c.nodeType===3?o.push([c.data,s]):c.localName==='tspan'&&o.push(...runsOf(c,(/super|sub/.exec(stGet(c,'baseline-shift'))||[])[0]||s));return o}
-const norm=rs=>rs.reduce((o,[x,s])=>{x=x.replace(/\n/g,'');if(x)o.length&&o[o.length-1][1]===s?o[o.length-1][0]+=x:o.push([x,s]);return o},[]);
+// text editing; a line break makes Inkscape-style lines: one <tspan sodipodi:role="line"> per line, line-height apart.
+// Edited and wrapped text is handled as chars, each with the chain of tspans around it ('super'/'sub' for a new X² X₂),
+// so rebuilding it keeps every run's own styling
 const at=(e,a)=>{const l=e[a]&&e[a].baseVal;return l&&l.numberOfItems?l.getItem(0).value:null};
 const lnKids=t=>{const c=[...t.children];return c.length&&c.every(e=>e.localName==='tspan'&&e.getAttributeNS(NS.sodipodi,'role')==='line')?c:null};
 function lhRaw(t){const v=stGet(t,'line-height')||'',n=parseFloat(v),f=/%$/.test(v)?n/100:/[a-z]$/i.test(v)&&!/em$/i.test(v)?mmOf(v)/UNIT.px/parseFloat(getComputedStyle(t).fontSize):n;return f>0?f:0}
 const lhOf=t=>lhRaw(t)||1.25;
 function relines(t){const L=lnKids(t);if(!L)return;const y=at(L[0],'y')??at(t,'y')??0,h=parseFloat(getComputedStyle(t).fontSize)*lhOf(t);L.forEach((l,i)=>l.setAttribute('y',fc(y+i*h)))}
-// editor contents as lines of runs: a newline, <br> or <div> breaks a line; the trailing newline Chrome keeps as a caret placeholder is dropped
-function edLines(d){const L=[[]],nl=()=>L.push([]);let after=0;
-  const walk=(n,s)=>{for(const c of n.childNodes){
-    if(c.nodeType===3){if(!c.data)continue;after&&(nl(),after=0);c.data.split('\n').forEach((x,i)=>{i&&nl();x&&L.at(-1).push([x,s])})}
-    else if(c.tagName==='BR'){after&&(nl(),after=0);c===n.lastChild&&/^(DIV|P)$/.test(n.tagName)||nl()}
-    else if(c.nodeType===1){const b=/^(DIV|P)$/.test(c.tagName);b&&((L.at(-1).length||after)&&nl(),after=0);walk(c,{SUP:'super',SUB:'sub'}[c.tagName]||s);b&&(after=1)}}};
-  walk(d,'');const o=L.map(norm);while(o.length>1&&!o.at(-1).length)o.pop();return o}
-const sodi=()=>root.hasAttribute('xmlns:sodipodi')||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:sodipodi',NS.sodipodi);
-const runs=rs=>rs.map(([x,s])=>s?mk('tspan',{style:`font-size:65%;baseline-shift:${s}`},null,x):document.createTextNode(x));
-function setLines(t,r,ln,ls){const h=parseFloat(getComputedStyle(r).fontSize)*lhOf(t),L=ln&&lnKids(t);
-  if(L){let p;ls.forEach((l,i)=>{let n=L[i];if(!n){n=p.cloneNode(false);n.removeAttribute('id');n.setAttribute('y',fc((at(p,'y')??at(t,'y')??0)+h));p.after(n)}n.replaceChildren(...runs(l));p=n});L.slice(ls.length).forEach(n=>n.remove());return}
-  if(ls.length<2)return r.replaceChildren(...runs(ls[0]));
-  const x=at(r,'x')??at(t,'x')??0,y=at(r,'y')??at(t,'y')??0;
-  if(r===t){lhRaw(t)||setSt(t,'line-height','1.25');sodi();
-    return t.replaceChildren(...ls.map((l,i)=>{const n=mk('tspan',{'sodipodi:role':'line',x:fc(x),y:fc(y+i*h)});n.append(...runs(l));return n}))}
-  let p=r;r.replaceChildren(...runs(ls[0]));
-  ls.slice(1).forEach((l,i)=>{const n=r.cloneNode(false);for(const a of['id','dx','dy','rotate'])n.removeAttribute(a);n.setAttribute('x',fc(x));n.setAttribute('y',fc(y+(i+1)*h));n.append(...runs(l));p.after(n);p=n})}
-// side-handle wrap: words break only at spaces and every run keeps its own tspans (as bare copies), so super/subscripts, italics and classes survive;
-// text laid out as positioned runs along one line (kerning runs, dx/dy shifts, rotate, textPath) returns false and is stretched instead
 const POS=['x','y','dx','dy','rotate'],many=(e,a)=>e[a].baseVal.numberOfItems>1,
   bare=(e,role)=>{const c=e.cloneNode(false);for(const a of['id',...POS,'textLength','lengthAdjust'])c.removeAttribute(a);role||c.removeAttributeNS(NS.sodipodi,'role');return c},
   sig=e=>[...bare(e,1).attributes].map(a=>a.name+'='+a.value).sort().join();
+// chars back to nodes, nesting runs that share outer tspans; with a set, the first copy of each tspan keeps its id and position
+function build(a,seen){const o=[],st=[];for(const{c,ch}of a){let i=0;while(i<st.length&&i<ch.length&&st[i][0]===ch[i])i++;st.length=i;
+    for(;i<ch.length;i++){const e=ch[i],n=typeof e=='string'?mk('tspan',{style:`font-size:65%;baseline-shift:${e}`}):seen&&!seen.has(e)?(seen.add(e),e.cloneNode(false)):bare(e);
+      st.length?st.at(-1)[1].append(n):o.push(n);st.push([e,n])}
+    const p=st.length?st.at(-1)[1]:null,e=p?p.lastChild:o.at(-1);e&&e.nodeType===3?e.data+=c:p?p.append(c):o.push(document.createTextNode(c))}return o}
+// editor copy of a run: each tspan becomes a span (sup/sub when shifted) that shows its look and points back to it through data-k (data-s: its shift)
+function mirror(n,o,ks){for(const c of n.childNodes){
+  if(c.nodeType===3){o.append(c.data.replace(/\n/g,''));continue}
+  if(c.localName!=='tspan')continue;const s=(/super|sub/.exec(stGet(c,'baseline-shift'))||[])[0],e=el(s?s.slice(0,3):'span'),cs=getComputedStyle(c);
+  e.dataset.k=ks.push(c)-1;e.dataset.s=s||'';Object.assign(e.style,{fontSize:parseFloat(cs.fontSize)/parseFloat(getComputedStyle(n).fontSize)+'em',fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle});
+  /^rgb/.test(cs.fill)&&(e.style.color=cs.fill);mirror(c,e,ks);o.append(e)}}
+// editor contents as lines of chars, each with the keys of the spans around it: data-k, '~'+data-k when X² X₂ changed that run's shift
+// (its tspan minus the shift), 'super'/'sub' for a new shift; a newline, <br> or <div> breaks a line; the trailing newline Chrome keeps as a caret placeholder is dropped
+function edLines(d){const L=[[]],nl=()=>L.push([]);let after=0;
+  const walk=(n,ch)=>{for(const c of n.childNodes){
+    if(c.nodeType===3){if(!c.data)continue;after&&(nl(),after=0);c.data.split('\n').forEach((x,i)=>{i&&nl();for(const y of x)L.at(-1).push({c:y,ch})})}
+    else if(c.tagName==='BR'){after&&(nl(),after=0);c===n.lastChild&&/^(DIV|P)$/.test(n.tagName)||nl()}
+    else if(c.nodeType===1){const b=/^(DIV|P)$/.test(c.tagName),k=c.dataset.k,s={SUP:'super',SUB:'sub'}[c.tagName]||'';b&&((L.at(-1).length||after)&&nl(),after=0);
+      walk(c,[...ch,...k?s===c.dataset.s?[+k]:['~'+k,...s?[s]:[]]:s?[s]:[]]);b&&(after=1)}}};
+  walk(d,[]);while(L.length>1&&!L.at(-1).length)L.pop();return L}
+const sodi=()=>root.hasAttribute('xmlns:sodipodi')||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:sodipodi',NS.sodipodi);
+function setLines(t,r,ln,ls){const h=parseFloat(getComputedStyle(r).fontSize)*lhOf(t),L=ln&&lnKids(t),sn=new Set(),b=l=>build(l,sn);
+  if(L){let p;ls.forEach((l,i)=>{let n=L[i];if(!n){n=p.cloneNode(false);n.removeAttribute('id');n.setAttribute('y',fc((at(p,'y')??at(t,'y')??0)+h));p.after(n)}n.replaceChildren(...b(l));p=n});L.slice(ls.length).forEach(n=>n.remove());return}
+  if(ls.length<2)return r.replaceChildren(...b(ls[0]));
+  const x=at(r,'x')??at(t,'x')??0,y=at(r,'y')??at(t,'y')??0;
+  if(r===t){lhRaw(t)||setSt(t,'line-height','1.25');sodi();
+    return t.replaceChildren(...ls.map((l,i)=>{const n=mk('tspan',{'sodipodi:role':'line',x:fc(x),y:fc(y+i*h)});n.append(...b(l));return n}))}
+  let p=r;r.replaceChildren(...b(ls[0]));
+  ls.slice(1).forEach((l,i)=>{const n=r.cloneNode(false);for(const a of['id','dx','dy','rotate'])n.removeAttribute(a);n.setAttribute('x',fc(x));n.setAttribute('y',fc(y+(i+1)*h));n.append(...b(l));p.after(n);p=n})}
+// side-handle wrap: words break only at spaces and every run keeps its own tspans (as bare copies), so super/subscripts, italics and classes survive;
+// text laid out as positioned runs along one line (kerning runs, dx/dy shifts, rotate, textPath) returns false and is stretched instead
 function tryWrap(t,b,M,h){if(!t.textContent.trim()||many(t,'dx')||many(t,'dy')||t.hasAttribute('rotate'))return false;
   const L=lnKids(t),one=L&&L.every(l=>sig(l)===sig(L[0])),cs=[],hosts=new Set(),p0={},z=(e,a)=>e&&at(e,a)||0;let f=null,cy=0;
   for(const a of POS)t.hasAttribute(a)&&(p0[a]=t);
@@ -518,9 +530,6 @@ function tryWrap(t,b,M,h){if(!t.textContent.trim()||many(t,'dx')||many(t,'dy')||
   const m=ctm(t),s=sc(m);if(!(s>0)||Math.hypot(m.b,m.c)>1e-9*s)return false;G&&ghostOff();
   const Wu=Math.abs(M.a)*b.w,W=Wu/s,P=ctm(t).inverse(),l=P.transformPoint({x:h==='e'?b.x:b.x+b.w-Wu,y:b.y}).x,r=P.transformPoint({x:h==='e'?b.x+Wu:b.x+b.w,y:b.y}).x;
   const tpl=one?bare(L[0],1):mk('tspan',{'sodipodi:role':'line'}),
-    build=a=>{const o=[],st=[];for(const{c,ch}of a){let i=0;while(i<st.length&&i<ch.length&&st[i][0]===ch[i])i++;st.length=i;
-      for(;i<ch.length;i++){const n=bare(ch[i]);st.length?st.at(-1)[1].append(n):o.push(n);st.push([ch[i],n])}
-      const p=st.length?st.at(-1)[1]:null,e=p?p.lastChild:o.at(-1);e&&e.nodeType===3?e.data+=c:p?p.append(c):o.push(document.createTextNode(c))}return o},
     line=a=>{const n=tpl.cloneNode(false);n.append(...build(a));return n};
   const ws=[];let g=null,wd=null;
   for(const x of cs)if(x.sp){wd&&(ws.push(wd),wd=null);g??=x.ch}else{wd||(wd={g:g||[],cs:[]},g=null);wd.cs.push(x)}wd&&ws.push(wd);
@@ -543,22 +552,25 @@ function tryWrap(t,b,M,h){if(!t.textContent.trim()||many(t,'dx')||many(t,'dy')||
 function edit(t,h,mark){finish(true);let r=t;const L=lnKids(t);
   if(!L){for(let x=h;x&&x!==t;x=x.parentNode)if(x.localName==='tspan'&&(x.hasAttribute('x')||x.hasAttribute('y')))r=x;
     const c=t.children;if(r===t&&c.length===1&&c[0].localName==='tspan'&&c[0].hasAttribute('y')&&t.textContent.trim()===c[0].textContent.trim())r=c[0]}
-  const a=L?L[0]:r,cs=getComputedStyle(t),m=ctm(t),fs=parseFloat(cs.fontSize)*sc(m)*Z*k,lh=lhOf(t),
+  const a=L?L[0]:r,cs=getComputedStyle(a),m=ctm(t),fs=parseFloat(cs.fontSize)*sc(m)*Z*k,lh=lhOf(t),
     q=m.transformPoint({x:at(a,'x')??at(t,'x')??0,y:at(a,'y')??at(t,'y')??0}),d=el('div','ed');
   d.contentEditable='true';
   Object.assign(d.style,{left:tx+(q.x-vb.x)*Z*k+'px',top:ty+(q.y-vb.y)*Z*k-fs*(lh/2+.35)+'px',fontSize:fs+'px',lineHeight:lh,fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,
     color:/^rgb/.test(cs.fill)?cs.fill:'#000',textAlign:{middle:'center',end:'right'}[cs.textAnchor]||'left',transform:`translateX(${{middle:-50,end:-100}[cs.textAnchor]||0}%)`});
-  (L?L.map(l=>norm(runsOf(l))):[norm(runsOf(r))]).forEach((rs,i)=>{i&&d.append('\n');for(const[x,s]of rs)d.append(s?el(s==='super'?'sup':'sub',0,x):x)});
-  view.append(d);ed={t,r,L:!!L,d,r0:JSON.stringify(edLines(d)),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
+  const ks=[];(L||[r]).forEach((l,i)=>{i&&d.append('\n');mirror(l,d,ks)});
+  view.append(d);ed={t,r,L:!!L,d,ks,r0:JSON.stringify(edLines(d)),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
   d.onkeydown=e=>{e.stopPropagation();if(e.isComposing||e.keyCode===229)return;
     if(e.key==='Enter'){e.preventDefault();e.shiftKey?document.execCommand('insertLineBreak'):finish(true)}else if(e.key==='Escape')finish(false)};
   d.onblur=()=>finish(true);
   d.onpaste=e=>{e.preventDefault();e.clipboardData.getData('text/plain').split(/\r\n?|\n/).forEach((x,i)=>{i&&document.execCommand('insertLineBreak');x&&document.execCommand('insertText',false,x)})};
   msg('Shift+Enter starts a new line, Enter finishes, Esc cancels');
   d.focus();const g=getSelection(),rg=document.createRange();rg.selectNodeContents(d);g.removeAllRanges();g.addRange(rg)}
-function finish(ok){if(!ed)return;const{t,r,L,d,r0,vis,mark}=ed,ls=edLines(d);ed=null;d.remove();
+function finish(ok){if(!ed)return;const{t,r,L,d,ks,r0,vis,mark}=ed,ls=edLines(d);ed=null;d.remove();
   quiet(()=>vis==null?t.removeAttribute('visibility'):t.setAttribute('visibility',vis));
-  if(ok&&JSON.stringify(ls)!==r0){setLines(t,r,L,ls);noTL(t)}
+  // a run whose X² X₂ was switched off or changed keeps its other styling: one copy of its tspan without the shift and the smaller size
+  const pl={},plain=i=>pl[i]??=(c=>{c.removeAttribute('id');setSt(c,'baseline-shift',null);setSt(c,'font-size',null);return c.attributes.length?c:null})(ks[i].cloneNode(false)),
+    key=k=>typeof k=='number'?ks[k]:k[0]==='~'?plain(+k.slice(1)):k;
+  if(ok&&JSON.stringify(ls)!==r0){setLines(t,r,L,ls.map(l=>l.map(({c,ch})=>({c,ch:ch.map(key).filter(Boolean)}))));noTL(t)}
   if(!t.textContent.trim()){t.remove();if(mark!=null){flush();pend.length=mark}setSel([],1)}
   commit()}
 
