@@ -5,3 +5,5 @@
 A tiny in-browser SVG editor for touching up figures from ggplot2 or Inkscape: edit text, move and resize, restyle, combine panels, export. Nothing is uploaded.
 
 **Live: https://jieqianghe.github.io/minisvg/**
+
+[TBtools-II](https://github.com/CJ-Chen/TBtools-II) users can use `minisvg.plugin` directly.
