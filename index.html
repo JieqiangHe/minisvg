@@ -51,7 +51,7 @@ input,select{font:inherit}
 #mSide select{width:100%}#mPg{flex:1;width:auto!important;min-width:0}#mSide .row .ori{flex:0 0 28px}
 #mSide input[type=number]{width:62px;-moz-appearance:textfield}#mSide input::-webkit-inner-spin-button{display:none}
 #mSt{grid-column:1/-1;height:22px;display:flex;align-items:center;gap:18px;padding:2px 2px 2px 8px;background:var(--bar);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
-.ed{position:absolute;white-space:pre;width:max-content;max-width:none;overflow:visible;overflow-wrap:normal;outline:1px solid #1a73e8;background:#fffd;min-width:4px;line-height:1.2;padding:0 1px}
+.ed{position:absolute;white-space:pre;width:max-content;max-width:none;overflow:visible;overflow-wrap:normal;outline:1px solid #1a73e8;background:#fffd;min-width:4px;line-height:1.2;padding:0 1px}::selection{background:#1a73e8;color:#fff}
 body.chat{grid-template-columns:40px 1fr 236px 300px}
 #mChat{display:none;grid-area:2/4;flex-direction:column;gap:4px;overflow:hidden;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}.chat #mChat{display:flex}
 #mChat summary{cursor:pointer;color:var(--h4)}#mChat details label{display:grid;grid-template-columns:40px 1fr;align-items:center;margin:2px 0}#mChat details input{min-width:0}
@@ -108,6 +108,10 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div class="kv"><span>Font</span><input list="mFonts" data-f="ff">
 <span>Size</span><div><input type="number" step="0.5" min="0.5" data-f="fs">pt<span class="tc">Color</span><input type="color" data-f="tc"></div></div>
 <div class="row"><button data-a="bold" title="Bold"><b>B</b></button><button data-a="ital" title="Italic"><i>I</i></button><button data-a="sup" title="Superscript: applies to selected characters while editing">X²</button><button data-a="sub" title="Subscript: applies to selected characters while editing">X₂</button></div>
+<div class="row ic">
+<button data-a="tal" title="Text left: lines start at the anchor point; the text keeps its place"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="2.5"/><rect x="2" y="6.75" width="8" height="2.5"/><rect x="2" y="10.5" width="10" height="2.5"/></svg></button>
+<button data-a="tac" title="Text center: lines center on the anchor point; the text keeps its place"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="2.5"/><rect x="4" y="6.75" width="8" height="2.5"/><rect x="3" y="10.5" width="10" height="2.5"/></svg></button>
+<button data-a="tar" title="Text right: lines end at the anchor point; the text keeps its place"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="2.5"/><rect x="6" y="6.75" width="8" height="2.5"/><rect x="4" y="10.5" width="10" height="2.5"/></svg></button></div>
 <datalist id="mFonts"><option>Arial<option>Helvetica<option>Liberation Sans<option>Times New Roman<option>Courier New<option>Symbol</datalist>
 <h4>All text</h4>
 <div class="row"><button data-a="allText">Select all</button><button data-a="arial">All to Arial</button></div>
@@ -143,7 +147,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 </div>
 <div>
 <section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>R</kbd></dt><dd>Rectangle</dd><dt><kbd>E</kbd></dt><dd>Ellipse</dd><dt><kbd>L</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>I</kbd></dt><dd>Inhibition (blunt end)</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt>Panel labels</dt><dd>Label the selected panels A, B, C… at their top-left; the box under the button sets the next letter</dd></dl></section>
-<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt><kbd>Shift+Enter</kbd></dt><dd>New line while editing</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
+<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt><kbd>Shift+Enter</kbd></dt><dd>New line while editing</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
 <section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw (needs glm-5.3-flash or deepseek-flash); paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
 </div>
 <div>
@@ -383,6 +387,8 @@ function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3
   v(F.pw,vb.w*U);v(F.ph,vb.h*U);const pw=+(vb.w*U).toFixed(1),ph=+(vb.h*U).toFixed(1);F.pg.value=([...F.pg.options].find(o=>o.value===pw+','+ph||o.value===ph+','+pw)||{}).value||'';
   qa('portrait').classList.toggle('on',ph>=pw);qa('landscape').classList.toggle('on',pw>ph);v(F.r,sel[0]&&(Math.round(ang(sel[0])*100)/100||0));v(F.x,b&&(b.x-vb.x)*U);v(F.y,b&&(b.y-vb.y)*U);v(F.w,b&&b.w*U);v(F.h,b&&b.h*U);
   const t=selTexts()[0];v(F.fs,t&&tsize(t));F.ff.value=t?getComputedStyle(t).fontFamily.split(',')[0].replace(/["']/g,''):'';t&&(F.tc.value=hex(getComputedStyle(t).fill));
+  const an=t?{start:'tal',middle:'tac',end:'tar'}[getComputedStyle(t).textAnchor]:'';
+  ['tal','tac','tar'].forEach(a=>qa(a).classList.toggle('on',a===an));
   const e=sel[0],l=e&&(isGrp(e)?e.querySelector(LEAF):e);
   if(!l){F.nofill.checked=F.nostroke.checked=false;v(F.sw);F.dash.value=''}
   if(l){const cs=getComputedStyle(l);F.nofill.checked=cs.fill==='none';F.fill.value=hex(cs.fill);F.nostroke.checked=cs.stroke==='none';F.stroke.value=hex(cs.stroke);v(F.sw,parseFloat(cs.strokeWidth)*sc(ctm(l))*U*PT);F.dash.value=cs.strokeDasharray==='none'?'':parseFloat(cs.strokeDasharray)/parseFloat(cs.strokeWidth)<1.5?'o':'d'}
@@ -548,6 +554,11 @@ function dist(hz){const[p,s]=hz?['x','w']:['y','h'],it=sel.map(e=>[e,bbox(e)]).f
 function nudge(x,y,big){const d=(big?1:0.1)/U;applyM(T(x*d,y*d));commit()}
 function dash(e){const w=parseFloat(getComputedStyle(e).strokeWidth)||1,d=F.dash.value;return d?[d==='d'?4*w:w,2*w].map(fm).join():null}
 function flip(p,v,on){const ts=selTexts();if(!ts.length)return;const x=on(getComputedStyle(ts[0]))?'normal':v;ts.forEach(t=>setFont(t,p,x));commit()}
+function anchor(v){const ts=selTexts();if(!ts.length)return;
+  for(const t of ts){const b=lbox(t);if(!b)continue;const x=fc(b.x+(v==='middle'?b.w/2:v==='end'?b.w:0));
+    setSt(t,'text-anchor',v);kids(t,'text-anchor');t.setAttribute('x',x);
+    for(const s of t.getElementsByTagName('tspan'))s.hasAttribute('x')&&s.setAttribute('x',x)}
+  commit()}
 function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
@@ -655,6 +666,7 @@ Object.assign(A,{
   undo:()=>undo(0),redo:()=>undo(1),label:labels,group,ungroup,top:()=>zorder('top'),up:()=>zorder('up'),dn:()=>zorder('dn'),bot:()=>zorder('bot'),
   copy:copyOut,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
   bold:()=>flip('font-weight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','italic',c=>c.fontStyle==='italic'),
+  tal:()=>anchor('start'),tac:()=>anchor('middle'),tar:()=>anchor('end'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);ls('msbTheme',d?'dark':'light')},
   help:()=>{$('mHelp').showModal();$('mHelp').scrollTop=0},rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
