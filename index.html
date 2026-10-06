@@ -421,8 +421,8 @@ function down(e){if(!root||e.target.closest('.ed'))return;finish(true);document.
   if(tool!=='sel'){D={t:tool,p,u};return cap()}
   const t=hit(e);
   if(!t||e.shiftKey){D={t:'band',p,u,add:e.shiftKey,h:t};return cap()}
-  const tt=t.closest('text');let[el,c]=e.ctrlKey||e.metaKey||tt?[tt||t]:pick(t);c=c||el.parentNode;
-  const was=sel.includes(el);if(!was){ctx=c;setSel([el])}D={t:'move',p,u,el,was};cap()}
+  const tt=t.closest('text'),own=tt&&!(e.ctrlKey||e.metaKey)&&sel.some(s=>s!==tt&&s.contains(tt));let[el,c]=e.ctrlKey||e.metaKey||tt?[tt||t]:pick(t);c=c||el.parentNode;
+  const was=own||sel.includes(el);if(!was){ctx=c;setSel([el])}D={t:'move',p,u,el,c,was};cap()}
 function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textContent=`${((u.x-vb.x)*U).toFixed(1)}, ${((u.y-vb.y)*U).toFixed(1)} mm`;if(!D)return rulers();
   let dx=p[0]-D.p[0],dy=p[1]-D.p[1];
   if(D.t==='pan'){tx=D.tx+dx;ty=D.ty+dy;return place()}
@@ -445,7 +445,7 @@ function up(){if(!D)return;const d=D;D=null;
   if(d.t==='pan')return;
   if(d.t==='rad'||d.t==='pt')return commit();
   if(/^(move|sc|rot)$/.test(d.t)){if(d.t==='sc'&&d.on&&d.M&&/^[ew]$/.test(d.h)&&sel.length===1&&sel[0].localName==='text'&&tryWrap(sel[0],d.b,d.M,d.h))return;
-    if(G)ghostOff(d.M);else if(d.t==='move'&&d.was)setSel([d.el]);return}
+    if(G)ghostOff(d.M);else if(d.t==='move'&&d.was){ctx=d.c;setSel([d.el])}return}
   if(d.t==='band'){if(d.q){const a=toU(d.p),b=toU(d.q),R=rb(Math.min(a.x,b.x),Math.min(a.y,b.y),Math.abs(a.x-b.x),Math.abs(a.y-b.y));
       const got=memoize(()=>cands(top_(ctx)?root:ctx).filter(x=>{const q=bbox(x);return q&&q.x>=R.x&&q.y>=R.y&&q.x+q.w<=R.x+R.w&&q.y+q.h<=R.y+R.h}));setSel(d.add?[...sel,...got]:got)}
     else if(d.add&&d.h){const q=d.h.closest('text'),[el,c]=q?[q]:pick(d.h);c=c||el.parentNode;ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add)setSel([]);return hud()}
@@ -487,37 +487,59 @@ function edLines(d){const L=[[]],nl=()=>L.push([]);let after=0;
     else if(c.tagName==='BR'){after&&(nl(),after=0);c===n.lastChild&&/^(DIV|P)$/.test(n.tagName)||nl()}
     else if(c.nodeType===1){const b=/^(DIV|P)$/.test(c.tagName);b&&((L.at(-1).length||after)&&nl(),after=0);walk(c,{SUP:'super',SUB:'sub'}[c.tagName]||s);b&&(after=1)}}};
   walk(d,'');const o=L.map(norm);while(o.length>1&&!o.at(-1).length)o.pop();return o}
+const sodi=()=>root.hasAttribute('xmlns:sodipodi')||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:sodipodi',NS.sodipodi);
 const runs=rs=>rs.map(([x,s])=>s?mk('tspan',{style:`font-size:65%;baseline-shift:${s}`},null,x):document.createTextNode(x));
 function setLines(t,r,ln,ls){const h=parseFloat(getComputedStyle(r).fontSize)*lhOf(t),L=ln&&lnKids(t);
   if(L){let p;ls.forEach((l,i)=>{let n=L[i];if(!n){n=p.cloneNode(false);n.removeAttribute('id');n.setAttribute('y',fc((at(p,'y')??at(t,'y')??0)+h));p.after(n)}n.replaceChildren(...runs(l));p=n});L.slice(ls.length).forEach(n=>n.remove());return}
   if(ls.length<2)return r.replaceChildren(...runs(ls[0]));
   const x=at(r,'x')??at(t,'x')??0,y=at(r,'y')??at(t,'y')??0;
-  if(r===t){lhRaw(t)||setSt(t,'line-height','1.25');root.hasAttribute('xmlns:sodipodi')||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:sodipodi',NS.sodipodi);
+  if(r===t){lhRaw(t)||setSt(t,'line-height','1.25');sodi();
     return t.replaceChildren(...ls.map((l,i)=>{const n=mk('tspan',{'sodipodi:role':'line',x:fc(x),y:fc(y+i*h)});n.append(...runs(l));return n}))}
   let p=r;r.replaceChildren(...runs(ls[0]));
   ls.slice(1).forEach((l,i)=>{const n=r.cloneNode(false);for(const a of['id','dx','dy','rotate'])n.removeAttribute(a);n.setAttribute('x',fc(x));n.setAttribute('y',fc(y+(i+1)*h));n.append(...runs(l));p.after(n);p=n})}
-function tryWrap(t,b,M,h){if(!t.textContent.trim())return false;const m=ctm(t),s=sc(m);
-  if(!(s>0)||Math.hypot(m.b,m.c)>1e-9*s)return false;G&&ghostOff();
-  const Wu=Math.abs(M.a)*b.w,W=Wu/s,P=m.inverse(),l=P.transformPoint({x:h==='e'?b.x:b.x+b.w-Wu,y:b.y}).x,r=P.transformPoint({x:h==='e'?b.x+Wu:b.x+b.w,y:b.y}).x;
-  let line=[],cur='';const ls=[];
-  quiet(()=>{const ms=t.cloneNode(false),toks=[];
-    ['textLength','lengthAdjust'].forEach(a=>ms.removeAttribute(a));ms.setAttribute('visibility','hidden');t.parentNode.appendChild(ms);
-    const walk=(n,sh)=>{for(const c of n.childNodes){if(c.nodeType===3)toks.push([c.data,sh]);
-      else if(c.localName==='tspan'){const rl=c.getAttributeNS(NS.sodipodi,'role')==='line';rl&&toks.push([' ',sh]);walk(c,(/super|sub/.exec(stGet(c,'baseline-shift'))||[])[0]||sh);rl&&toks.push([' ',sh])}}};
-    walk(t,'');
-    const words=[];for(const[x,sh]of toks)for(const w of x.split(/ +/))w&&words.push([w,sh]);
-    const fit=v=>{ms.textContent=v;return ms.getComputedTextLength()<=W};
-    for(const[w,sh]of words){
-      if(fit(cur?cur+' '+w:w)){cur&&line.push([' ','']);for(const c of w)line.push([c,sh]);cur=cur?cur+' '+w:w;continue}
-      if(cur){ls.push(line);line=[];cur=''}
-      if(fit(w)){for(const c of w)line.push([c,sh]);cur=w;continue}
-      let cs='';for(const c of w){if(cs&&fit(cs+c))cs+=c;else{if(cs){ls.push(line);line=[]}cs=c}line.push([c,sh])}cur=cs}
-    ls.push(line);while(ls.length>1&&!ls.at(-1).length)ls.pop();ms.remove()});
-  const rs=ls.map(norm);
-  setLines(t,t,lnKids(t),rs);noTL(t);
-  if(rs.length>1){const an=getComputedStyle(t).textAnchor,x=an==='middle'?(l+r)/2:an==='end'?r:l;
-    t.setAttribute('x',fc(x));for(const q of t.getElementsByTagName('tspan'))q.hasAttribute('x')&&q.setAttribute('x',fc(x))}
-  commit();msg(rs.length>1?`Wrapped to ${rs.length} lines`:'Unwrapped');return true}
+// side-handle wrap: words break only at spaces and every run keeps its own tspans (as bare copies), so super/subscripts, italics and classes survive;
+// text laid out as positioned runs along one line (kerning runs, dx/dy shifts, rotate, textPath) returns false and is stretched instead
+const POS=['x','y','dx','dy','rotate'],many=(e,a)=>e[a].baseVal.numberOfItems>1,
+  bare=(e,role)=>{const c=e.cloneNode(false);for(const a of['id',...POS,'textLength','lengthAdjust'])c.removeAttribute(a);role||c.removeAttributeNS(NS.sodipodi,'role');return c},
+  sig=e=>[...bare(e,1).attributes].map(a=>a.name+'='+a.value).sort().join();
+function tryWrap(t,b,M,h){if(!t.textContent.trim()||many(t,'dx')||many(t,'dy')||t.hasAttribute('rotate'))return false;
+  const L=lnKids(t),one=L&&L.every(l=>sig(l)===sig(L[0])),cs=[],hosts=new Set(),p0={},z=(e,a)=>e&&at(e,a)||0;let f=null,cy=0;
+  for(const a of POS)t.hasAttribute(a)&&(p0[a]=t);
+  // chars with the chain of styling tspans around them (uniform line tspans and attribute-less ones left out);
+  // a line tspan, or a tspan with x on a new baseline, is a line break
+  const walk=(n,ch,p)=>{for(const c of n.childNodes){
+    if(c.nodeType===3){for(const x of c.data){const sp=/[ \t\n\r]/.test(x);sp||(hosts.add(n),f||(f=p,cy=z(p.y,'y')));cs.push({c:x,ch,sp})}continue}
+    if(c.nodeType!==1)continue;if(c.localName!=='tspan'||many(c,'dx')||many(c,'dy')||c.hasAttribute('rotate'))return 1;
+    const rl=c.getAttributeNS(NS.sodipodi,'role')==='line',y=at(c,'y'),dy=at(c,'dy');
+    if(f&&(rl||POS.some(a=>c.hasAttribute(a)))){if(!rl&&!(c.hasAttribute('x')&&(y!=null&&Math.abs(y-cy)>1e-9||dy)))return 1;cy=y??cy+dy;cs.push({c:' ',ch:[],sp:1})}
+    const q={...p};for(const a of POS)c.hasAttribute(a)&&(q[a]=c);
+    if(walk(c,rl&&one||!bare(c).attributes.length?ch:[...ch,c],q))return 1}};
+  if(walk(t,[],p0))return false;
+  const m=ctm(t),s=sc(m);if(!(s>0)||Math.hypot(m.b,m.c)>1e-9*s)return false;G&&ghostOff();
+  const Wu=Math.abs(M.a)*b.w,W=Wu/s,P=ctm(t).inverse(),l=P.transformPoint({x:h==='e'?b.x:b.x+b.w-Wu,y:b.y}).x,r=P.transformPoint({x:h==='e'?b.x+Wu:b.x+b.w,y:b.y}).x;
+  const tpl=one?bare(L[0],1):mk('tspan',{'sodipodi:role':'line'}),
+    build=a=>{const o=[],st=[];for(const{c,ch}of a){let i=0;while(i<st.length&&i<ch.length&&st[i][0]===ch[i])i++;st.length=i;
+      for(;i<ch.length;i++){const n=bare(ch[i]);st.length?st.at(-1)[1].append(n):o.push(n);st.push([ch[i],n])}
+      const p=st.length?st.at(-1)[1]:null,e=p?p.lastChild:o.at(-1);e&&e.nodeType===3?e.data+=c:p?p.append(c):o.push(document.createTextNode(c))}return o},
+    line=a=>{const n=tpl.cloneNode(false);n.append(...build(a));return n};
+  const ws=[];let g=null,wd=null;
+  for(const x of cs)if(x.sp){wd&&(ws.push(wd),wd=null);g??=x.ch}else{wd||(wd={g:g||[],cs:[]},g=null);wd.cs.push(x)}wd&&ws.push(wd);
+  const ls=[];let cur=[];
+  quiet(()=>{const ms=bare(t,1),fit=a=>{ms.replaceChildren(line(a));return ms.getComputedTextLength()<=W};
+    ms.setAttribute('visibility','hidden');t.parentNode.appendChild(ms);
+    for(const w of ws){const j=cur.length?[...cur,{c:' ',ch:w.g},...w.cs]:w.cs;
+      if(fit(j)){cur=j;continue}
+      cur.length&&ls.push(cur);cur=[];
+      if(fit(w.cs)){cur=w.cs;continue}
+      for(const x of w.cs)if(cur.length&&fit([...cur,x]))cur=[...cur,x];else{cur.length&&ls.push(cur);cur=[x]}}
+    ls.push(cur);ms.remove()});
+  // one line keeps the first character's place; wrapped lines start at the box edge the anchor points to, one line-height apart
+  const fs=Math.max(...[...hosts].map(e=>parseFloat(getComputedStyle(e).fontSize))),lh=fs*lhOf(t),an=getComputedStyle(one?L[0]:t).textAnchor,
+    x=ls.length>1?(an==='middle'?(l+r)/2:an==='end'?r:l):z(f.x,'x')+z(f.dx,'dx'),y=z(f.y,'y')+z(f.dy,'dy');
+  if(ls.length>1||L){sodi();lhRaw(t)||setSt(t,'line-height','1.25');t.replaceChildren(...ls.map((a,i)=>{const n=line(a);n.setAttribute('x',fc(x));n.setAttribute('y',fc(y+i*lh));return n}))}
+  else t.replaceChildren(...build(ls[0]));
+  t.setAttribute('x',fc(x));t.setAttribute('y',fc(y));t.removeAttribute('dx');t.removeAttribute('dy');noTL(t);
+  commit();msg(ls.length>1?`Wrapped to ${ls.length} lines`:'Unwrapped');return true}
 function edit(t,h,mark){finish(true);let r=t;const L=lnKids(t);
   if(!L){for(let x=h;x&&x!==t;x=x.parentNode)if(x.localName==='tspan'&&(x.hasAttribute('x')||x.hasAttribute('y')))r=x;
     const c=t.children;if(r===t&&c.length===1&&c[0].localName==='tspan'&&c[0].hasAttribute('y')&&t.textContent.trim()===c[0].textContent.trim())r=c[0]}
@@ -577,10 +599,21 @@ function dist(hz){const[p,s]=hz?['x','w']:['y','h'],it=sel.map(e=>[e,bbox(e)]).f
 function nudge(x,y,big){const d=(big?1:0.1)/U;applyM(T(x*d,y*d));commit()}
 function dash(e){const w=parseFloat(getComputedStyle(e).strokeWidth)||1,d=F.dash.value;return d?[d==='d'?4*w:w,2*w].map(fm).join():null}
 function flip(p,v,on){const ts=selTexts();if(!ts.length)return;const x=on(getComputedStyle(ts[0]))?'normal':v;ts.forEach(t=>setFont(t,p,x));commit()}
-function anchor(v){const ts=selTexts();if(!ts.length)return;
-  for(const t of ts){const b=lbox(t);if(!b)continue;const x=fc(b.x+(v==='middle'?b.w/2:v==='end'?b.w:0));
-    setSt(t,'text-anchor',v);kids(t,'text-anchor');t.setAttribute('x',x);
-    for(const s of t.getElementsByTagName('tspan'))s.hasAttribute('x')&&s.setAttribute('x',x)}
+// one run with an x per baseline (plain text, Inkscape lines, x+dy lines): the lines align on one shared x;
+// anything else (runs placed along one line, y-only shifts, per-glyph x lists): each run gets the x that keeps its glyphs where they were
+function anchor(v){const ts=selTexts();if(!ts.length)return;const fa={start:0,middle:.5,end:1}[v],
+    pos=(e,j)=>{try{return e.getStartPositionOfChar(j)}catch(_){}},xs=e=>{const l=e.x.baseVal;return Array.from({length:l.numberOfItems},(_,i)=>l.getItem(i).value)};
+  for(const t of ts){const b=lbox(t);if(!b)continue;
+    const ps=[t,...[...t.getElementsByTagName('tspan')].filter(e=>e.hasAttribute('x')||e.hasAttribute('y'))],
+      en=ps.flatMap(e=>Array.from({length:Math.min(Math.max(1,e.x.baseVal.numberOfItems),e.getNumberOfChars())},(_,j)=>({e,j,p:pos(e,j)}))).filter(a=>a.p),
+      ys=en.filter((a,i)=>!en.slice(0,i).some(o=>Math.abs(o.p.x-a.p.x)+Math.abs(o.p.y-a.p.y)<1e-6)).map(a=>a.p.y).sort((a,c)=>a-c),
+      lines=ps.every(e=>(e===t||e.hasAttribute('x'))&&e.x.baseVal.numberOfItems<2)&&ys.every((y,i)=>!i||y-ys[i-1]>1e-6);
+    setSt(t,'text-anchor',v);kids(t,'text-anchor');
+    if(lines){const x=fc(b.x+fa*b.w);ps.forEach(e=>e.setAttribute('x',x));continue}
+    for(const a of en)a.e.hasAttribute('x')||a.e.setAttribute('x',fc(a.p.x));
+    const nx=new Map(ps.map(e=>[e,xs(e)]));
+    for(const a of en){const q=pos(a.e,a.j);q&&(nx.get(a.e)[a.j]+=a.p.x-q.x)}
+    for(const[e,x]of nx)x.length&&e.setAttribute('x',x.map(fc).join(' '))}
   commit()}
 function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
