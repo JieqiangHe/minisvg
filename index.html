@@ -51,7 +51,7 @@ input,select{font:inherit}
 #mSide select{width:100%}#mPg{flex:1;width:auto!important;min-width:0}#mSide .row .ori{flex:0 0 28px}
 #mSide input[type=number]{width:62px;-moz-appearance:textfield}#mSide input::-webkit-inner-spin-button{display:none}
 #mSt{grid-column:1/-1;height:22px;display:flex;align-items:center;gap:18px;padding:2px 2px 2px 8px;background:var(--bar);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
-.ed{position:absolute;white-space:pre;width:max-content;max-width:none;overflow:visible;overflow-wrap:normal;outline:1px solid #1a73e8;background:#fffd;min-width:4px;line-height:1.2;padding:0 1px}::selection{background:#1a73e8;color:#fff}
+.ed{position:absolute;white-space:pre;width:max-content;max-width:none;overflow:visible;overflow-wrap:normal;outline:1px solid #1a73e8;background:#fffd;min-width:4px;line-height:1.2;padding:0 1px}.ed sup,.ed sub{font-size:65%}::selection{background:#1a73e8;color:#fff}
 body.chat{grid-template-columns:40px 1fr 236px 300px}
 #mChat{display:none;grid-area:2/4;flex-direction:column;gap:4px;overflow:hidden;padding:4px 8px;background:var(--side);border-left:1px solid var(--line)}.chat #mChat{display:flex}
 #mChat summary{cursor:pointer;color:var(--h4)}#mChat details label{display:grid;grid-template-columns:40px 1fr;align-items:center;margin:2px 0}#mChat details input{min-width:0}
@@ -147,7 +147,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 </div>
 <div>
 <section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>R</kbd></dt><dd>Rectangle</dd><dt><kbd>E</kbd></dt><dd>Ellipse</dd><dt><kbd>L</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>I</kbd></dt><dd>Inhibition (blunt end)</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt>Panel labels</dt><dd>Label the selected panels A, B, C… at their top-left; the box under the button sets the next letter</dd></dl></section>
-<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt><kbd>Shift+Enter</kbd></dt><dd>New line while editing</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
+<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt><kbd>Shift+Enter</kbd></dt><dd>New line while editing</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing</dd><dt>Part of a text</dt><dd>While editing, select characters, then change Size, Font, Color, B or I in the Text panel to restyle only them</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
 <section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw (needs glm-5.3-flash or deepseek-flash); paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
 </div>
 <div>
@@ -485,7 +485,7 @@ const POS=['x','y','dx','dy','rotate'],many=(e,a)=>e[a].baseVal.numberOfItems>1,
   sig=e=>[...bare(e,1).attributes].map(a=>a.name+'='+a.value).sort().join();
 // chars back to nodes, nesting runs that share outer tspans; with a set, the first copy of each tspan keeps its id and position
 function build(a,seen){const o=[],st=[];for(const{c,ch}of a){let i=0;while(i<st.length&&i<ch.length&&st[i][0]===ch[i])i++;st.length=i;
-    for(;i<ch.length;i++){const e=ch[i],n=typeof e=='string'?mk('tspan',{style:`font-size:65%;baseline-shift:${e}`}):seen&&!seen.has(e)?(seen.add(e),e.cloneNode(false)):bare(e);
+    for(;i<ch.length;i++){const e=ch[i],n=typeof e=='string'?mk('tspan',{style:e.startsWith('s:')?e.slice(2):`font-size:65%;baseline-shift:${e}`}):seen&&!seen.has(e)?(seen.add(e),e.cloneNode(false)):bare(e);
       st.length?st.at(-1)[1].append(n):o.push(n);st.push([e,n])}
     const p=st.length?st.at(-1)[1]:null,e=p?p.lastChild:o.at(-1);e&&e.nodeType===3?e.data+=c:p?p.append(c):o.push(document.createTextNode(c))}return o}
 // editor copy of a run: each tspan becomes a span (sup/sub when shifted) that shows its look and points back to it through data-k (data-s: its shift)
@@ -495,13 +495,14 @@ function mirror(n,o,ks){for(const c of n.childNodes){
   e.dataset.k=ks.push(c)-1;e.dataset.s=s||'';Object.assign(e.style,{fontSize:parseFloat(cs.fontSize)/parseFloat(getComputedStyle(n).fontSize)+'em',fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle});
   /^rgb/.test(cs.fill)&&(e.style.color=cs.fill);mirror(c,e,ks);o.append(e)}}
 // editor contents as lines of chars, each with the keys of the spans around it: data-k, '~'+data-k when X² X₂ changed that run's shift
-// (its tspan minus the shift), 'super'/'sub' for a new shift; a newline, <br> or <div> breaks a line; the trailing newline Chrome keeps as a caret placeholder is dropped
+// (its tspan minus the shift), 'super'/'sub' for a new shift, 's:'+data-st for characters restyled from the Text panel;
+// a newline, <br> or <div> breaks a line; the trailing newline Chrome keeps as a caret placeholder is dropped
 function edLines(d){const L=[[]],nl=()=>L.push([]);let after=0;
   const walk=(n,ch)=>{for(const c of n.childNodes){
     if(c.nodeType===3){if(!c.data)continue;after&&(nl(),after=0);c.data.split('\n').forEach((x,i)=>{i&&nl();for(const y of x)L.at(-1).push({c:y,ch})})}
     else if(c.tagName==='BR'){after&&(nl(),after=0);c===n.lastChild&&/^(DIV|P)$/.test(n.tagName)||nl()}
-    else if(c.nodeType===1){const b=/^(DIV|P)$/.test(c.tagName),k=c.dataset.k,s={SUP:'super',SUB:'sub'}[c.tagName]||'';b&&((L.at(-1).length||after)&&nl(),after=0);
-      walk(c,[...ch,...k?s===c.dataset.s?[+k]:['~'+k,...s?[s]:[]]:s?[s]:[]]);b&&(after=1)}}};
+    else if(c.nodeType===1){const b=/^(DIV|P)$/.test(c.tagName),k=c.dataset.k,s={SUP:'super',SUB:'sub'}[c.tagName]||'',st=c.dataset.st;b&&((L.at(-1).length||after)&&nl(),after=0);
+      walk(c,[...ch,...k?s===c.dataset.s?[+k]:['~'+k,...s?[s]:[]]:s?[s]:[],...st?['s:'+st]:[]]);b&&(after=1)}}};
   walk(d,[]);while(L.length>1&&!L.at(-1).length)L.pop();return L}
 const sodi=()=>root.hasAttribute('xmlns:sodipodi')||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:sodipodi',NS.sodipodi);
 function setLines(t,r,ln,ls){const h=parseFloat(getComputedStyle(r).fontSize)*lhOf(t),L=ln&&lnKids(t),sn=new Set(),b=l=>build(l,sn);
@@ -561,9 +562,9 @@ function edit(t,h,mark){finish(true);let r=t;const L=lnKids(t);
   view.append(d);ed={t,r,L:!!L,d,ks,r0:JSON.stringify(edLines(d)),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
   d.onkeydown=e=>{e.stopPropagation();if(e.isComposing||e.keyCode===229)return;
     if(e.key==='Enter'){e.preventDefault();e.shiftKey?document.execCommand('insertLineBreak'):finish(true)}else if(e.key==='Escape')finish(false)};
-  d.onblur=()=>finish(true);
+  d.onblur=e=>{const to=e.relatedTarget;to&&to.matches('[data-f=fs],[data-f=ff],[data-f=tc]')&&part()||finish(true)};
   d.onpaste=e=>{e.preventDefault();e.clipboardData.getData('text/plain').split(/\r\n?|\n/).forEach((x,i)=>{i&&document.execCommand('insertLineBreak');x&&document.execCommand('insertText',false,x)})};
-  msg('Shift+Enter starts a new line, Enter finishes, Esc cancels');
+  msg('Shift+Enter starts a new line, Enter finishes, Esc cancels; select characters to restyle only them in the Text panel');
   d.focus();const g=getSelection(),rg=document.createRange();rg.selectNodeContents(d);g.removeAllRanges();g.addRange(rg)}
 function finish(ok){if(!ed)return;const{t,r,L,d,ks,r0,vis,mark}=ed,ls=edLines(d);ed=null;d.remove();
   quiet(()=>vis==null?t.removeAttribute('visibility'):t.setAttribute('visibility',vis));
@@ -573,6 +574,22 @@ function finish(ok){if(!ed)return;const{t,r,L,d,ks,r0,vis,mark}=ed,ls=edLines(d)
   if(ok&&JSON.stringify(ls)!==r0){setLines(t,r,L,ls.map(l=>l.map(({c,ch})=>({c,ch:ch.map(key).filter(Boolean)}))));noTL(t)}
   if(!t.textContent.trim()){t.remove();if(mark!=null){flush();pend.length=mark}setSel([],1)}
   commit()}
+// while editing, Size, Font, Color, B and I restyle only the selected characters (a selection of everything still restyles the whole text):
+// each selected piece of text gets its own span whose data-st holds its SVG style; a size is a % of the surrounding text, so it follows later whole-text sizes
+const part=()=>{const r=ed&&ed.rg,sq=s=>s.replace(/\s/g,'');return!!r&&!r.collapsed&&sq(r.toString())!==sq(ed.d.textContent)},
+  decl=(s,p,v)=>{const x=mk('tspan',{style:s});setSt(x,p,v);return x.getAttribute('style')||''},
+  setRun=(s,p,v,css,cv=v)=>{s.dataset.st=decl(s.dataset.st,p,v);s.style[css]=cv},
+  edAt=()=>{const r=ed.rg;let n=r.startContainer;n.nodeType===1&&n.childNodes[r.startOffset]&&(n=n.childNodes[r.startOffset]);return getComputedStyle(n.nodeType===3?n.parentNode:n)};
+function restyle(set){const rg=ed.rg,fr=rg.extractContents(),ns=[],ss=[],tw=document.createTreeWalker(fr,NodeFilter.SHOW_TEXT);for(let n;n=tw.nextNode();)n.data&&ns.push(n);
+  for(const n of ns){let s=n.parentNode;if(!(s.dataset&&s.dataset.st!=null&&s.childNodes.length===1)){s=el('span');s.dataset.st='';n.replaceWith(s);s.append(n)}ss.push(s)}
+  const a=fr.firstChild,b=fr.lastChild;rg.insertNode(fr);a&&(rg.setStartBefore(a),rg.setEndAfter(b));ss.forEach(set);
+  if(document.activeElement===ed.d){const g=getSelection();g.removeAllRanges();g.addRange(rg)}}
+const restyleSize=pt=>restyle(s=>{const r=pt*Z*k/(U*PT)/parseFloat(getComputedStyle(s.parentNode).fontSize)*100;setRun(s,'font-size',f6(r)+'%','fontSize',r+'%')}),
+  restyleFlip=(p,css,on,v)=>{const x=on(edAt())?'normal':v;restyle(s=>setRun(s,p,x,css))};
+function edFocus(){if(!ed)return;const r=ed.rg;ed.d.focus();if(r){const g=getSelection();g.removeAllRanges();g.addRange(r)}}
+// the editor's selection is remembered while the Text panel has focus; the panel shows the size, font and colour where it starts
+document.addEventListener('selectionchange',()=>{const g=getSelection();if(!ed||!g.rangeCount||!ed.d.contains(g.anchorNode))return;ed.rg=g.getRangeAt(0).cloneRange();
+  const cs=edAt();F.fs.value=+(parseFloat(cs.fontSize)*U*PT/(Z*k)).toFixed(2);F.ff.value=cs.fontFamily.split(',')[0].replace(/["']/g,'');F.tc.value=hex(cs.color)});
 
 // edit operations
 function copy(){if(sel.length)clip={it:order(sel).map(e=>[e.cloneNode(true),ctm(e.parentNode)]),b:sb};bar()}
@@ -733,7 +750,8 @@ Object.assign(A,{
   svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;bar();msg('Exported '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),pdf,
   undo:()=>undo(0),redo:()=>undo(1),label:labels,group,ungroup,top:()=>zorder('top'),up:()=>zorder('up'),dn:()=>zorder('dn'),bot:()=>zorder('bot'),
   copy:copyOut,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
-  bold:()=>flip('font-weight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','italic',c=>c.fontStyle==='italic'),
+  bold:()=>part()?restyleFlip('font-weight','fontWeight',c=>+c.fontWeight>=600,'bold'):flip('font-weight','bold',c=>+c.fontWeight>=600),
+  ital:()=>part()?restyleFlip('font-style','fontStyle',c=>c.fontStyle==='italic','italic'):flip('font-style','italic',c=>c.fontStyle==='italic'),
   tal:()=>anchor('start'),tac:()=>anchor('middle'),tar:()=>anchor('end'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);ls('msbTheme',d?'dark':'light')},
@@ -750,6 +768,8 @@ const menuOff=x=>document.querySelectorAll('.dd.open').forEach(d=>d!==x&&d.class
 addEventListener('click',e=>{const d=e.target.closest('.dd');menuOff(d);d&&(e.target.closest('.ddb')?d.classList.toggle('open'):e.target.closest('.menu button')&&d.classList.remove('open'))});
 $('mBar').addEventListener('mouseover',e=>{const d=e.target.closest('.dd');d&&!d.classList.contains('open')&&document.querySelector('.dd.open')&&(menuOff(),d.classList.add('open'))});
 $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v=+t.value;if(!f||!root||t.type==='number'&&(t.value===''||isNaN(v)))return;
+  if(ed){if(/^(fs|ff|tc)$/.test(f)&&part()){f==='fs'?v>0&&restyleSize(v):f==='ff'?t.value.trim()&&restyle(s=>setRun(s,'font-family',fam(t.value.trim()),'fontFamily')):restyle(s=>setRun(s,'fill',t.value,'color'));
+    t.type==='color'&&(t.blur(),edFocus());return}finish(true)}
   if(f==='pg'){t.blur();if(!t.value)return;let[w,h]=t.value.split(',').map(Number);if(vb.w>vb.h&&w<h)[w,h]=[h,w];return setPage(vb.x,vb.y,w/U,h/U)}
   if(f==='pw'||f==='ph')return setPage(vb.x,vb.y,f==='pw'?v/U:vb.w,f==='ph'?v/U:vb.h);
   if(/^[xywhr]$/.test(f)){const b=sb;if(!b)return;const l=$('mLock').checked;let M;
@@ -767,7 +787,7 @@ $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v
   else if(f==='dash')styleSet('stroke-dasharray',dash);
   else if(f==='op')sel.forEach(e=>setSt(e,'opacity',fm(Math.min(100,Math.max(0,v))/100)));
   /checkbox|select|color/.test(t.type)&&t.blur();commit()});
-$('mSide').addEventListener('keydown',e=>/^(Enter|Escape)$/.test(e.key)&&e.target.blur());
+$('mSide').addEventListener('keydown',e=>{if(!/^(Enter|Escape)$/.test(e.key))return;ed&&e.preventDefault();e.target.blur();edFocus()});
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
 const nd=o=>{const v=$('mPre').value,l=document.querySelector('[name=mOr]:checked').value==='l';let w=+$('mNW').value,h=+$('mNH').value;if(v&&!o)[w,h]=v.split(',').map(Number);if(w!==h&&(o?l!==w>h:l&&w<h))[w,h]=[h,w];$('mNW').value=w;$('mNH').value=h;if(w!==h)document.querySelector(`[name=mOr][value=${w>h?'l':'p'}]`).checked=true};
 $('mHelp').onclick=e=>{e.target===$('mHelp')&&$('mHelp').close()};
