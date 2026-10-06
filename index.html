@@ -336,7 +336,7 @@ function grid(){const G=$('mGrid');G.style.display=opts.grid?'':'none';if(!opts.
   for(let n=0;n*a<=vb.w*U+1e-9;n++)d[+(n*a%b===0)]+=`M${vb.x+n*a/U} ${vb.y}V${vb.y+vb.h}`;
   for(let n=0;n*a<=vb.h*U+1e-9;n++)d[+(n*a%b===0)]+=`M${vb.x} ${vb.y+n*a/U}H${vb.x+vb.w}`;
   G.children[0].setAttribute('d',d[0]);G.children[1].setAttribute('d',d[1])}
-function place(){stage.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;hud();$('mZoom').textContent=Math.round(Z*k/U*2540/96)+'%'}
+function place(){stage.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;ed&&Object.assign(ed.d.style,{left:tx+ed.o[0]+'px',top:ty+ed.o[1]+'px'});hud();$('mZoom').textContent=Math.round(Z*k/U*2540/96)+'%'}
 function syncPage(){const b=root.viewBox.baseVal,u=(mmOf(root.getAttribute('width'))||b.width*25.4/96)/b.width;if(b.x===vb.x&&b.y===vb.y&&b.width===vb.w&&b.height===vb.h&&u===U)return;
   vb=rb(b.x,b.y,b.width,b.height);U=u;ghost.setAttribute('viewBox',root.getAttribute('viewBox'));fit()}
 function setPage(x,y,w,h){if(!(w>0&&h>0))return;root.setAttribute('viewBox',[x,y,w,h].map(fm).join(' '));root.setAttribute('width',fm(w*U)+'mm');root.setAttribute('height',fm(h*U)+'mm');commit()}
@@ -554,12 +554,12 @@ function edit(t,h,mark){finish(true);let r=t;const L=lnKids(t);
   if(!L){for(let x=h;x&&x!==t;x=x.parentNode)if(x.localName==='tspan'&&(x.hasAttribute('x')||x.hasAttribute('y')))r=x;
     const c=t.children;if(r===t&&c.length===1&&c[0].localName==='tspan'&&c[0].hasAttribute('y')&&t.textContent.trim()===c[0].textContent.trim())r=c[0]}
   const a=L?L[0]:r,cs=getComputedStyle(a),m=ctm(t),fs=parseFloat(cs.fontSize)*sc(m)*Z*k,lh=lhOf(t),
-    q=m.transformPoint({x:at(a,'x')??at(t,'x')??0,y:at(a,'y')??at(t,'y')??0}),d=el('div','ed');
+    q=m.transformPoint({x:at(a,'x')??at(t,'x')??0,y:at(a,'y')??at(t,'y')??0}),d=el('div','ed'),o=[(q.x-vb.x)*Z*k,(q.y-vb.y)*Z*k-fs*(lh/2+.35)];
   d.contentEditable='true';
-  Object.assign(d.style,{left:tx+(q.x-vb.x)*Z*k+'px',top:ty+(q.y-vb.y)*Z*k-fs*(lh/2+.35)+'px',fontSize:fs+'px',lineHeight:lh,fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,
+  Object.assign(d.style,{left:tx+o[0]+'px',top:ty+o[1]+'px',fontSize:fs+'px',lineHeight:lh,fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,
     color:/^rgb/.test(cs.fill)?cs.fill:'#000',textAlign:{middle:'center',end:'right'}[cs.textAnchor]||'left',transform:`translateX(${{middle:-50,end:-100}[cs.textAnchor]||0}%)`});
   const ks=[];(L||[r]).forEach((l,i)=>{i&&d.append('\n');mirror(l,d,ks)});
-  view.append(d);ed={t,r,L:!!L,d,ks,r0:JSON.stringify(edLines(d)),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
+  view.append(d);ed={t,r,L:!!L,d,o,ks,r0:JSON.stringify(edLines(d)),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
   d.onkeydown=e=>{e.stopPropagation();if(e.isComposing||e.keyCode===229)return;
     if(e.key==='Enter'){e.preventDefault();e.shiftKey?document.execCommand('insertLineBreak'):finish(true)}else if(e.key==='Escape')finish(false)};
   d.onblur=e=>{const to=e.relatedTarget;to&&to.matches('[data-f=fs],[data-f=ff],[data-f=tc]')&&part()||finish(true)};
@@ -592,9 +592,11 @@ document.addEventListener('selectionchange',()=>{const g=getSelection();if(!ed||
   const cs=edAt();F.fs.value=+(parseFloat(cs.fontSize)*U*PT/(Z*k)).toFixed(2);F.ff.value=cs.fontFamily.split(',')[0].replace(/["']/g,'');F.tc.value=hex(cs.color)});
 
 // edit operations
-function copy(){if(sel.length)clip={it:order(sel).map(e=>[e.cloneNode(true),ctm(e.parentNode)]),b:sb};bar()}
-function paste(inPlace){if(!clip)return;const p=curParent(),Pi=ctm(p).inverse(),b=clip.b;let O=T(0,0);
-  if(!inPlace&&mouse&&b){const u=toU(mouse);O=T(u.x-b.x-b.w/2,u.y-b.y-b.h/2)}
+// a copy keeps its size in mm on another canvas and brings along the markers, clip paths and gradients that canvas lacks
+function copy(){if(sel.length){const s=order(sel);clip={it:s.map(e=>[e.cloneNode(true),ctm(e.parentNode)]),b:sb,u:U,d:deps(s)}}bar()}
+function paste(inPlace){if(!clip)return;const p=curParent(),Pi=ctm(p).inverse(),b=clip.b,s=clip.u/U;let O=S(s);
+  if(!inPlace&&mouse&&b){const u=toU(mouse);O=T(u.x-b.x*s-b.w*s/2,u.y-b.y*s-b.h*s/2).multiply(O)}
+  for(const d of clip.d)byId(d.id)||defs().appendChild(d.cloneNode(true));
   const out=clip.it.map(([c,M])=>{const e=reid(c.cloneNode(true));setT(e,Pi.multiply(O).multiply(M).multiply(lm(c)));p.appendChild(e);return e});
   ctx=p;setSel(out,1);commit()}
 function del(){if(!sel.length)return;sel.forEach(e=>e.remove());setSel([],1);commit()}
@@ -690,12 +692,15 @@ refresh=(f=>()=>{f();selChip()})(refresh);
 const selPart=()=>selOn()?frag(order(sel)):null,copyOut=()=>{copy();if(!sel.length)return;const n=sel.reduce((n,e)=>n+e.getElementsByTagName('*').length,0),f=n<2e4&&frag(order(sel));
   navigator.clipboard?.writeText(f?f.x:`minisvg: ${nObj(sel.length)} copied`).catch(()=>{})};
 function frag(els){const b=memoize(()=>els.reduce((a,e)=>un(a,bbox(e)),null));if(!b)return null;
-  const s=mk('svg',{width:fm(b.w*U)+'mm',height:fm(b.h*U)+'mm',viewBox:[b.x,b.y,b.w,b.h].map(fm).join(' ')}),d=mk('defs',{},s),P=['fill','stroke','stroke-width','font-family','font-size','font-weight','font-style','text-anchor'],seen=new Set();
+  const s=mk('svg',{width:fm(b.w*U)+'mm',height:fm(b.h*U)+'mm',viewBox:[b.x,b.y,b.w,b.h].map(fm).join(' ')}),d=mk('defs',{},s),P=['fill','stroke','stroke-width','font-family','font-size','font-weight','font-style','text-anchor'];
   for(const e of els){const st=[],g=mk('g',{},s);for(let a=e.parentNode;a;a=a===root?null:a.parentNode){const v=[...P.filter(k=>a.hasAttribute(k)).map(k=>k+':'+a.getAttribute(k)),a.getAttribute('style')].filter(Boolean).join(';');v&&st.unshift(v)}
     setT(g,ctm(e.parentNode));st.length&&g.setAttribute('style',st.join(';'));g.append(e.cloneNode(true))}
-  for(;;){const x=new XMLSerializer().serializeToString(s);let add=0;
-    for(const[,i,j]of x.matchAll(/url\(\s*['"]?#([^'")\s]+)|href="#([^"]+)"/g)){const r=byId(i||j);r&&!seen.has(r)&&(seen.add(r),d.append(r.cloneNode(true)),add=1)}
-    if(!add)return{els,b,x}}}
+  d.append(...deps([s]));return{els,b,x:new XMLSerializer().serializeToString(s)}}
+// copies of the definitions (markers, clip paths, gradients…) the nodes use, directly or through each other
+function deps(ns){const seen=new Set();
+  for(let q=ns;q.length;){const x=q.map(n=>new XMLSerializer().serializeToString(n)).join('');q=[];
+    for(const[,i,j]of x.matchAll(/url\(\s*['"]?#([^'")\s]+)|href="#([^"]+)"/g)){const r=byId(i||j);r&&!seen.has(r)&&(seen.add(r),q.push(r))}}
+  return[...seen].map(r=>r.cloneNode(true))}
 function swap(s,t){const els=t.els.filter(e=>root.contains(e));if(!els.length)return msg('The selected objects are gone; use Insert copy instead');
   const par=els[0].parentNode;let ref=els[0].nextSibling;while(ref&&els.includes(ref))ref=ref.nextSibling;
   for(const e of els){e.contains(ctx)&&(ctx=e.parentNode);e.remove()}
