@@ -448,7 +448,7 @@ function up(){if(!D)return;const d=D;D=null;
     if(G)ghostOff(d.M);else if(d.t==='move'&&d.was){ctx=d.c;setSel([d.el])}return}
   if(d.t==='band'){if(d.q){const a=toU(d.p),b=toU(d.q),R=rb(Math.min(a.x,b.x),Math.min(a.y,b.y),Math.abs(a.x-b.x),Math.abs(a.y-b.y));
       const got=memoize(()=>cands(top_(ctx)?root:ctx).filter(x=>{const q=bbox(x);return q&&q.x>=R.x&&q.y>=R.y&&q.x+q.w<=R.x+R.w&&q.y+q.h<=R.y+R.h}));setSel(d.add?[...sel,...got]:got)}
-    else if(d.add&&d.h){const q=d.h.closest('text'),[el,c]=q?[q]:pick(d.h);c=c||el.parentNode;ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add)setSel([]);return hud()}
+    else if(d.add&&d.h){const q=d.h.closest('text');let[el,c]=q?[q]:pick(d.h);c=c||el.parentNode;ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add)setSel([]);return hud()}
   if(d.q)create(d.t,toU(d.p),toU(d.q));else hud()}
 function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e);if(!t)return top_(ctx)||esc();
   let[el]=pick(t);if(el.localName==='text')return edit(el,t);
