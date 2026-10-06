@@ -135,7 +135,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div id="mSelC"></div>
 <div id="mImgs"></div>
 <div id="mAskW"><textarea id="mAsk" rows="4" placeholder="Describe a figure, or attach an image to redraw or a text file to draw from. Ask to change the last one. Enter to send, Shift+Enter for a new line."></textarea><div id="mGrip" title="Drag up to enlarge"></div></div>
-<div class="row"><button id="mAtt" title="Attach for the AI (or paste / drop into this panel): an image (PNG, JPG, GIF, WebP) to redraw or look at, which needs a model that can see images (glm-5.3-flash or deepseek-flash); or a text file (txt, csv, tsv, md, json, fasta…) to read, with any model">Attach</button><input type="file" id="mAttF" multiple hidden><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
+<div class="row"><button id="mAtt" title="Attach for the AI (or paste / drop into this panel): an image (PNG, JPG, GIF, WebP) to redraw or look at; or a text file (txt, csv, tsv, md, json, fasta…) to read">Attach</button><input type="file" id="mAttF" multiple hidden><button id="mSend">Send</button><button id="mClr" title="Start a new conversation">Clear</button></div>
 </div>
 <div id="mSt"><span id="mMsg"></span><span id="mCtx"></span><span id="mSel"></span><span id="mPos"></span><span id="mZoom"></span><button data-a="theme">Theme</button></div>
 <input type="file" id="mFile" accept=".svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp" hidden>
@@ -148,7 +148,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div>
 <section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>R</kbd></dt><dd>Rectangle</dd><dt><kbd>E</kbd></dt><dd>Ellipse</dd><dt><kbd>L</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>I</kbd></dt><dd>Inhibition (blunt end)</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt>Panel labels</dt><dd>Label the selected panels A, B, C… at their top-left; the box under the button sets the next letter</dd></dl></section>
 <section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt><kbd>Shift+Enter</kbd></dt><dd>New line while editing</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing</dd><dt>Part of a text</dt><dd>While editing, select characters, then change Size, Font, Color, B or I in the Text panel to restyle only them</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
-<section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw (needs glm-5.3-flash or deepseek-flash); paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
+<section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw; paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
 </div>
 <div>
 <section><h4>File</h4><dl><dt><kbd>Ctrl+O</kbd></dt><dd>Open an SVG (a PNG or JPG is placed on the canvas)</dd><dt><kbd>Ctrl+I</kbd></dt><dd>Import an SVG, PNG or JPG into this canvas</dd><dt><kbd>Ctrl+S</kbd></dt><dd>Export SVG as name_YYMMDD.svg</dd><dt>Drop a file</dt><dd>An SVG opens or is imported; a PNG or JPG is placed where dropped</dd><dt>File menu</dt><dd>PNG at 300 or 600 dpi; vector PDF through the print dialog (best in Chrome or Edge)</dd></dl></section>
@@ -660,18 +660,17 @@ function put(s,open){if(open)return discard()&&(load(s,'ai.svg'),msg('Opened the
   doImport(s,'ai');aiG=sel[0];const n=b&&bbox(aiG),k=undos.length;
   if(n){applyM(T(b.x-n.x,b.y-n.y));commit();merge(k)}
   msg(o?'Replaced the AI figure (Ctrl+Z to undo)':'Placed the AI figure (Ctrl+Z to undo)');selChip()}
-const VIS=['glm-5.3-flash','deepseek-flash'],vis=()=>VIS.includes($('mModel').value),noVis=()=>`${$('mModel').value} cannot see images. Switch Model to ${VIS.join(' or ')} in AI settings.`,
-  img=u=>Object.assign(new Image(),{src:u}),chip=(c,t)=>el('span',c,t),xb=(f,ti)=>Object.assign(btn('×',f,ti),{className:'x'});
+const img=u=>Object.assign(new Image(),{src:u}),chip=(c,t)=>el('span',c,t),xb=(f,ti)=>Object.assign(btn('×',f,ti),{className:'x'});
 function thumbs(){const rm=(e,a,i)=>(e.append(xb(()=>{a.splice(i,1);thumbs()},'Remove')),e),q=el('div','rq','Redraw this image as an editable figure?');
   q.append(btn('Redraw',ask),btn('Not now',()=>{rq=0;thumbs();$('mAsk').focus()}));
-  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...(rq&&imgs.length&&vis()&&!ac?[q]:[]),...imgs.map((u,i)=>{const e=chip('t');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)));imgs.length&&!vis()&&$('mImgs').append(chip('w',noVis()))}
+  $('mImgs').replaceChildren(...notes.map(t=>chip('w',t)),...(rq&&imgs.length&&!ac?[q]:[]),...imgs.map((u,i)=>{const e=chip('t');e.append(img(u));return rm(e,imgs,i)}),...files.map((f,i)=>rm(chip('f',f.n),files,i)))}
 const shrink=(f,fit)=>new Promise((ok,no)=>{const m=new Image(),u=URL.createObjectURL(f);m.onerror=()=>{URL.revokeObjectURL(u);no(Error('Cannot read '+f.name))};
   m.onload=()=>{const r=fit?fit/Math.max(m.width,m.height):Math.min(1,1600/Math.max(m.width,m.height)),c=cv(Math.round(m.width*r),Math.round(m.height*r)),g=c.getContext('2d');
     g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(m,0,0,c.width,c.height);URL.revokeObjectURL(u);let d=c.toDataURL('image/png');d.length>4e6&&(d=c.toDataURL('image/jpeg',.9));ok(d)};m.src=u});
 const isImg=f=>/^image\/(png|jpeg|gif|webp)$/.test(f.type);
 function note(t){msg(t);notes.push(t);thumbs();setTimeout(()=>{notes=notes.filter(x=>x!==t);thumbs()},8e3)}
 async function attach(fs){document.body.classList.contains('chat')||A.chat();
-  for(const f of fs)try{if(isImg(f)){vis()?(imgs.push(await shrink(f)),rq=1):note(`${f.name}: ${noVis()}`);continue}
+  for(const f of fs)try{if(isImg(f)){imgs.push(await shrink(f)),rq=1;continue}
     if(/\.(pdf|docx?|xlsx?|pptx?|zip)$/i.test(f.name)||/^image\/(?!svg)/.test(f.type)){note(`${f.name}: can't read this type; attach an image or a plain-text file (save or copy the text as .txt)`);continue}
     const t=await f.text();if(/\0/.test(t.slice(0,4096))){note(`${f.name} is not a text file`);continue}
     files.push({n:f.name,t:t.slice(0,3e5)});t.length>3e5&&note(`${f.name} was cut to the first 300,000 characters`)}catch(e){note(e.message)}
@@ -703,15 +702,15 @@ function swap(s,t){const els=t.els.filter(e=>root.contains(e));if(!els.length)re
   doImport(s,'ai');const g=sel[0],k=undos.length;setT(g,ctm(par).inverse().multiply(ctm(g.parentNode)).multiply(lm(g)));par.insertBefore(g,ref&&ref.parentNode===par?ref:null);ctx=par;
   applyM(T(t.b.x-vb.x,t.b.y-vb.y),[g]);setSel([g]);commit();merge(k)
   msg('Replaced the selection (Ctrl+Z to undo)')}
-async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t||(imgs.length?'Redraw this figure.':files.length?'Draw a figure from the attached file.':''),key=$('mKey').value.trim();if(!q)return;if(!key||imgs.length&&!vis()){$('mCfg').open=true;return msg(key?noVis():'Enter an API key first')}
+async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t||(imgs.length?'Redraw this figure.':files.length?'Draw a figure from the attached file.':''),key=$('mKey').value.trim();if(!q)return;if(!key){$('mCfg').open=true;return msg('Enter an API key first')}
   const part=selPart();if(part&&part.x.length>2e5)return msg(`The selection is too large to send (${Math.round(part.x.length/1e3)}k characters). Select fewer objects, or click × on the selection to send without it.`);
   const sx=part?`\n\nSelected part of the figure (${nObj(part.els.length)}, ${fm(part.b.w*U)} × ${fm(part.b.h*U)} mm at x ${fm((part.b.x-vb.x)*U)}, y ${fm((part.b.y-vb.y)*U)} mm on the page), as SVG:\n\`\`\`svg\n${part.x}\n\`\`\`\nIf the user asks to change it, reply with an SVG of only this part that keeps the same width, height and viewBox, so it can replace the selection in place.`:'',
-    pi=part&&vis()?await shrink(new Blob([part.x],{type:'image/svg+xml'}),1000).catch(()=>null):null;
+    pi=part?await shrink(new Blob([part.x],{type:'image/svg+xml'}),1000).catch(()=>null):null;
   const sent=imgs,fl=files,qf=q+sx+fl.map(f=>`\n\nAttached file "${f.n}":\n\`\`\`\n${f.t}\n\`\`\``).join('');imgs=[];files=[];thumbs();$('mAsk').value='';
   const ims=pi?[...sent,pi]:sent;hist.push({role:'user',content:ims.length?[...ims.map(url=>({type:'image_url',image_url:{url}})),{type:'text',text:qf}]:qf});bub('u',q).append(...sent.map(img),...(part?[chip('f','Selection: '+nObj(part.els.length))]:[]),...fl.map(f=>chip('f',f.n)));const b=bub('a',''),tx=el('span',0,'…'),near=e=>e.scrollHeight-e.scrollTop-e.clientHeight<30;b.append(tx);let dt,sm,pr,shut=0;
   const tsum=()=>dt&&(sm.textContent=(out||!ac?'Thought for ':'Thinking… ')+th.toLocaleString('en')+' chars');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0;
   try{const r=await fetch($('mEp').value.trim(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},signal:ac.signal,
-      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...(vis()?hist:hist.map(m=>Array.isArray(m.content)?{...m,content:m.content.filter(c=>c.type==='text').map(c=>c.text).join('')+' [image omitted]'}:m))],stream:true,max_tokens:32768,thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
+      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,max_tokens:32768,thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
     if(!r.ok)throw Error(`${r.status} ${(await r.text()).slice(0,300)}`);
     const rd=r.body.pipeThrough(new TextDecoderStream()).getReader();let buf='';
     for(;;){const{value,done}=await rd.read();if(done)break;const ls=(buf+=value).split('\n');buf=ls.pop();
@@ -729,9 +728,9 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
   hist.push({role:'assistant',content:out});let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
   const p=el('p'),ins=btn('Insert copy',()=>{aiG=null;put(s)});b.append(p);
   if(part)return p.append(btn('Replace selection',()=>swap(s,part)),ins);p.append(ins,btn('Open as new',()=>put(s,1)));put(s)}
-const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3','glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions','deepseek-flash','deepseek-v4-pro']},
+const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions','deepseek-flash']},
   aiF=[['mKey','Key'],['mModel','Model'],['mEp','Ep']],
-  aiLoad=()=>{const p=$('mProv').value,[u,...ms]=AI[p],m=ls('msb'+p+'Model');$('mModel').replaceChildren(...ms.map(x=>new Option(VIS.includes(x)?x+' (sees images)':x,x)));
+  aiLoad=()=>{const p=$('mProv').value,[u,...ms]=AI[p],m=ls('msb'+p+'Model');$('mModel').replaceChildren(...ms.map(x=>new Option(x,x)));
     $('mModel').value=ms.includes(m)?m:ms[0];$('mKey').value=ls('msb'+p+'Key')||'';$('mEp').value=ls('msb'+p+'Ep')||u;thumbs()};
 for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);v&&[...e.options].some(o=>o.value===v)&&(e.value=v);e.onchange=()=>{ls(k,e.value);i==='mProv'&&aiLoad()}}
 for(const[i,k]of aiF)$(i).onchange=()=>{ls('msb'+$('mProv').value+k,$(i).value.trim());thumbs()};
