@@ -23,7 +23,11 @@ A lightweight in-browser SVG editor for touching up ggplot2/svglite figures (oft
   - `mbox` recurses for rotated matrices. It is exact for circle/ellipse, line/poly and straight-line paths.
   - Groups with more than 2000 descendants fall back to the loose box for speed.
   - Use `memoize(()=>...)` around batches of bbox calls.
-- Selection: `sel`, `setSel(a,noRefresh)`, `refresh()`, `sb` (selection box); handles live in `H`. Hit-testing uses `document.elementsFromPoint` through `#mCap`.
+- Selection: `sel`, `setSel(a,noRefresh)`, `refresh()`, `sb` (selection box); handles live in `H`.
+  - Click selects the part under the pointer (`grab`); Ctrl/⌘+click selects its top-level object (`pick`). `ctx` is the group of the selection; Esc climbs it, an empty click resets it to root.
+  - `hit(e)` uses `document.elementFromPoint` with `#mGW`, `#mCap` and the handles set to `pointer-events:none` (elementsFromPoint costs ~35 ms per call on a 150k-element file). Over a filled area, a thin line or small mark painted above within 4 px wins; the search stops after 40 ms.
+  - Box select `boxed()` takes whole groups that fit, else recurses into them; children of a group with over 2000 children are measured with getBoundingClientRect.
+  - Handles sit outside selections under 24 px on screen, so small points can be dragged. `curParent()` skips clipped groups so new shapes and pastes are not clipped away.
 - Drag preview ("ghost"): selected nodes move into `svg#mGhost` inside `div#mGW`. The CSS transform goes on the div, not the svg, so text doesn't re-layout.
 - Text editing: `edit()` / `finish()` use a contenteditable `.ed` overlay. `<sup>`/`<sub>` become `tspan style="font-size:65%;baseline-shift:super|sub"`.
 - AI chat panel: providers and models live in the `AI` object (first array element is the URL, the rest are the `#mModel` options). All current models see images, so the old vision gating is gone. Keep the Model dropdown even though each provider has one model — new models may be added; do not simplify it away.
@@ -49,4 +53,5 @@ A lightweight in-browser SVG editor for touching up ggplot2/svglite figures (oft
 ## Open issues
 
 - A user on a Mac saw the in-place text editor box narrower than the text (text cut off, blank at first). It could not be reproduced in Chromium. A defensive fix is in place (`.ed{width:max-content;overflow:visible}`); if it recurs, get the browser and the SVG file.
+- Ctrl+click on macOS depends on the canvas `contextmenu` being suppressed; untested on a Mac.
 - Firefox and Safari have not been tested (only Chromium is available here). Safari may ignore `@page size` for PDF; record it, don't hack around it.
