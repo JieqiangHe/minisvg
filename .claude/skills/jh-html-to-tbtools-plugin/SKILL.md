@@ -108,8 +108,8 @@ The `.plugin` is installed through Install Plugin in the TBtools menu. On delive
 
 ## Known limitations
 
-- **Downloads**: `<a download>`, Blob and `Plotly.downloadImage` downloads open a Save dialog (see above). Tested against mocks only; not yet confirmed inside TBtools.
-- **Printing**: `window.print()` saves a PDF through JxBrowser's PDF printer; it never reaches a paper printer and shows no preview. Requires JxBrowser 7.13+. Whether CSS `@page size` and `margin` are honoured is not yet confirmed — check with `pdfinfo`. Not yet confirmed inside TBtools.
+- **Downloads**: `<a download>`, Blob and `Plotly.downloadImage` downloads open a Save dialog (see above). Confirmed in TBtools-II on macOS (Oct 2026).
+- **Printing**: `window.print()` saves a PDF through JxBrowser's PDF printer; it never reaches a paper printer and shows no preview. Requires JxBrowser 7.13+. Confirmed in TBtools-II on macOS (Oct 2026); still check each app's page size and margins with `pdfinfo`.
 - **Drag-and-drop**: dragging files in from a file manager is unverified in OFF_SCREEN mode.
 - **localStorage**: data lives in TBtools' shared `.jxbrowser` directory. All file:// pages share one origin and can read each other's data — if the app stores an API key there, tell the user.
 - **Do not load the page from a data: URL**: its origin is opaque and localStorage access throws SecurityError.
