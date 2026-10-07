@@ -253,12 +253,12 @@ function setSize(t,pt){if(!(pt>0))return;setSt(t,'font-size',f6(pt/(sc(ctm(t))*U
 function setFont(t,p,v){setSt(t,p,v);setSt(t,'-inkscape-font-specification',null);kids(t,p);kids(t,'-inkscape-font-specification');noTL(t)}
 const family=cs=>cs.fontFamily.split(',')[0].replace(/["']/g,''),fam=f=>/\s/.test(f)&&!/^['"]/.test(f)?`'${f}'`:f;
 const hex=c=>{const m=/rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);return m?'#'+m.slice(1,4).map(x=>(+x).toString(16).padStart(2,'0')).join(''):'#000000'};
-function styleSet(p,v){for(const e of sel.flatMap(e=>isGrp(e)?[...e.querySelectorAll(LEAF)]:[e])){setSt(e,p,typeof v=='function'?v(e):v);e.localName==='text'&&kids(e,p)}}
+function styleSet(p,v){const no=/^(fill|stroke)$/.test(p)&&v!=='none',own=new Set(sel);for(const e of sel.flatMap(e=>isGrp(e)?[...e.querySelectorAll(LEAF)]:[e])){if(no&&!own.has(e)&&getComputedStyle(e)[p]==='none')continue;setSt(e,p,typeof v=='function'?v(e):v);e.localName==='text'&&kids(e,p)}}
 
 // history
 const flush=()=>(pend.push(...mo.takeRecords()),pend.length);
 function quiet(f){flush();f();mo.takeRecords()}
-function commit(){flush();if(pend.length){undos.push(pend);redos=[];dirty=true}pend=[];sizes();refresh()}
+function commit(){flush();if(pend.length){undos.push(pend);undos.length>200&&undos.shift();redos=[];dirty=true}pend=[];sizes();refresh()}
 function revert(rs){for(let i=rs.length;i--;){const m=rs[i],t=m.target;
   if(m.type==='attributes'){const n=m.attributeNamespace,a=m.attributeName;m.oldValue==null?t.removeAttributeNS(n,a):t.setAttributeNS(n,n?(t.getAttributeNodeNS(n,a)?.name||(PX[n]||'ns0')+':'+a):a,m.oldValue)}
   else if(m.type==='characterData')t.data=m.oldValue;
@@ -314,7 +314,7 @@ async function readFile(f,imp){if(f&&isImg(f))return placeImg(f);if(!f||!imp&&!d
 function curParent(){let c=ctx;while(c!==root&&clipOf(c))c=c.parentNode;if(c!==root)return c;const nv=[...root.children].find(e=>e.localName==='namedview'),l=nv&&byId(nv.getAttributeNS(NS.inkscape,'current-layer'));
   return l&&root.contains(l)&&isLayer(l)?l:[...root.children].reverse().find(isLayer)||root}
 const ymd=()=>{const d=new Date();return[d.getFullYear()%100,d.getMonth()+1,d.getDate()].map(x=>String(x).padStart(2,'0')).join('')};
-const outName=ext=>(name.replace(/\.svg$/i,'').replace(/_\d{6}$/,'')+'_'+ymd()+ext).toLowerCase();
+const outName=(ext,tag='')=>(name.replace(/\.svg$/i,'').replace(/_\d{6}$/,'')+(tag?'_'+tag:'')+'_'+ymd()+ext).toLowerCase();
 function svgText(){finish(true);return'<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n'+prolog+new XMLSerializer().serializeToString(root)+'\n'}
 function dl(b,n){const a=Object.assign(el('a'),{href:URL.createObjectURL(b),download:n});a.click();setTimeout(()=>URL.revokeObjectURL(a.href),6e4)}
 function phys(b,dpi){const c=new Uint8Array(21),v=new DataView(c.buffer),p=Math.round(dpi/0.0254);let r=-1;
@@ -330,7 +330,7 @@ async function png(dpi){const W=Math.round(vb.w*U/25.4*dpi),Hh=Math.round(vb.h*U
   try{img.src=url;await img.decode();const c=cv(W,Hh),g=c.getContext('2d');
     g.fillStyle='#fff';g.fillRect(0,0,W,Hh);g.drawImage(img,0,0,W,Hh);
     const b=new Uint8Array(await(await new Promise(r=>c.toBlob(r,'image/png'))).arrayBuffer());
-    dl(phys(b,dpi),outName(`_${dpi}dpi.png`));msg(`Exported ${W}×${Hh} PNG (${dpi} dpi)`)}
+    dl(phys(b,dpi),outName('.png',dpi+'dpi'));msg(`Exported ${W}×${Hh} PNG (${dpi} dpi)`)}
   catch(e){msg('PNG export failed: '+e.message)}finally{URL.revokeObjectURL(url)}}
 
 // view
@@ -568,7 +568,7 @@ function edit(t,h,mark){finish(true);let r=t;const L=lnKids(t);
     q=m.transformPoint({x:at(a,'x')??at(t,'x')??0,y:at(a,'y')??at(t,'y')??0}),d=el('div','ed'),o=[(q.x-vb.x)*Z*k,(q.y-vb.y)*Z*k-fs*(lh/2+.35)];
   d.contentEditable='true';
   Object.assign(d.style,{left:tx+o[0]+'px',top:ty+o[1]+'px',fontSize:fs+'px',lineHeight:lh,fontFamily:cs.fontFamily,fontWeight:cs.fontWeight,fontStyle:cs.fontStyle,
-    color:/^rgb/.test(cs.fill)?cs.fill:'#000',textAlign:{middle:'center',end:'right'}[cs.textAnchor]||'left',transform:`translateX(${{middle:-50,end:-100}[cs.textAnchor]||0}%)`});
+    color:/^rgb/.test(cs.fill)?cs.fill:'#000',textAlign:{middle:'center',end:'right'}[cs.textAnchor]||'left',transformOrigin:`0 ${fs*(lh/2+.35)}px`,transform:`rotate(${-ang(t)}deg) translateX(${{middle:-50,end:-100}[cs.textAnchor]||0}%)`});
   const ks=[];(L||[r]).forEach((l,i)=>{i&&d.append('\n');mirror(l,d,ks)});
   view.append(d);ed={t,r,L:!!L,d,o,ks,r0:JSON.stringify(edLines(d)),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
   d.onkeydown=e=>{e.stopPropagation();if(e.isComposing||e.keyCode===229)return;
@@ -835,7 +835,7 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SEL
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
   else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copyOut,x:()=>{copyOut();del()},v:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},d:()=>{const k=clip;copy();paste(true);clip=k;bar()},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
-  else if(ar)f=sel.length&&(()=>nudge(ar[0],ar[1],e.shiftKey));
+  else if(ar)f=sel.length&&(()=>{const n=undos.length;nudge(ar[0],ar[1],e.shiftKey);e.repeat&&n&&merge(n)});
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,'?':A.help}[K]||TK[kl]&&(()=>setTool(TK[kl]));
   if(f){c&&kl==='v'||e.preventDefault();f()}});
 let pv=0;addEventListener('paste',e=>{if(e.target.closest&&e.target.closest('#mChat,input,textarea,.ed'))return;const f=[...e.clipboardData.files].find(isImg);if(f&&root){pv=0;e.preventDefault();placeImg(f)}});
