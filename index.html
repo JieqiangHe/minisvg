@@ -290,12 +290,15 @@ const blank=(w,h)=>`<svg width="${w}mm" height="${h}mm" viewBox="0 0 ${w} ${h}" 
   <defs id="defs1"/>
   <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1"/>
 </svg>`;
+// point the url(#id) and href="#id" references in the nodes and their descendants at the ids in map
+function relink(ns,map){if(!map.size)return;const fix=v=>v.replace(/url\(\s*(['"]?)#([^'")]+)\1\s*\)/g,(m,q,i)=>map.has(i)?`url(#${map.get(i)})`:m).replace(/^#(.+)$/,(m,i)=>map.has(i)?'#'+map.get(i):m);
+  for(const n of ns)for(const e of[n,...n.getElementsByTagName('*')]){for(const a of e.attributes)if(a.value.includes('#')){const v=fix(a.value);v!==a.value&&(a.value=v)}
+    if(e.localName==='style'){const v=fix(e.textContent);v!==e.textContent&&(e.textContent=v)}}}
 function doImport(txt,nm){const r=document.adoptNode(parse(txt).documentElement),map=new Map();let n=1;
   while(root.querySelector(`[id^="i${n}_"]`))n++;
-  const pre=`i${n}_`,fix=v=>v.replace(/url\(\s*(['"]?)#([^'")]+)\1\s*\)/g,(m,q,i)=>map.has(i)?`url(#${map.get(i)})`:m).replace(/^#(.+)$/,(m,i)=>map.has(i)?'#'+map.get(i):m);
+  const pre=`i${n}_`;
   for(const e of r.querySelectorAll('[id]')){map.set(e.id,pre+e.id);e.id=pre+e.id}
-  for(const e of r.getElementsByTagName('*')){for(const a of e.attributes)if(a.value.includes('#')){const v=fix(a.value);v!==a.value&&(a.value=v)}
-    if(e.localName==='style'){const v=fix(e.textContent);v!==e.textContent&&(e.textContent=v)}}
+  relink([...r.children],map);
   const b=r.viewBox.baseVal,hv=r.hasAttribute('viewBox'),uI=hv?unitOf(r,b.width):25.4/96,
     g=mk('g',{id:pre+'g','inkscape:label':nm.replace(/\.svg$/i,'')}),p=curParent();
   for(const a of r.attributes)if(!a.prefix&&!/^(id|width|height|viewBox|x|y|version|preserveAspectRatio|xmlns)$/.test(a.name))g.setAttribute(a.name,a.value);
@@ -343,7 +346,7 @@ function place(){stage.style.transform=`translate(${tx}px,${ty}px) scale(${k})`;
 function syncPage(){const b=root.viewBox.baseVal,u=unitOf(root,b.width);if(b.x===vb.x&&b.y===vb.y&&b.width===vb.w&&b.height===vb.h&&u===U)return;
   vb=rb(b.x,b.y,b.width,b.height);U=u;ghost.setAttribute('viewBox',root.getAttribute('viewBox'));fit()}
 function setPage(x,y,w,h){if(!(w>0&&h>0))return;root.setAttribute('viewBox',[x,y,w,h].map(fm).join(' '));root.setAttribute('width',fm(w*U)+'mm');root.setAttribute('height',fm(h*U)+'mm');commit()}
-function fit(){const r=view.getBoundingClientRect();Z=Math.min((r.width-40)/vb.w,(r.height-40)/vb.h);k=1;tx=(r.width-vb.w*Z)/2;ty=(r.height-vb.h*Z)/2;size();place()}
+function fit(){finish(true);const r=view.getBoundingClientRect();Z=Math.min((r.width-40)/vb.w,(r.height-40)/vb.h);k=1;tx=(r.width-vb.w*Z)/2;ty=(r.height-vb.h*Z)/2;size();place()}
 function zoomAt(p,f){finish(true);k*=f;tx=p[0]-(p[0]-tx)*f;ty=p[1]-(p[1]-ty)*f;place();clearTimeout(zt);zt=setTimeout(()=>{Z*=k;k=1;size();place()},250)}
 
 // selection
@@ -452,7 +455,7 @@ function up(){if(!D)return;const d=D;D=null;
     if(G)ghostOff(d.M);else if(d.t==='move'&&d.was){ctx=d.c;setSel([d.el])}return}
   if(d.t==='band'){if(d.q){const a=toU(d.p),b=toU(d.q),R=rb(Math.min(a.x,b.x),Math.min(a.y,b.y),Math.abs(a.x-b.x),Math.abs(a.y-b.y));
       const got=memoize(()=>cands(top_(ctx)?root:ctx).filter(x=>{const q=bbox(x);return q&&q.x>=R.x&&q.y>=R.y&&q.x+q.w<=R.x+R.w&&q.y+q.h<=R.y+R.h}));setSel(d.add?[...sel,...got]:got)}
-    else if(d.add&&d.h){const[el,c]=grab(d.h);ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add)setSel([]);return hud()}
+    else if(d.add&&d.h){let[el,c]=grab(d.h);const o=sel.find(s=>s!==el&&s.contains(el));o?el=o:ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add)setSel([]);return hud()}
   if(d.q)create(d.t,toU(d.p),toU(d.q));else hud()}
 function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e);if(!t)return top_(ctx)||esc();
   let[el]=pick(t);if(el.localName==='text')return edit(el,t);
@@ -594,14 +597,16 @@ document.addEventListener('selectionchange',()=>{const g=getSelection();if(!ed||
   const cs=edAt();F.fs.value=+(parseFloat(cs.fontSize)*U*PT/(Z*k)).toFixed(2);F.ff.value=family(cs);F.tc.value=hex(cs.color)});
 
 // edit operations
-// a copy keeps its size in mm on another canvas and brings along the markers, clip paths and gradients that canvas lacks
+// a copy keeps its size in mm on another canvas and brings along the markers, clip paths and gradients it uses:
+// one identical to the copy's is reused, otherwise the copy's is added, under new ids where this canvas already uses them
 function copy(){if(sel.length){const s=order(sel);clip={it:s.map(e=>[e.cloneNode(true),ctm(e.parentNode)]),b:sb,u:U,d:deps(s)}}bar()}
-function paste(inPlace){if(!clip)return;const p=curParent(),Pi=ctm(p).inverse(),b=clip.b,s=clip.u/U;let O=S(s);
+function paste(inPlace){if(!clip)return;const p=curParent(),Pi=ctm(p).inverse(),b=clip.b,s=clip.u/U,map=new Map(),ds=clip.d.filter(d=>!byId(d.id)?.isEqualNode(d)).map(d=>d.cloneNode(true));let O=S(s);
   if(!inPlace&&mouse&&b){const u=toU(mouse);O=T(u.x-b.x*s-b.w*s/2,u.y-b.y*s-b.h*s/2).multiply(O)}
-  for(const d of clip.d)byId(d.id)||defs().appendChild(d.cloneNode(true));
-  const out=clip.it.map(([c,M])=>{const e=reid(c.cloneNode(true));setT(e,Pi.multiply(O).multiply(M).multiply(lm(c)));p.appendChild(e);return e});
+  for(const d of ds)for(const x of[d,...d.querySelectorAll('[id]')])byId(x.id)&&map.set(x.id,x.id=uid(x.localName));
+  relink(ds,map);for(const d of ds)defs().appendChild(d);
+  const out=clip.it.map(([c,M])=>{const e=c.cloneNode(true);relink([e],map);reid(e);setT(e,Pi.multiply(O).multiply(M).multiply(lm(c)));p.appendChild(e);return e});
   ctx=p;setSel(out,1);commit()}
-function del(){if(!sel.length)return;sel.forEach(e=>e.remove());setSel([],1);commit()}
+function del(){if(!sel.length)return;sel.forEach(e=>{e.contains(ctx)&&(ctx=e.parentNode);e.remove()});setSel([],1);commit()}
 function zorder(w){const s=order(sel),S=new Set(sel),sib=(e,n)=>{do e=n?e.nextElementSibling:e.previousElementSibling;while(e&&!isG(e));return e};
   if(w==='top')s.forEach(e=>e.parentNode.appendChild(e));
   if(w==='bot')s.reverse().forEach(e=>{let f=e.parentNode.firstElementChild;while(f&&!isG(f))f=f.nextElementSibling;f!==e&&e.parentNode.insertBefore(e,f)});
