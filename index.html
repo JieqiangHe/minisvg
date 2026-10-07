@@ -605,12 +605,13 @@ document.addEventListener('selectionchange',()=>{const g=getSelection();if(!ed||
 // edit operations (from the Edit menu they first finish a text edit in progress, as Undo does)
 // a copy keeps its size in mm on another canvas and brings along the markers, clip paths and gradients it uses,
 // under new ids as Import does; on its own canvas only those since removed are put back
-function copy(){finish(true);if(sel.length){const s=order(sel);clip={it:s.map(e=>[e.cloneNode(true),ctm(e.parentNode)]),b:sb,u:U,d:deps(s),r:root}}bar()}
+function copy(){finish(true);if(sel.length){const s=order(sel);clip={it:s.map(e=>[e.cloneNode(true),ctm(e.parentNode)]),b:sb,u:U,d:deps(s),r:root,kp:root.querySelector('style')?kps(s.flatMap(e=>isGrp(e)?klea(e):[e])):null}}bar()}
 function paste(inPlace){finish(true);if(!clip)return;const p=curParent(),Pi=ctm(p).inverse(),b=clip.b,s=clip.u/U,map=new Map();let O=S(s),ds=clip.d.map(d=>d.cloneNode(true));
   if(!inPlace&&mouse&&b){const u=toU(mouse);O=T(u.x-b.x*s-b.w*s/2,u.y-b.y*s-b.h*s/2).multiply(O)}
   if(clip.r===root)ds=ds.filter(d=>!byId(d.id));else{let n=1;while(root.querySelector(`[id^="p${n}_"]`))n++;for(const d of ds)for(const x of[d,...d.querySelectorAll('[id]')])map.set(x.id,x.id=`p${n}_`+x.id)}
   relink(ds,map);for(const d of ds)defs().appendChild(d);
   const out=clip.it.map(([c,M])=>{const e=c.cloneNode(true);relink([e],map);reid(e);setT(e,Pi.multiply(O).multiply(M).multiply(lm(c)));p.appendChild(e);return e});
+  if(clip.kp&&clip.r!==root){const lf=out.flatMap(e=>isGrp(e)?klea(e):[e]);lf.length===clip.kp.length&&kpr(lf,clip.kp)}
   ctx=p;setSel(out,1);commit()}
 function del(){finish(true);if(!sel.length)return;sel.forEach(e=>{e.contains(ctx)&&(ctx=e.parentNode);e.remove()});setSel([],1);commit()}
 function zorder(w){const s=order(sel),S=new Set(sel),sib=(e,n)=>{do e=n?e.nextElementSibling:e.previousElementSibling;while(e&&!isG(e));return e};
@@ -622,16 +623,19 @@ function group(){if(!sel.length)return;const s=order(sel),l=s[s.length-1],p=l.pa
   for(const e of s){e.parentNode!==p&&setT(e,Pi.multiply(ctm(e.parentNode)).multiply(lm(e)));g.appendChild(e)}ctx=p;setSel([g],1);commit()}
 function decls(e){const o=[];for(const a of e.attributes)PRES.test(a.name)&&o.push([a.name,a.value]);
   for(const d of(e.getAttribute('style')||'').split(';')){const i=d.indexOf(':');i>0&&o.push([d.slice(0,i).trim(),d.slice(i+1).trim()])}return o}
+// leaving a class-carrying group (svglite styles) must not change how leaves paint: snapshot these computed values before, write back inline only the ones that changed
+const KP=['fill','stroke','stroke-linecap','stroke-linejoin','stroke-miterlimit'],klea=g=>[...g.querySelectorAll(LEAF)].filter(e=>!e.closest('defs,clipPath,mask,marker,pattern,symbol')),
+  kps=lf=>lf.map(e=>KP.map(p=>getComputedStyle(e)[p])),kpr=(lf,kv)=>lf.forEach((e,i)=>KP.forEach((p,j)=>{const v=getComputedStyle(e)[p];v!==kv[i][j]&&setSt(e,p,kv[i][j])}));
 function ungroup(){const out=[];
   for(const g of order(sel)){if(!isGrp(g)||isLayer(g)){out.push(g);continue}
-    const T=lm(g),cp=g.getAttribute('clip-path'),ds=decls(g);
+    const T=lm(g),cp=g.getAttribute('clip-path'),ds=decls(g),lf=g.getAttribute('class')?klea(g):null,kv=lf&&kps(lf);
     for(const c of[...g.children]){g.before(c);if(!isG(c))continue;const L=lm(c);
       for(const[p,v]of ds)p==='opacity'?setSt(c,p,fm(v*(stGet(c,p)??1))):stGet(c,p)==null&&setSt(c,p,v);
       if(cp&&(c.hasAttribute('clip-path')||c.style.clipPath)){const w=mk('g',{id:uid('g'),'clip-path':cp});c.before(w);w.appendChild(c);setT(w,T);out.push(w);continue}
       if(cp&&L.isIdentity)c.setAttribute('clip-path',cp);
       else if(cp){const o=byId(refId(cp)),n=reid(o.cloneNode(true)),I=L.inverse().multiply(lm(o));n.removeAttribute('transform');for(const r of n.children)isG(r)&&setT(r,I.multiply(lm(r)));defs().appendChild(n);c.setAttribute('clip-path',`url(#${n.id})`)}
       setT(c,T.multiply(L));out.push(c)}
-    g.remove()}
+    g.remove();kv&&kpr(lf,kv)}
   setSel(out,1);commit()}
 const area=()=>$('mRel').value?rb(vb.x,vb.y,vb.w,vb.h):sb;
 function align(c){const R=area();if(!R)return;
