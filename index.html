@@ -141,8 +141,8 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <input type="file" id="mFile" accept=".svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp" hidden>
 <dialog id="mHelp"><form method="dialog"><header><h3>Shortcuts and tips</h3><button value="" title="Close (Esc)" aria-label="Close">×</button></header><div class="cols">
 <div>
-<section><h4>Select</h4><dl><dt>Click</dt><dd>Select an object (its whole group); clicking text selects that text</dd><dt><kbd>Shift</kbd>+click</dt><dd>Add to or remove from the selection</dd><dt>Drag on empty</dt><dd>Box select; <kbd>Shift</kbd> adds to the selection</dd><dt>Double-click</dt><dd>Enter a group; on text, edit it</dd><dt><kbd>Ctrl</kbd>+click</dt><dd>Pick an object inside a group directly</dd><dt><kbd>Ctrl+A</kbd></dt><dd>Select all in the current group</dd><dt><kbd>Esc</kbd></dt><dd>Up one group level, then deselect</dd></dl></section>
-<section><h4>Move and resize</h4><dl><dt>Drag</dt><dd>Move; <kbd>Ctrl</kbd> keeps it horizontal or vertical</dd><dt><kbd>← ↑ → ↓</kbd></dt><dd>Nudge 0.1 mm; with <kbd>Shift</kbd> 1 mm</dd><dt>Corner handle</dt><dd>Scale in proportion; <kbd>Shift</kbd> scales freely</dd><dt>Side handle</dt><dd>Stretch one side; on text, the left or right handle re-wraps the text at that width with the font size unchanged</dd><dt>Rotate handle</dt><dd>Rotate; <kbd>Ctrl</kbd> snaps to 15°</dd><dt>Round handle</dt><dd>Round the corners of a rectangle</dd><dt>End handle</dt><dd>Move an end of a line or arrow; <kbd>Shift</kbd> snaps to 45°</dd><dt>Right panel</dt><dd>Exact X, Y, W, H (mm) and rotation</dd></dl></section>
+<section><h4>Select</h4><dl><dt>Click</dt><dd>Select the shape, line, point or text under the pointer</dd><dt><kbd>Shift</kbd>+click</dt><dd>Add to or remove from the selection</dd><dt>Drag on empty</dt><dd>Box select what lies wholly inside; <kbd>Shift</kbd> adds to the selection</dd><dt><kbd>Ctrl</kbd>+click</dt><dd>Select the whole group it belongs to, such as a panel or an imported figure</dd><dt><kbd>Esc</kbd></dt><dd>Select the group around the selection, one level up each time, then deselect</dd><dt><kbd>Ctrl+A</kbd></dt><dd>Select all in the current group</dd></dl></section>
+<section><h4>Move and resize</h4><dl><dt>Drag</dt><dd>Move; dragging any part of a selected group moves the group; <kbd>Ctrl</kbd> keeps it horizontal or vertical</dd><dt><kbd>← ↑ → ↓</kbd></dt><dd>Nudge 0.1 mm; with <kbd>Shift</kbd> 1 mm</dd><dt>Corner handle</dt><dd>Scale in proportion; <kbd>Shift</kbd> scales freely</dd><dt>Side handle</dt><dd>Stretch one side; on text, the left or right handle re-wraps the text at that width with the font size unchanged</dd><dt>Rotate handle</dt><dd>Rotate; <kbd>Ctrl</kbd> snaps to 15°</dd><dt>Round handle</dt><dd>Round the corners of a rectangle</dd><dt>End handle</dt><dd>Move an end of a line or arrow; <kbd>Shift</kbd> snaps to 45°</dd><dt>Right panel</dt><dd>Exact X, Y, W, H (mm) and rotation</dd></dl></section>
 <section><h4>View</h4><dl><dt>Wheel</dt><dd>Scroll; <kbd>Shift</kbd>+wheel scrolls sideways</dd><dt><kbd>Ctrl</kbd>+wheel</dt><dd>Zoom (or pinch)</dd><dt><kbd>Space</kbd>+drag</dt><dd>Pan (or drag with the middle button)</dd><dt><kbd>5</kbd></dt><dd>Fit the page to the window</dd><dt><kbd>?</kbd></dt><dd>This help</dd></dl></section>
 </div>
 <div>
@@ -311,7 +311,7 @@ async function readFile(f,imp){if(f&&isImg(f))return placeImg(f);if(!f||!imp&&!d
   const t0=performance.now(),txt=await f.text();
   try{imp?doImport(txt,f.name):load(txt,f.name)}catch(e){return msg(`Cannot read ${f.name}: ${e.message}`)}
   requestAnimationFrame(()=>setTimeout(()=>msg(`${imp?'Imported':'Opened'} ${f.name} · ${(f.size/1048576).toFixed(1)} MB · ${root.getElementsByTagName('*').length} elements · ${Math.round(performance.now()-t0)} ms`)))}
-function curParent(){if(ctx!==root)return ctx;const nv=[...root.children].find(e=>e.localName==='namedview'),l=nv&&byId(nv.getAttributeNS(NS.inkscape,'current-layer'));
+function curParent(){let c=ctx;while(c!==root&&clipOf(c))c=c.parentNode;if(c!==root)return c;const nv=[...root.children].find(e=>e.localName==='namedview'),l=nv&&byId(nv.getAttributeNS(NS.inkscape,'current-layer'));
   return l&&root.contains(l)&&isLayer(l)?l:[...root.children].reverse().find(isLayer)||root}
 const ymd=()=>{const d=new Date();return[d.getFullYear()%100,d.getMonth()+1,d.getDate()].map(x=>String(x).padStart(2,'0')).join('')};
 const outName=ext=>(name.replace(/\.svg$/i,'').replace(/_\d{6}$/,'')+'_'+ymd()+ext).toLowerCase();
@@ -382,7 +382,7 @@ function hud(M){H.replaceChildren();if(!root)return;rulers();
   const sp=sel.length===1&&seg(sel[0]);
   if(sp&&!M)sp.forEach((q,i)=>{const r=ctm(sel[0]).transformPoint(q),x=tx+(r.x-vb.x)*Z*k,y=ty+(r.y-vb.y)*Z*k;mk('rect',{x:x-4,y:y-4,width:8,height:8,'data-h':'p'+i,style:'fill:#fff;stroke:#1a73e8;cursor:move'},H)});
   if(sb&&!sp){const p=poly(sb,'stroke:#1a73e8;stroke-dasharray:5 3',M);
-    if(!M){['nw','ne','se','sw'].forEach((h,i)=>{const q=p[(i+1)%4],x=(p[i][0]+q[0])/2,y=(p[i][1]+q[1])/2;mk('rect',{x:p[i][0]-4,y:p[i][1]-4,width:8,height:8,'data-h':h,style:`fill:#fff;stroke:#1a73e8;cursor:${i%2?'nesw':'nwse'}-resize`},H);mk('rect',{x:x-3,y:y-3,width:6,height:6,'data-h':'nesw'[i],style:`fill:#1a73e8;stroke:#fff;cursor:${i%2?'ew':'ns'}-resize`},H)});
+    if(!M){const a=p[2][0]-p[0][0]<24,b=p[2][1]-p[0][1]<24;['nw','ne','se','sw'].forEach((h,i)=>{const q=p[(i+1)%4],x=(p[i][0]+q[0])/2+[0,3,0,-3][i]*a,y=(p[i][1]+q[1])/2+[-3,0,3,0][i]*b;mk('rect',{x:p[i][0]-4+(i%3?4:-4)*a,y:p[i][1]-4+(i<2?-4:4)*b,width:8,height:8,'data-h':h,style:`fill:#fff;stroke:#1a73e8;cursor:${i%2?'nesw':'nwse'}-resize`},H);mk('rect',{x:x-3,y:y-3,width:6,height:6,'data-h':'nesw'[i],style:`fill:#1a73e8;stroke:#fff;cursor:${i%2?'ew':'ns'}-resize`},H)});
       mk('circle',{cx:(p[0][0]+p[1][0])/2,cy:p[0][1]-18,r:5,'data-h':'rot',style:'fill:#fff;stroke:#e8711a'},H);
       const e=sel[0];if(sel.length===1&&e.localName==='rect'){const m=ctm(e),[x,y,w,h,r]=rgeo(e),o=Math.min(Math.max(r,14/(Z*k*sc(m))),w/2,h/2),q=m.transformPoint({x:x+o,y:y+o});
         mk('title',{},mk('circle',{cx:tx+(q.x-vb.x)*Z*k,cy:ty+(q.y-vb.y)*Z*k,r:4.5,'data-h':'rad',style:'fill:#fff;stroke:#1a73e8;stroke-width:1.5;cursor:default'},H),'Drag to round the corners')}}}
@@ -403,11 +403,20 @@ function sizes(){if(!root)return;const g=new Map();
   $('mSizes').replaceChildren(...[...g].sort((a,b)=>a[0]-b[0]).map(([s,ts])=>{const d=el('div');
     d.innerHTML=`<span>${s} pt × ${ts.length}</span>→<input type="number" step="0.5" min="0.5"> pt<button>Select</button>`;
     d.querySelector('input').onchange=e=>{ts.forEach(t=>setSize(t,+e.target.value));commit()};d.querySelector('button').onclick=()=>setSel(ts);return d}))}
-function pick(t){let c=ctx&&ctx!==t&&ctx.contains(t)?ctx:root;for(;;){let e=t;while(e.parentNode!==c)e=e.parentNode;if(isLayer(e)&&e!==t){c=e;continue}return[e,c]}}
-// what a click on t selects, and the group it is in: a text itself, t itself when direct (Ctrl+click), else its object in the current group
-function grab(t,direct){const q=t.closest('text'),[el,c]=direct||q?[q||t]:pick(t);return[el,c||el.parentNode]}
-function hit(e){for(const[dx,dy]of[[0,0],[2,0],[-2,0],[0,2],[0,-2],[4,0],[-4,0],[0,4],[0,-4]])
-  for(const t of document.elementsFromPoint(e.clientX+dx,e.clientY+dy))if(t!==root&&root.contains(t)&&t.namespaceURI===NS.svg)return t}
+function pick(t){let c=root;for(;;){let e=t;while(e.parentNode!==c)e=e.parentNode;if(isLayer(e)&&e!==t){c=e;continue}return[e,c]}}
+// what a click on t selects, and the group it is in: the shape or text under the pointer, or with whole (Ctrl+click) its top-level object
+function grab(t,whole){const e=t.closest('text')||t;return whole?pick(t):[e,e.parentNode]}
+// the topmost shape at the pointer; over a filled area, a thin line or small mark painted above it within 4 px wins (searched for at most 40 ms)
+function hit(e){const o=[gw,$('mCap'),...H.children];o.forEach(x=>x.style.pointerEvents='none');
+  try{const at=(x,y)=>{let t=document.elementFromPoint(e.clientX+x,e.clientY+y);while(t&&t.namespaceURI!==NS.svg)t=t.parentNode;return t!==root&&root.contains(t)?t:null},
+    thin=t=>{const r=t.getBoundingClientRect();return Math.min(r.width,r.height)<6||t.localName==='line'||getComputedStyle(t).fill==='none'},t=at(0,0);
+    if(t&&(t.closest('text')||thin(t)))return t;
+    for(let r=1,t0=performance.now();r<5;r++)for(const[x,y]of[[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]]){if(performance.now()-t0>40)return t;const n=at(x*r,y*r);if(n&&(!t||n!==t&&t.compareDocumentPosition(n)&4&&thin(n)))return n}
+    return t}finally{o.forEach(x=>x.style.pointerEvents='')}}
+// what a box selects: whatever lies wholly inside it, a group as a whole if it fits, else those of its parts that do; the parts of a group with over 2000 children are measured on screen, for speed
+function boxed(c,R){const o=[],V=view.getBoundingClientRect(),s=Z*k,big=c.childElementCount>2e3,B=big?rb((R.x-vb.x)*s+tx+V.left,(R.y-vb.y)*s+ty+V.top,R.w*s,R.h*s):R;
+  for(const x of cands(c)){const q=big?(r=>rb(r.x,r.y,r.width,r.height))(x.getBoundingClientRect()):bbox(x);if(!q||!isect(q,B))continue;
+    q.x>=B.x&&q.y>=B.y&&q.x+q.w<=B.x+B.w&&q.y+q.h<=B.y+B.h?o.push(x):isGrp(x)&&o.push(...boxed(x,R))}return o}
 function cands(c){const o=[];for(const e of c.children){if(!isG(e))continue;if(!isLayer(e))o.push(e);else if(getComputedStyle(e).display!=='none'&&!e.getAttributeNS(NS.sodipodi,'insensitive'))o.push(...cands(e))}return o}
 function esc(){if(G){ghostOff();D=null}else if(tool!=='sel')setTool('sel');else if(!top_(ctx)){const c=ctx;ctx=c.parentNode;setSel([c])}else setSel([])}
 function setTool(t){tool=t;document.querySelectorAll('#mTools [data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('mCap').style.cursor=t==='sel'?'default':t==='text'?'text':'crosshair'}
@@ -426,10 +435,9 @@ function down(e){if(!root||e.target.closest('.ed'))return;finish(true);document.
   if(h&&sb){D={t:h==='rot'?'rot':'sc',h,p,u,b:sb};return cap()}
   if(tool==='text'){const t=hit(e),tt=t&&t.closest('text');if(tt){ctx=tt.parentNode;setSel([tt]);edit(tt,t)}else newText(u);return}
   if(tool!=='sel'){D={t:tool,p,u};return cap()}
-  const t=hit(e);
-  if(!t||e.shiftKey){D={t:'band',p,u,add:e.shiftKey,h:t};return cap()}
-  const tt=t.closest('text'),own=tt&&!(e.ctrlKey||e.metaKey)&&sel.some(s=>s!==tt&&s.contains(tt)),[el,c]=grab(t,e.ctrlKey||e.metaKey);
-  const was=own||sel.includes(el);if(!was){ctx=c;setSel([el])}D={t:'move',p,u,el,c,was};cap()}
+  const t=hit(e),w=e.ctrlKey||e.metaKey;
+  if(!t||e.shiftKey){D={t:'band',p,u,add:e.shiftKey,h:t,w};return cap()}
+  const[el,c]=grab(t,w),was=sel.some(s=>s.contains(t));if(!was){ctx=c;setSel([el])}D={t:'move',p,u,el,c,was};cap()}
 function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textContent=`${((u.x-vb.x)*U).toFixed(1)}, ${((u.y-vb.y)*U).toFixed(1)} mm`;if(!D)return rulers();
   let dx=p[0]-D.p[0],dy=p[1]-D.p[1];
   if(D.t==='pan'){tx=D.tx+dx;ty=D.ty+dy;return place()}
@@ -454,12 +462,10 @@ function up(){if(!D)return;const d=D;D=null;
   if(/^(move|sc|rot)$/.test(d.t)){if(d.t==='sc'&&d.on&&d.M&&/^[ew]$/.test(d.h)&&sel.length===1&&sel[0].localName==='text'&&tryWrap(sel[0],d.b,d.M,d.h))return;
     if(G)ghostOff(d.M);else if(d.t==='move'&&d.was){ctx=d.c;setSel([d.el])}return}
   if(d.t==='band'){if(d.q){const a=toU(d.p),b=toU(d.q),R=rb(Math.min(a.x,b.x),Math.min(a.y,b.y),Math.abs(a.x-b.x),Math.abs(a.y-b.y));
-      const got=memoize(()=>cands(top_(ctx)?root:ctx).filter(x=>{const q=bbox(x);return q&&q.x>=R.x&&q.y>=R.y&&q.x+q.w<=R.x+R.w&&q.y+q.h<=R.y+R.h}));setSel(d.add?[...sel,...got]:got)}
-    else if(d.add&&d.h){let[el,c]=grab(d.h);const o=sel.find(s=>s!==el&&s.contains(el));o?el=o:ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add)setSel([]);return hud()}
+      const got=memoize(()=>boxed(root,R));setSel(d.add?[...sel,...got]:got,1);const ps=new Set(sel.map(x=>x.parentNode));ctx=ps.size===1?[...ps][0]:root;refresh()}
+    else if(d.add&&d.h){let[el,c]=grab(d.h,d.w);const o=sel.find(s=>s!==el&&s.contains(el));o?el=o:ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add){ctx=root;setSel([])}return hud()}
   if(d.q)create(d.t,toU(d.p),toU(d.q));else hud()}
-function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e);if(!t)return top_(ctx)||esc();
-  let[el]=pick(t);if(el.localName==='text')return edit(el,t);
-  if(isGrp(el)){ctx=el;[el]=pick(t);setSel([el])}}
+function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e),q=t&&t.closest('text');q&&edit(q,t)}
 
 // creation
 function create(t,a,b){const p=curParent(),Pi=ctm(p).inverse(),A=Pi.transformPoint(a),B=Pi.transformPoint(b),w=f6(0.5/PT/U/sc(ctm(p))),s=`fill:none;stroke:#000000;stroke-width:${w}`;let e;
@@ -807,7 +813,7 @@ $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').re
   if(!discard())return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 view.addEventListener('mousedown',e=>e.target.closest('.ed')||e.preventDefault());
-view.addEventListener('dblclick',dbl);view.addEventListener('pointerleave',()=>{mouse=null;rulers()});
+view.addEventListener('dblclick',dbl);view.addEventListener('contextmenu',e=>e.target.closest('.ed')||e.preventDefault());view.addEventListener('pointerleave',()=>{mouse=null;rulers()});
 view.addEventListener('wheel',e=>{e.preventDefault();if(!root)return;const m=e.deltaMode?16:1;let dx=e.deltaX*m,dy=e.deltaY*m;
   if(e.ctrlKey||e.metaKey){const f=Math.exp(-dy*0.0015),z=Z*k*f;return z>1e-3&&z<1e4&&zoomAt(vp(e),f)}
   if(e.shiftKey&&!dx)[dx,dy]=[dy,0];tx-=dx;ty-=dy;place()},{passive:false});
