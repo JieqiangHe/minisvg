@@ -151,8 +151,8 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw; paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
 </div>
 <div>
-<section><h4>File</h4><dl><dt><kbd>Ctrl+O</kbd></dt><dd>Open an SVG (a PNG or JPG is placed on the canvas)</dd><dt><kbd>Ctrl+I</kbd></dt><dd>Import an SVG, PNG or JPG into this canvas</dd><dt><kbd>Ctrl+S</kbd></dt><dd>Export SVG as name_YYMMDD.svg</dd><dt>Drop a file</dt><dd>An SVG opens or is imported; a PNG or JPG is placed where dropped</dd><dt>File menu</dt><dd>PNG at 300 or 600 dpi; vector PDF through the print dialog (best in Chrome or Edge)</dd></dl></section>
-<section><h4>Edit</h4><dl><dt><kbd>Ctrl+Z</kbd></dt><dd>Undo</dd><dt><kbd>Ctrl+Shift+Z</kbd></dt><dd>Redo (or <kbd>Ctrl+Y</kbd>)</dd><dt><kbd>Ctrl+C</kbd></dt><dd>Copy</dd><dt><kbd>Ctrl+X</kbd></dt><dd>Cut</dd><dt><kbd>Ctrl+V</kbd></dt><dd>Paste what was copied last: objects, or an image</dd><dt><kbd>Ctrl+D</kbd></dt><dd>Duplicate</dd><dt><kbd>Delete</kbd></dt><dd>Delete</dd></dl></section>
+<section><h4>File</h4><dl><dt><kbd>Ctrl+O</kbd></dt><dd>Open an SVG (a PNG or JPG is placed on the canvas)</dd><dt><kbd>Ctrl+I</kbd></dt><dd>Import an SVG, PNG or JPG into this canvas</dd><dt><kbd>Ctrl+S</kbd></dt><dd>Export SVG as name_YYMMDD.svg; after the first save it writes back to the same file</dd><dt>Drop a file</dt><dd>An SVG opens or is imported; a PNG or JPG is placed where dropped</dd><dt>File menu</dt><dd>PNG at 300 or 600 dpi; vector PDF through the print dialog (best in Chrome or Edge)</dd></dl></section>
+<section><h4>Edit</h4><dl><dt><kbd>Ctrl+Z</kbd></dt><dd>Undo</dd><dt><kbd>Ctrl+Shift+Z</kbd></dt><dd>Redo (or <kbd>Ctrl+Y</kbd>)</dd><dt><kbd>Ctrl+C</kbd></dt><dd>Copy</dd><dt><kbd>Ctrl+X</kbd></dt><dd>Cut</dd><dt><kbd>Ctrl+V</kbd></dt><dd>Paste what was copied last: objects, or an image; SVG text from another app is imported</dd><dt><kbd>Ctrl+D</kbd></dt><dd>Duplicate</dd><dt><kbd>Delete</kbd></dt><dd>Delete</dd></dl></section>
 <section><h4>Arrange</h4><dl><dt><kbd>Ctrl+G</kbd></dt><dd>Group</dd><dt><kbd>Ctrl+Shift+G</kbd></dt><dd>Ungroup</dd><dt><kbd>Home</kbd></dt><dd>Bring to front</dd><dt><kbd>End</kbd></dt><dd>Send to back</dd><dt><kbd>PgUp</kbd></dt><dd>Forward one step</dd><dt><kbd>PgDn</kbd></dt><dd>Backward one step</dd></dl></section>
 </div>
 </div><p class="ft">On a Mac, keyboard shortcuts also work with <kbd>⌘</kbd> in place of <kbd>Ctrl</kbd>. Everything runs in your browser; nothing is uploaded except what you send to the AI provider.</p></form></dialog>
@@ -187,7 +187,7 @@ const isG=e=>e&&e.namespaceURI===NS.svg&&GR.test(e.localName);
 const isGrp=e=>/^(g|a|switch)$/.test(e.localName);
 const isLayer=e=>e.localName==='g'&&e.getAttributeNS(NS.inkscape,'groupmode')==='layer';
 const top_=c=>c===root||isLayer(c);
-const uid=p=>{while(byId(p+ ++idn));return p+idn},reid=n=>{for(const x of[n,...n.querySelectorAll('[id]')])x.id&&(x.id=uid(x.localName));return n};
+const uid=p=>{while(byId(p+ ++idn));return p+idn},reid=n=>{const m=new Map();for(const x of[n,...n.querySelectorAll('[id]')])x.id&&m.set(x.id,x.id=uid(x.localName));m.size&&relink([n],m);return n};
 const defs=()=>[...root.children].find(e=>e.localName==='defs')||root.insertBefore(mk('defs',{id:uid('defs')}),[...root.children].find(isG)||null);
 const xns=p=>root.hasAttribute('xmlns:'+p)||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:'+p,NS[p]);
 const order=a=>[...new Set(a)].sort((x,y)=>x.compareDocumentPosition(y)&4?-1:1);
@@ -269,7 +269,7 @@ function undo(r){finish(true);if(D)return;if(flush()){undos.push(pend);pend=[]}
 
 // document
 function parse(txt){const d=new DOMParser().parseFromString(txt,'image/svg+xml');if(d.documentElement.localName!=='svg'||d.getElementsByTagName('parsererror').length)throw Error('not a valid SVG');
-  for(const e of[...d.getElementsByTagName('*')])if(/^(iframe|frame|object|embed)$/i.test(e.localName))e.remove();else for(const a of[...e.attributes])
+  for(const e of[...d.getElementsByTagName('*')])if(/^(iframe|frame|object|embed|script|meta|link|base)$/i.test(e.localName))e.remove();else for(const a of[...e.attributes])
     (/^on|^srcdoc$/i.test(a.localName)||/^\s*javascript:/i.test(a.value)||/^(values|to|from|by)$/.test(a.localName)&&/javascript:/i.test(a.value))&&e.removeAttributeNode(a);
   return d}
 function load(txt,nm){const d=parse(txt);prolog='';
@@ -281,7 +281,7 @@ function load(txt,nm){const d=parse(txt);prolog='';
   fit();stage.insertBefore(root,gw);
   for(const a of[...ghost.attributes])a.name!=='id'&&ghost.removeAttribute(a.name);
   for(const a of root.attributes)if(!a.prefix&&!/^(id|width|height|x|y|version|preserveAspectRatio|xmlns)$/.test(a.name))ghost.setAttribute(a.name,a.value);
-  sel=[];ctx=root;undos=[];redos=[];pend=[];dirty=false;
+  sel=[];ctx=root;undos=[];redos=[];pend=[];dirty=false;fh=null;
   mo=new MutationObserver(r=>pend.push(...r));
   mo.observe(root,{subtree:true,childList:true,attributes:true,attributeOldValue:true,characterData:true,characterDataOldValue:true});
   sizes();refresh()}
@@ -614,11 +614,11 @@ function paste(inPlace){finish(true);if(!clip)return;const p=curParent(),Pi=ctm(
   if(clip.kp&&clip.r!==root){const lf=out.flatMap(e=>isGrp(e)?klea(e):[e]);lf.length===clip.kp.length&&kpr(lf,clip.kp)}
   ctx=p;setSel(out,1);commit()}
 function del(){finish(true);if(!sel.length)return;sel.forEach(e=>{e.contains(ctx)&&(ctx=e.parentNode);e.remove()});setSel([],1);commit()}
-function zorder(w){const s=order(sel),S=new Set(sel),sib=(e,n)=>{do e=n?e.nextElementSibling:e.previousElementSibling;while(e&&!isG(e));return e};
+function zorder(w){const s=order(sel),q=new Set(sel),sib=(e,n)=>{do e=n?e.nextElementSibling:e.previousElementSibling;while(e&&!isG(e));return e};
   if(w==='top')s.forEach(e=>e.parentNode.appendChild(e));
   if(w==='bot')s.reverse().forEach(e=>{let f=e.parentNode.firstElementChild;while(f&&!isG(f))f=f.nextElementSibling;f!==e&&e.parentNode.insertBefore(e,f)});
-  if(w==='up')s.reverse().forEach(e=>{const n=sib(e,1);n&&!S.has(n)&&n.after(e)});
-  if(w==='dn')s.forEach(e=>{const n=sib(e,0);n&&!S.has(n)&&n.before(e)});commit()}
+  if(w==='up')s.reverse().forEach(e=>{const n=sib(e,1);n&&!q.has(n)&&n.after(e)});
+  if(w==='dn')s.forEach(e=>{const n=sib(e,0);n&&!q.has(n)&&n.before(e)});commit()}
 function group(){if(!sel.length)return;const s=order(sel),l=s[s.length-1],p=l.parentNode,Pi=ctm(p).inverse(),g=mk('g',{id:uid('g')});p.insertBefore(g,l.nextSibling);
   for(const e of s){e.parentNode!==p&&setT(e,Pi.multiply(ctm(e.parentNode)).multiply(lm(e)));g.appendChild(e)}ctx=p;setSel([g],1);commit()}
 function decls(e){const o=[];for(const a of e.attributes)PRES.test(a.name)&&o.push([a.name,a.value]);
@@ -628,13 +628,13 @@ const KP=['fill','stroke','stroke-linecap','stroke-linejoin','stroke-miterlimit'
   kps=lf=>lf.map(e=>KP.map(p=>getComputedStyle(e)[p])),kpr=(lf,kv)=>lf.forEach((e,i)=>KP.forEach((p,j)=>{const v=getComputedStyle(e)[p];v!==kv[i][j]&&setSt(e,p,kv[i][j])}));
 function ungroup(){const out=[];
   for(const g of order(sel)){if(!isGrp(g)||isLayer(g)){out.push(g);continue}
-    const T=lm(g),cp=g.getAttribute('clip-path'),ds=decls(g),lf=g.getAttribute('class')?klea(g):null,kv=lf&&kps(lf);
+    const M=lm(g),cp=g.getAttribute('clip-path'),ds=decls(g),lf=g.getAttribute('class')?klea(g):null,kv=lf&&kps(lf);
     for(const c of[...g.children]){g.before(c);if(!isG(c))continue;const L=lm(c);
       for(const[p,v]of ds)p==='opacity'?setSt(c,p,fm(v*(stGet(c,p)??1))):stGet(c,p)==null&&setSt(c,p,v);
-      if(cp&&(c.hasAttribute('clip-path')||c.style.clipPath)){const w=mk('g',{id:uid('g'),'clip-path':cp});c.before(w);w.appendChild(c);setT(w,T);out.push(w);continue}
+      if(cp&&(c.hasAttribute('clip-path')||c.style.clipPath)){const w=mk('g',{id:uid('g'),'clip-path':cp});c.before(w);w.appendChild(c);setT(w,M);out.push(w);continue}
       if(cp&&L.isIdentity)c.setAttribute('clip-path',cp);
       else if(cp){const o=byId(refId(cp)),n=reid(o.cloneNode(true)),I=L.inverse().multiply(lm(o));n.removeAttribute('transform');for(const r of n.children)isG(r)&&setT(r,I.multiply(lm(r)));defs().appendChild(n);c.setAttribute('clip-path',`url(#${n.id})`)}
-      setT(c,T.multiply(L));out.push(c)}
+      setT(c,M.multiply(L));out.push(c)}
     g.remove();kv&&kpr(lf,kv)}
   setSel(out,1);commit()}
 const area=()=>$('mRel').value?rb(vb.x,vb.y,vb.w,vb.h):sb;
@@ -708,7 +708,7 @@ const same=(a,b)=>a.length===b.length&&a.every((e,i)=>e===b[i]),selOn=()=>sel.le
 function selChip(){const c=$('mSelC');same(sel,skip)||(skip=[]);if(!selOn())return c.replaceChildren();const e=chip('f','Selection: '+nObj(sel.length));
   e.title='The selected objects are sent with your message';e.append(xb(()=>{skip=sel.slice();selChip()},'Send without the selection'));c.replaceChildren(e)}
 const selPart=()=>selOn()?frag(order(sel)):null,copyOut=()=>{copy();if(!sel.length)return;const n=sel.reduce((n,e)=>n+e.getElementsByTagName('*').length,0),f=n<2e4&&frag(order(sel));
-  navigator.clipboard?.writeText(f?f.x:`minisvg: ${nObj(sel.length)} copied`).catch(()=>{})};
+  lastOut=f?f.x:`minisvg: ${nObj(sel.length)} copied`;navigator.clipboard?.writeText(lastOut).catch(()=>{})};
 function frag(els){const b=memoize(()=>els.reduce((a,e)=>un(a,bbox(e)),null));if(!b)return null;
   const s=mk('svg',{width:fm(b.w*U)+'mm',height:fm(b.h*U)+'mm',viewBox:[b.x,b.y,b.w,b.h].map(fm).join(' ')}),d=mk('defs',{},s),P=['fill','stroke','stroke-width','font-family','font-size','font-weight','font-style','text-anchor'];
   for(const e of els){const st=[],g=mk('g',{},s);for(let a=e.parentNode;a;a=a===root?null:a.parentNode){const v=[...P.filter(k=>a.hasAttribute(k)).map(k=>k+':'+a.getAttribute(k)),a.getAttribute('style')].filter(Boolean).join(';');v&&st.unshift(v)}
@@ -766,9 +766,14 @@ $('mChat').ondrop=e=>{e.preventDefault();e.stopPropagation();attach([...e.dataTr
 $('mAsk').onpaste=e=>{const fs=[...e.clipboardData.files];if(fs.length){e.preventDefault();attach(fs)}};
 $('mAsk').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229){e.preventDefault();ac||ask()}};
 
+// Ctrl+S keeps the picked file handle and writes back to it; without showSaveFilePicker (or when the write fails) it falls back to a download
+let fh=null;const save=async()=>{const b=new Blob([svgText()],{type:'image/svg+xml'}),n=outName('.svg');
+  try{if(!fh)fh=await showSaveFilePicker({suggestedName:n});const w=await fh.createWritable();await w.write(b);await w.close()}
+  catch(e){if(e.name==='AbortError')return;fh=null;dl(b,n);dirty=false;bar();return msg('Exported '+n)}
+  dirty=false;bar();msg('Exported '+n)};
 const A={
   new:newDoc,open:()=>chooseFile(0),imp:()=>chooseFile(1),
-  svg:()=>{dl(new Blob([svgText()],{type:'image/svg+xml'}),outName('.svg'));dirty=false;bar();msg('Exported '+outName('.svg'))},p300:()=>png(300),p600:()=>png(600),pdf,
+  svg:save,p300:()=>png(300),p600:()=>png(600),pdf,
   undo:()=>undo(0),redo:()=>undo(1),label:labels,group,ungroup,copy:copyOut,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
   bold:()=>flip('font-weight','fontWeight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','fontStyle','italic',c=>c.fontStyle==='italic'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
@@ -780,7 +785,7 @@ const A={
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
 for(const w of['top','up','dn','bot'])A[w]=()=>zorder(w);
 for(const a in ANC)A[a]=()=>anchor(ANC[a]);
-A.chat=()=>{const on=document.body.classList.toggle('chat');qa('chat').classList.toggle('on',on);hud();on&&$('mAsk').focus()};
+A.chat=()=>{const on=document.body.classList.toggle('chat');ls('msbChat',on?1:0);qa('chat').classList.toggle('on',on);hud();on&&$('mAsk').focus()};
 
 document.body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!root&&!/new|open/.test(b.dataset.a))return;b.dataset.a&&A[b.dataset.a]?A[b.dataset.a]():b.dataset.t&&setTool(b.dataset.t)});
 document.body.addEventListener('mousedown',e=>e.target.closest('#mBar button,#mTools button,#mSide button')&&e.preventDefault());
@@ -834,17 +839,20 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SEL
   if(K===' '){space=true;e.preventDefault();return}
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
-  else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copyOut,x:()=>{copyOut();del()},v:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},d:()=>{const k=clip;copy();paste(true);clip=k;bar()},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
+  else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:copyOut,x:()=>{copyOut();del()},v:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},d:()=>{const o=clip;copy();paste(true);clip=o;bar()},g:e.shiftKey?ungroup:group,a:()=>setSel(cands(top_(ctx)?root:ctx)),s:A.svg,i:A.imp}[kl];
   else if(ar)f=sel.length&&(()=>{const n=undos.length;nudge(ar[0],ar[1],e.shiftKey);e.repeat&&n&&merge(n)});
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,'?':A.help}[K]||TK[kl]&&(()=>setTool(TK[kl]));
   if(f){c&&kl==='v'||e.preventDefault();f()}});
-let pv=0;addEventListener('paste',e=>{if(e.target.closest&&e.target.closest('#mChat,input,textarea,.ed'))return;const f=[...e.clipboardData.files].find(isImg);if(f&&root){pv=0;e.preventDefault();placeImg(f)}});
+let pv=0,lastOut='';addEventListener('paste',e=>{if(e.target.closest&&e.target.closest('#mChat,input,textarea,.ed'))return;const f=[...e.clipboardData.files].find(isImg);
+  if(f&&root){pv=0;e.preventDefault();return placeImg(f)}
+  const t=e.clipboardData.getData('text/plain');
+  if(root&&!f&&t&&t!==lastOut&&/^\s*(<svg|<\?xml)/i.test(t)){pv=0;e.preventDefault();try{doImport(t,'pasted.svg');msg('Imported SVG text from the clipboard')}catch(x){msg('Cannot paste SVG text: '+x.message)}}});
 const opts={rulers:ls('msbRulers')!=='0',grid:ls('msbGrid')==='1'};
 function views(){document.body.classList.toggle('noR',!opts.rulers);grid();for(const k in opts)qa(k).classList.toggle('on',opts[k]);rulers()}
 function toggle(k){opts[k]=!opts[k];ls('msb'+k[0].toUpperCase()+k.slice(1),opts[k]?1:0);views()}
 function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';const b=qa('theme');b.textContent='Theme: '+(d?'Dark':'Light');b.title=d?'Switch to light interface':'Switch to dark interface';rulers()}
 setTheme(document.documentElement.dataset.theme==='dark');
-views();load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Scroll to move around, Ctrl+scroll (or pinch) to zoom.');
+views();ls('msbChat')==='0'&&(document.body.classList.remove('chat'),qa('chat').classList.remove('on'));load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Scroll to move around, Ctrl+scroll (or pinch) to zoom.');
 </script>
 </body>
 </html>
