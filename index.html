@@ -190,7 +190,7 @@ const top_=c=>c===root||isLayer(c);
 const uid=p=>{while(byId(p+ ++idn));return p+idn},reid=n=>{for(const x of[n,...n.querySelectorAll('[id]')])x.id&&(x.id=uid(x.localName));return n};
 const defs=()=>[...root.children].find(e=>e.localName==='defs')||root.insertBefore(mk('defs',{id:uid('defs')}),[...root.children].find(isG)||null);
 const xns=p=>root.hasAttribute('xmlns:'+p)||root.setAttributeNS('http://www.w3.org/2000/xmlns/','xmlns:'+p,NS[p]);
-const order=a=>{const s=new Set(a);return[...root.getElementsByTagName('*')].filter(e=>s.has(e))};
+const order=a=>[...new Set(a)].sort((x,y)=>x.compareDocumentPosition(y)&4?-1:1);
 
 // geometry
 const mx=(a,b,c,d,e,f)=>new DOMMatrix([a,b,c,d,e,f]),T=(x,y)=>mx(1,0,0,1,x,y),S=(x,y=x)=>mx(x,0,0,y,0,0),about=(M,x,y)=>T(x,y).multiply(M).multiply(T(-x,-y)),
