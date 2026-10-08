@@ -122,7 +122,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div class="kv"><span>Fill</span><div><input type="color" data-f="fill"><label><input type="checkbox" data-f="nofill">None</label></div>
 <span>Stroke</span><div><input type="color" data-f="stroke"><label><input type="checkbox" data-f="nostroke">None</label></div>
 <span>Width</span><div><input type="number" step="0.1" min="0" data-f="sw">pt<select data-f="dash" title="Line style"><option value="">Solid</option><option value="d">Dashed</option><option value="o">Dotted</option></select></div>
-<span>Head</span><div><input type="number" step="25" min="10" data-f="hd" title="Size of arrowheads and blunt ends, % of the original; they also grow with the line width">%</div>
+<span>Head</span><div><input type="number" step="25" min="10" data-f="hd" title="Size of arrowheads and blunt ends, % of the original; new arrows use the last size; they also grow with the line width">%</div>
 <span>Opacity</span><div><input type="number" min="0" max="100" step="5" data-f="op">%</div></div>
 </div>
 <div id="mChat">
@@ -149,7 +149,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <section><h4>View</h4><dl><dt>Wheel</dt><dd>Scroll; <kbd>Shift</kbd>+wheel scrolls sideways</dd><dt><kbd>Ctrl</kbd>+wheel</dt><dd>Zoom (or pinch)</dd><dt><kbd>Space</kbd>+drag</dt><dd>Pan (or drag with the middle button)</dd><dt><kbd>Ctrl+0</kbd></dt><dd>Fit the page to the window; <kbd>Ctrl+1</kbd> actual size, <kbd>Ctrl+=</kbd> <kbd>Ctrl+-</kbd> zoom in and out</dd><dt><kbd>Ctrl+R</kbd></dt><dd>Rulers; <kbd>Ctrl+'</kbd> grid</dd><dt><kbd>?</kbd></dt><dd>This help</dd></dl></section>
 </div>
 <div>
-<section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>M</kbd></dt><dd>Rectangle</dd><dt><kbd>L</kbd></dt><dd>Ellipse</dd><dt><kbd>\</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>B</kbd></dt><dd>Inhibition (blunt end); <b>Head</b> in the Appearance panel resizes arrowheads and blunt ends</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt><kbd>I</kbd></dt><dd>Eyedropper: click an object to give the selected objects its style; <kbd>Alt</kbd>+click applies the picked style to an object</dd><dt>Fill and stroke</dt><dd>The two swatches under the tools colour the selection, or new shapes when nothing is selected; <kbd>Shift+X</kbd> swaps fill and stroke, <kbd>D</kbd> sets no fill and a black stroke</dd><dt><kbd>C</kbd></dt><dd>Crop a photo: drag across it; drag again to change the crop, or past its edges to remove it</dd></dl></section>
+<section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>M</kbd></dt><dd>Rectangle</dd><dt><kbd>L</kbd></dt><dd>Ellipse</dd><dt><kbd>\</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>B</kbd></dt><dd>Inhibition (blunt end); <b>Head</b> in the Appearance panel resizes arrowheads and blunt ends, and new ones use the last size</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt><kbd>I</kbd></dt><dd>Eyedropper: click an object to give the selected objects its style; <kbd>Alt</kbd>+click applies the picked style to an object</dd><dt>Fill and stroke</dt><dd>The two swatches under the tools colour the selection, or new shapes when nothing is selected; <kbd>Shift+X</kbd> swaps fill and stroke, <kbd>D</kbd> sets no fill and a black stroke</dd><dt><kbd>C</kbd></dt><dd>Crop a photo: drag across it; drag again to change the crop, or past its edges to remove it</dd></dl></section>
 <section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Esc</kbd> finishes (<kbd>Ctrl+Z</kbd> undoes the edit), <kbd>Enter</kbd> starts a new line</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing; <kbd>Ctrl+Shift+=</kbd> and <kbd>Ctrl+Alt+Shift+=</kbd> do the same</dd><dt><kbd>Ctrl+Shift+.</kbd></dt><dd>Font size up 1 pt; <kbd>Ctrl+Shift+,</kbd> down</dd><dt>Part of a text</dt><dd>While editing, select characters, then change Size, Font, Color, B or I in the Text panel to restyle only them</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text; in Chrome and Edge the Font list also offers the fonts on this computer (the browser asks once)</dd></dl></section>
 <section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw; paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
 </div>
@@ -397,7 +397,7 @@ function panel(){const b=sb,v=(el,x)=>el.value=x==null||isNaN(x)?'':+x.toFixed(3
   else{const cs=gcs(l);F.nofill.checked=cs.fill==='none';F.fill.value=hex(cs.fill);F.nostroke.checked=cs.stroke==='none';F.stroke.value=hex(cs.stroke);v(F.sw,parseFloat(cs.strokeWidth)*sc(ctm(l))*U*PT);F.dash.value=cs.strokeDasharray==='none'?'':parseFloat(cs.strokeDasharray)/parseFloat(cs.strokeWidth)<1.5?'o':'d'}
   const cs=l&&gcs(l);fsw('mFF',cs?cs.fill:pen.fill);fsw('mSF',cs?cs.stroke:pen.stroke);
   const ml=e&&(isGrp(e)?klea(e).slice(0,500):[e]).find(x=>MP.some(a=>gcs(x).getPropertyValue(a)!=='none')),mi=ml&&MP.map(a=>refId(gcs(ml).getPropertyValue(a))).find(Boolean);
-  F.hd.disabled=!mi;v(F.hd,mi?+(/_h(\d+)$/.exec(mi)||[0,100])[1]:null);v(F.op,e&&gcs(e).opacity*100)}
+  F.hd.disabled=!!e&&!mi;v(F.hd,mi?+(/_h(\d+)$/.exec(mi)||[0,100])[1]:e?null:pen.head);v(F.op,e&&gcs(e).opacity*100)}
 const fsw=(i,v)=>{const b=$(i),c=/^rgb/.test(v)?hex(v):v[0]==='#'?v:null;b.classList.toggle('no',v==='none');b.style.setProperty('--c',v==='none'?'#fff':c||'#888');c&&(b.firstChild.value=c)};
 function sizes(){if(!root)return;const g=new Map();
   memoize(()=>{for(const t of texts()){const s=+tsize(t).toFixed(1);g.has(s)||g.set(s,[]);g.get(s).push(t)}});
@@ -473,7 +473,7 @@ function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=h
 function create(t,a,b){const p=curParent(),Pi=ctm(p).inverse(),A=Pi.transformPoint(a),B=Pi.transformPoint(b),w=f6(0.5/PT/U/sc(ctm(p))),ln=!/^(rect|ellipse)$/.test(t),s=`fill:${ln?'none':pen.fill};stroke:${ln&&pen.stroke==='none'?'#000000':pen.stroke};stroke-width:${w}`;let e;
   if(t==='rect')e=mk('rect',{id:uid('rect'),x:fc(min(A.x,B.x)),y:fc(min(A.y,B.y)),width:fc(abs(B.x-A.x)),height:fc(abs(B.y-A.y)),style:s},p);
   else if(t==='ellipse')e=mk('ellipse',{id:uid('ellipse'),cx:fc((A.x+B.x)/2),cy:fc((A.y+B.y)/2),rx:fc(abs(B.x-A.x)/2),ry:fc(abs(B.y-A.y)/2),style:s},p);
-  else e=mk('path',{id:uid('path'),d:`M ${fc(A.x)},${fc(A.y)} L ${fc(B.x)},${fc(B.y)}`,style:s+';stroke-linecap:butt'+(t in MK?`;marker-end:url(#${mark(t)})`:'')},p);
+  else e=mk('path',{id:uid('path'),d:`M ${fc(A.x)},${fc(A.y)} L ${fc(B.x)},${fc(B.y)}`,style:s+';stroke-linecap:butt'+(t in MK?`;marker-end:url(#${hmk(mark(t),pen.head)})`:'')},p);
   ctx=p;setTool('sel');setSel([e],1);commit()}
 const MK={arrow:['ArrowMsb','M 0,0 10,5 0,10 z',10,10,3],inhibit:['TeeMsb','M 0,0 H 1 V 12 H 0 z',1,12,1]};
 function mark(t){const[id,d,w,h,r]=MK[t];byId(id)||mk('path',{d,style:'fill:context-stroke;stroke:none'},
@@ -621,7 +621,7 @@ const MP=['marker-start','marker-mid','marker-end'];
 function hmk(id,p){const b=id.replace(/_h\d+$/,''),B=byId(b),c=+(/_h(\d+)$/.exec(id)||[0,100])[1];if(B&&p===100)return b;const n=b+'_h'+p;if(byId(n))return n;
   const s=B||byId(id),m=s.cloneNode(false),x=+s.getAttribute('refX')||0,y=+s.getAttribute('refY')||0,f=fm(B?p/100:p/c),g=mk('g',{transform:x||y?`translate(${fm(x)},${fm(y)}) scale(${f}) translate(${fm(-x)},${fm(-y)})`:`scale(${f})`},m);
   m.id=n;setSt(m,'overflow','visible');for(const k of s.childNodes){const q=k.cloneNode(true);g.appendChild(q.nodeType===1?reid(q):q)}s.after(m);return n}
-function heads(p){const old=new Set();
+function heads(p){const old=new Set();pen.head=p;
   for(const e of sel.flatMap(e=>isGrp(e)?klea(e):[e]))for(const a of MP){const id=refId(gcs(e).getPropertyValue(a));if(!id||!byId(id))continue;const n=hmk(id,p);n!==id&&(setSt(e,a,`url(#${n})`),old.add(id))}
   for(const id of old)if(/_h\d+$/.test(id))try{root.querySelector(`[style*="#${id})"],[marker-start="url(#${id})"],[marker-mid="url(#${id})"],[marker-end="url(#${id})"]`)||byId(id).remove()}catch(_){}}
 function dash(e){const w=parseFloat(gcs(e).strokeWidth)||1,d=F.dash.value;return d?[d==='d'?4*w:w,2*w].map(fm).join():null}
@@ -650,7 +650,7 @@ function styCopy(l=lf0()){if(!l)return;const c=gcs(l),w=parseFloat(c.strokeWidth
   sty={p:PS.map(p=>[p,/^rgb/.test(c[p])?hex(c[p]):c[p]]),w:w*ptw(l),d:c.strokeDasharray==='none'?0:c.strokeDasharray.split(/[\s,]+/).map(x=>parseFloat(x)/w),t:l.localName==='text'&&[family(c),c.fontWeight,c.fontStyle,tsize(l)]};bar();msg('Copied the style; Edit > Paste style applies it')}
 function styPaste(a=sel){finish(true);if(!sty||!a.length)return;for(const e of a.flatMap(e=>isGrp(e)?klea(e):[e])){if(e.localName==='text'){setSt(e,'fill',sty.p[0][1]);kids(e,'fill');if(sty.t){const[f,b,i,z]=sty.t;setFont(e,'font-family',fam(f));setFont(e,'font-weight',b);setFont(e,'font-style',i);setSize(e,z)}continue}
   for(const[p,v]of sty.p)setSt(e,p,v);const w=sty.w/ptw(e);setSt(e,'stroke-width',f6(w));setSt(e,'stroke-dasharray',sty.d?sty.d.map(x=>fm(x*w)).join():'none')}commit()}
-const pen={fill:'none',stroke:'#000000'},pnt=v=>/^rgb\(/.test(v)?hex(v):/^url/.test(v)?(m=>m?`url(#${m[1]})`:v)(/#([^'")]+)/.exec(v)):v;
+const pen={fill:'none',stroke:'#000000',head:100},pnt=v=>/^rgb\(/.test(v)?hex(v):/^url/.test(v)?(m=>m?`url(#${m[1]})`:v)(/#([^'")]+)/.exec(v)):v;
 function swapFS(){finish(true);if(!sel.length){[pen.fill,pen.stroke]=[pen.stroke,pen.fill];return panel()}
   for(const e of sel.flatMap(e=>isGrp(e)?klea(e):[e])){const c=gcs(e),f=c.fill,s=c.stroke,fo=c.fillOpacity,so=c.strokeOpacity;if(e.localName==='image'||f===s&&fo===so)continue;
     setSt(e,'fill',pnt(s));setSt(e,'stroke',pnt(f));fo!==so&&(setSt(e,'fill-opacity',so),setSt(e,'stroke-opacity',fo));e.localName==='text'&&['fill','stroke','fill-opacity','stroke-opacity'].forEach(p=>kids(e,p))}
