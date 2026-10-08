@@ -32,7 +32,7 @@ input,select{font:inherit}
 #mFS{position:relative;flex:none;width:32px;height:32px;margin:2px 0}#mFS label{position:absolute;width:20px;height:20px;border:1px solid var(--swb);border-radius:2px;background-color:var(--c,#fff);cursor:pointer}
 #mFS label.no{background-image:linear-gradient(to top right,#0000 44%,#e00 44%,#e00 56%,#0000 56%)}#mFS input{position:absolute;inset:0;z-index:1;width:100%;height:100%;padding:0;border:0;opacity:0;cursor:pointer}
 #mFF{left:0;top:0;z-index:1}#mSF{right:0;bottom:0;z-index:0}#mSF::after{content:"";position:absolute;inset:4px;background:var(--bar);border:1px solid var(--swb)}#mSF.no::after{background:none}
-#mFS button{position:absolute;right:0;top:0;width:12px;height:12px;padding:0;border:0;background:none;display:grid;place-items:center}#mFS button svg{width:11px;height:11px;stroke-width:1.4}
+#mFS button{position:absolute;right:0;top:0;width:12px;height:12px;padding:0;border:0;background:none;display:grid;place-items:center}#mFS button svg{width:11px;height:11px;stroke-width:1.4}#mFS #mFD{top:auto;right:auto;left:0;bottom:0}#mFD svg{stroke-width:1}
 #mView{position:relative;overflow:hidden;background:var(--view)}
 #mStage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #mStage>*{position:absolute!important;left:0;top:0;width:var(--w)!important;height:var(--h)!important;overflow:visible!important}
@@ -67,20 +67,20 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 </head>
 <body class="chat">
 <div id="mBar">
-<div class="dd"><button class="ddb">File ▾</button><div class="menu"><button data-a="new" title="New canvas">New</button><button data-a="open" title="Open an SVG; a PNG or JPG is placed on the canvas">Open<kbd>Ctrl+O</kbd></button><button data-a="imp" title="Import an SVG, PNG or JPG into this canvas">Import<kbd>Ctrl+I</kbd></button><hr><button data-a="svg" title="Inkscape-compatible SVG named name_YYMMDD.svg">Export SVG<kbd>Ctrl+S</kbd></button><button data-a="p300">Export PNG 300 dpi</button><button data-a="p600">Export PNG 600 dpi</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">Export PDF (print)</button></div></div>
-<div class="dd"><button class="ddb">Edit ▾</button><div class="menu"><button data-a="undo">Undo<kbd>Ctrl+Z</kbd></button><button data-a="redo">Redo<kbd>Ctrl+Shift+Z</kbd></button><hr><button data-a="copy">Copy<kbd>Ctrl+C</kbd></button><button data-a="paste" title="Paste copied objects at the cursor (Ctrl+V also pastes images)">Paste<kbd>Ctrl+V</kbd></button><button data-a="del">Delete<kbd>Del</kbd></button><hr><button data-a="stc" title="Copy the fill, stroke and font of the selected object">Copy style<kbd>Ctrl+Shift+C</kbd></button><button data-a="stp" title="Apply the copied style to the selection; stroke width and font size keep their size in pt">Paste style<kbd>Ctrl+Shift+V</kbd></button></div></div>
-<div class="dd"><button class="ddb">Select ▾</button><div class="menu"><button data-a="all" title="Everything in the current group">All<kbd>Ctrl+A</kbd></button><button data-a="allText" title="Every text in the document">All text</button><hr><button data-a="sf" title="Every shape (or every text) with the fill of the selected one">Same fill</button><button data-a="ss" title="Every shape (or every text) with the stroke of the selected one">Same stroke</button></div></div>
-<div class="dd"><button class="ddb">View ▾</button><div class="menu"><button data-a="rulers">Rulers</button><button data-a="grid" title="Page grid; spacing follows zoom; not exported">Grid</button><button data-a="fit">Fit to window<kbd>5</kbd></button></div></div><i></i>
+<div class="dd"><button class="ddb">File ▾</button><div class="menu"><button data-a="new" title="New canvas">New</button><button data-a="open" title="Open an SVG; a PNG or JPG is placed on the canvas">Open<kbd>Ctrl+O</kbd></button><button data-a="imp" title="Place an SVG, PNG or JPG into this canvas (also Ctrl+I)">Import<kbd>Ctrl+Shift+P</kbd></button><hr><button data-a="svg" title="Inkscape-compatible SVG named name_YYMMDD.svg">Export SVG<kbd>Ctrl+S</kbd></button><button data-a="svgAs" title="Export SVG to a new file">Export SVG as…<kbd>Ctrl+Shift+S</kbd></button><button data-a="p300">Export PNG 300 dpi</button><button data-a="p600">Export PNG 600 dpi</button><button data-a="pdf" title="Save as vector PDF via the print dialog (best in Chrome/Edge)">Export PDF (print)<kbd>Ctrl+P</kbd></button></div></div>
+<div class="dd"><button class="ddb">Edit ▾</button><div class="menu"><button data-a="undo">Undo<kbd>Ctrl+Z</kbd></button><button data-a="redo">Redo<kbd>Ctrl+Shift+Z</kbd></button><hr><button data-a="copy">Copy<kbd>Ctrl+C</kbd></button><button data-a="paste" title="Paste copied objects at the cursor (Ctrl+V also pastes images)">Paste<kbd>Ctrl+V</kbd></button><button data-a="pfront" title="Paste where it was copied, just in front of the selection">Paste in front<kbd>Ctrl+F</kbd></button><button data-a="pback" title="Paste where it was copied, just behind the selection">Paste in back<kbd>Ctrl+B</kbd></button><button data-a="pplace" title="Paste where it was copied, on top">Paste in place<kbd>Ctrl+Shift+V</kbd></button><button data-a="del">Delete<kbd>Del</kbd></button><hr><button data-a="again" title="Repeat the last move, scale or rotation (with its copy, after an Alt+drag)">Transform again<kbd>Ctrl+D</kbd></button><hr><button data-a="stc" title="Copy the fill, stroke and font of the selected object (the eyedropper, I, does this with a click)">Copy style</button><button data-a="stp" title="Apply the copied style to the selection; stroke width and font size keep their size in pt">Paste style</button></div></div>
+<div class="dd"><button class="ddb">Select ▾</button><div class="menu"><button data-a="all" title="Everything in the current group">All<kbd>Ctrl+A</kbd></button><button data-a="none">Deselect<kbd>Ctrl+Shift+A</kbd></button><button data-a="allText" title="Every text in the document">All text</button><hr><button data-a="sf" title="Every shape (or every text) with the fill of the selected one">Same fill</button><button data-a="ss" title="Every shape (or every text) with the stroke of the selected one">Same stroke</button></div></div>
+<div class="dd"><button class="ddb">View ▾</button><div class="menu"><button data-a="rulers">Rulers<kbd>Ctrl+R</kbd></button><button data-a="grid" title="Page grid; spacing follows zoom; not exported">Grid<kbd>Ctrl+'</kbd></button><hr><button data-a="fit">Fit to window<kbd>Ctrl+0</kbd></button><button data-a="z100" title="Real size on a 96 dpi screen">Actual size<kbd>Ctrl+1</kbd></button><button data-a="zin">Zoom in<kbd>Ctrl+=</kbd></button><button data-a="zout">Zoom out<kbd>Ctrl+-</kbd></button></div></div><i></i>
 <button data-a="chat" class="on" title="Draw and edit with AI (GLM or DeepSeek): describe a figure, attach a reference, or ask about the selection">SVG Chat</button><i></i><button data-a="help" title="Shortcuts and tips (?)">Help</button>
 </div>
 <div id="mTools">
 <button data-t="sel" class="on" title="Select (V)"><svg viewBox="0 0 24 24"><path d="M6 3v16l4.5-4.5 3 6.5 2.5-1.2-3-6.3H19z" fill="currentColor"/></svg></button>
 <button data-t="text" title="Text (T)"><svg viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg></button>
-<button data-t="rect" title="Rectangle (R), Shift for square"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12"/></svg></button>
-<button data-t="ellipse" title="Ellipse (E), Shift for circle"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8.5" ry="6.5"/></svg></button>
-<button data-t="line" title="Line (L)"><svg viewBox="0 0 24 24"><path d="M5 19 19 5"/></svg></button>
-<button data-t="arrow" title="Arrow (A): activation, positive regulation"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M10 5h9v9"/></svg></button><button data-t="inhibit" title="Inhibition (I): blunt-ended line, negative regulation"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M14 2l8 8"/></svg></button><button data-t="drop" title="Eyedropper (D): click an object to give the selection its style; Alt+click applies the picked style to an object"><svg viewBox="0 0 24 24"><path d="M4 20l.5-2.5 8.5-8.5 2 2-8.5 8.5z"/><path d="M11 6.5l6.5 6.5M14.5 9.5 18 6a2.1 2.1 0 0 0-3-3l-3.5 3.5"/></svg></button><i></i>
-<div id="mFS"><label id="mFF" title="Fill: of the selection, or of new shapes when nothing is selected"><input type="color" id="mFc"></label><label id="mSF" title="Stroke: of the selection, or of new shapes when nothing is selected"><input type="color" id="mSc"></label><button data-a="swap" title="Swap fill and stroke (Shift+X)"><svg viewBox="0 0 12 12"><path d="M1.5 2.5h6a2 2 0 0 1 2 2v6M3.5.8 1.5 2.5l2 1.7M7.8 8.5l1.7 2 1.7-2"/></svg></button></div>
+<button data-t="rect" title="Rectangle (M), Shift for square"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12"/></svg></button>
+<button data-t="ellipse" title="Ellipse (L), Shift for circle"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8.5" ry="6.5"/></svg></button>
+<button data-t="line" title="Line (\)"><svg viewBox="0 0 24 24"><path d="M5 19 19 5"/></svg></button>
+<button data-t="arrow" title="Arrow (A): activation, positive regulation"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M10 5h9v9"/></svg></button><button data-t="inhibit" title="Inhibition (B): blunt-ended line, negative regulation"><svg viewBox="0 0 24 24"><path d="M5 19 18 6M14 2l8 8"/></svg></button><button data-t="drop" title="Eyedropper (I): click an object to give the selection its style; Alt+click applies the picked style to an object"><svg viewBox="0 0 24 24"><path d="M4 20l.5-2.5 8.5-8.5 2 2-8.5 8.5z"/><path d="M11 6.5l6.5 6.5M14.5 9.5 18 6a2.1 2.1 0 0 0-3-3l-3.5 3.5"/></svg></button><button data-t="crop" title="Crop a photo (C): drag across it; drag again to change the crop, or past its edges to remove it"><svg viewBox="0 0 24 24"><path d="M6 2v16h16M2 6h16v16"/></svg></button><i></i>
+<div id="mFS"><label id="mFF" title="Fill: of the selection, or of new shapes when nothing is selected"><input type="color" id="mFc"></label><label id="mSF" title="Stroke: of the selection, or of new shapes when nothing is selected"><input type="color" id="mSc"></label><button data-a="swap" title="Swap fill and stroke (Shift+X)"><svg viewBox="0 0 12 12"><path d="M1.5 2.5h6a2 2 0 0 1 2 2v6M3.5.8 1.5 2.5l2 1.7M7.8 8.5l1.7 2 1.7-2"/></svg></button><button data-a="dflt" id="mFD" title="Default fill and stroke: none and black (D)"><svg viewBox="0 0 12 12"><rect x="4.5" y="4.5" width="6.5" height="6.5" stroke-width="2"/><rect x="1" y="1" width="5.5" height="5.5" style="fill:var(--bar)"/></svg></button></div>
 <a href="https://github.com/JieqiangHe/minisvg" target="_blank" rel="noopener" title="minisvg on GitHub"><svg viewBox="0 0 16 16"><path fill="currentColor" stroke="none" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a>
 </div>
 <div id="mView"><div id="mStage"><div id="mPage"></div><svg id="mGrid" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path class="mi"/><path class="ma"/></svg><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg><canvas id="mRx"></canvas><canvas id="mRy"></canvas></div>
@@ -100,14 +100,12 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <button data-a="ar" title="Align right"><svg viewBox="0 0 16 16"><path d="M14 1v14"/><rect x="2" y="3" width="10" height="4"/><rect x="6" y="9" width="6" height="4"/></svg></button>
 <button data-a="at" title="Align top"><svg viewBox="0 0 16 16"><path d="M1 2h14"/><rect x="3" y="4" width="4" height="10"/><rect x="9" y="4" width="4" height="6"/></svg></button>
 <button data-a="am" title="Align vertical centers"><svg viewBox="0 0 16 16"><path d="M1 8h14"/><rect x="3" y="3" width="4" height="10"/><rect x="9" y="5" width="4" height="6"/></svg></button>
-<button data-a="ab" title="Align bottom"><svg viewBox="0 0 16 16"><path d="M1 14h14"/><rect x="3" y="2" width="4" height="10"/><rect x="9" y="6" width="4" height="6"/></svg></button>
-<button data-a="dh" title="Distribute horizontally (equal gaps)"><svg viewBox="0 0 16 16"><rect x="1" y="4" width="3" height="8"/><rect x="6.5" y="4" width="3" height="8"/><rect x="12" y="4" width="3" height="8"/></svg></button>
-<button data-a="dv" title="Distribute vertically (equal gaps)"><svg viewBox="0 0 16 16"><rect x="4" y="1" width="8" height="3"/><rect x="4" y="6.5" width="8" height="3"/><rect x="4" y="12" width="8" height="3"/></svg></button></div>
+<button data-a="ab" title="Align bottom"><svg viewBox="0 0 16 16"><path d="M1 14h14"/><rect x="3" y="2" width="4" height="10"/><rect x="9" y="6" width="4" height="6"/></svg></button></div>
 <select id="mRel"><option value="">Relative to selection</option><option value="1">Relative to page</option></select>
 <h4>Arrange</h4>
 <div class="row"><button data-a="group" title="Group (Ctrl+G)">Group</button><button data-a="ungroup" title="Ungroup (Ctrl+Shift+G)">Ungroup</button></div>
-<div class="row"><button data-a="top" title="Bring to front (Home)">Bring to front</button><button data-a="up" title="Bring forward (PageUp)">Forward</button></div>
-<div class="row"><button data-a="bot" title="Send to back (End)">Send to back</button><button data-a="dn" title="Send backward (PageDown)">Backward</button></div>
+<div class="row"><button data-a="top" title="Bring to front (Ctrl+Shift+])">Bring to front</button><button data-a="up" title="Bring forward (Ctrl+])">Forward</button></div>
+<div class="row"><button data-a="bot" title="Send to back (Ctrl+Shift+[)">Send to back</button><button data-a="dn" title="Send backward (Ctrl+[)">Backward</button></div>
 <h4>Text</h4>
 <div class="kv"><span>Font</span><input list="mFonts" data-f="ff">
 <span>Size</span><div><input type="number" step="0.5" min="0.5" data-f="fs">pt<span class="tc">Color</span><input type="color" data-f="tc"></div></div>
@@ -145,19 +143,19 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <input type="file" id="mFile" accept=".svg,image/svg+xml,image/png,image/jpeg,image/gif,image/webp" hidden>
 <dialog id="mHelp"><form method="dialog"><header><h3>Shortcuts and tips</h3><button value="" title="Close (Esc)" aria-label="Close">×</button></header><div class="cols">
 <div>
-<section><h4>Select</h4><dl><dt>Click</dt><dd>Select the shape, line, point or text under the pointer</dd><dt><kbd>Shift</kbd>+click</dt><dd>Add to or remove from the selection</dd><dt>Drag on empty</dt><dd>Box select what lies wholly inside; <kbd>Shift</kbd> adds to the selection</dd><dt><kbd>Ctrl</kbd>+click</dt><dd>Select the whole group it belongs to, such as a panel or an imported figure</dd><dt><kbd>Esc</kbd></dt><dd>Select the group around the selection, one level up each time, then deselect</dd><dt><kbd>Ctrl+A</kbd></dt><dd>Select all in the current group</dd></dl></section>
-<section><h4>Move and resize</h4><dl><dt>Drag</dt><dd>Move; dragging any part of a selected group moves the group; <kbd>Ctrl</kbd> keeps it horizontal or vertical; edges and centers snap to the page and to nearby objects, <kbd>Alt</kbd> turns snapping off</dd><dt><kbd>← ↑ → ↓</kbd></dt><dd>Nudge 0.1 mm; with <kbd>Shift</kbd> 1 mm</dd><dt>Corner handle</dt><dd>Scale in proportion; <kbd>Shift</kbd> scales freely</dd><dt>Side handle</dt><dd>Stretch one side; on text, the left or right handle re-wraps the text at that width with the font size unchanged</dd><dt>Rotate handle</dt><dd>Rotate; <kbd>Ctrl</kbd> snaps to 15°</dd><dt>Round handle</dt><dd>Round the corners of a rectangle</dd><dt>End handle</dt><dd>Move an end of a line or arrow; <kbd>Shift</kbd> snaps to 45°</dd><dt>Right panel</dt><dd>Exact X, Y, W, H (mm) and rotation</dd></dl></section>
-<section><h4>View</h4><dl><dt>Wheel</dt><dd>Scroll; <kbd>Shift</kbd>+wheel scrolls sideways</dd><dt><kbd>Ctrl</kbd>+wheel</dt><dd>Zoom (or pinch)</dd><dt><kbd>Space</kbd>+drag</dt><dd>Pan (or drag with the middle button)</dd><dt><kbd>5</kbd></dt><dd>Fit the page to the window</dd><dt><kbd>?</kbd></dt><dd>This help</dd></dl></section>
+<section><h4>Select</h4><dl><dt>Click</dt><dd>Select the shape, line, point or text under the pointer</dd><dt><kbd>Shift</kbd>+click</dt><dd>Add to or remove from the selection</dd><dt>Drag on empty</dt><dd>Box select what lies wholly inside; <kbd>Shift</kbd> adds to the selection</dd><dt><kbd>Ctrl</kbd>+click</dt><dd>Select the whole group it belongs to, such as a panel or an imported figure</dd><dt><kbd>Esc</kbd></dt><dd>Select the group around the selection, one level up each time, then deselect</dd><dt><kbd>Ctrl+A</kbd></dt><dd>Select all in the current group; <kbd>Ctrl+Shift+A</kbd> deselects</dd></dl></section>
+<section><h4>Move and resize</h4><dl><dt>Drag</dt><dd>Move; dragging any part of a selected group moves the group; <kbd>Shift</kbd> keeps it to 45° steps; edges and centers snap to the page and to nearby objects, <kbd>Ctrl</kbd> turns snapping off</dd><dt><kbd>Alt</kbd>+drag</dt><dd>Move a copy; <kbd>Ctrl+D</kbd> then repeats the copy and move</dd><dt><kbd>← ↑ → ↓</kbd></dt><dd>Nudge 0.1 mm; with <kbd>Shift</kbd> 1 mm</dd><dt>Corner handle</dt><dd>Scale in proportion; <kbd>Shift</kbd> scales freely</dd><dt>Side handle</dt><dd>Stretch one side; on text, the left or right handle re-wraps the text at that width with the font size unchanged</dd><dt>Rotate handle</dt><dd>Rotate; <kbd>Shift</kbd> snaps to 15°</dd><dt>Round handle</dt><dd>Round the corners of a rectangle</dd><dt>End handle</dt><dd>Move an end of a line or arrow; <kbd>Shift</kbd> snaps to 45°</dd><dt>Right panel</dt><dd>Exact X, Y, W, H (mm) and rotation</dd></dl></section>
+<section><h4>View</h4><dl><dt>Wheel</dt><dd>Scroll; <kbd>Shift</kbd>+wheel scrolls sideways</dd><dt><kbd>Ctrl</kbd>+wheel</dt><dd>Zoom (or pinch)</dd><dt><kbd>Space</kbd>+drag</dt><dd>Pan (or drag with the middle button)</dd><dt><kbd>Ctrl+0</kbd></dt><dd>Fit the page to the window; <kbd>Ctrl+1</kbd> actual size, <kbd>Ctrl+=</kbd> <kbd>Ctrl+-</kbd> zoom in and out</dd><dt><kbd>Ctrl+R</kbd></dt><dd>Rulers; <kbd>Ctrl+'</kbd> grid</dd><dt><kbd>?</kbd></dt><dd>This help</dd></dl></section>
 </div>
 <div>
-<section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>R</kbd></dt><dd>Rectangle</dd><dt><kbd>E</kbd></dt><dd>Ellipse</dd><dt><kbd>L</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>I</kbd></dt><dd>Inhibition (blunt end)</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt><kbd>D</kbd></dt><dd>Eyedropper: click an object to give the selected objects its style; <kbd>Alt</kbd>+click applies the picked style to an object</dd><dt>Fill and stroke</dt><dd>The two swatches under the tools colour the selection, or new shapes when nothing is selected; <kbd>Shift+X</kbd> swaps fill and stroke</dd></dl></section>
-<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Enter</kbd> finishes, <kbd>Esc</kbd> cancels</dd><dt><kbd>Shift+Enter</kbd></dt><dd>New line while editing</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing</dd><dt>Part of a text</dt><dd>While editing, select characters, then change Size, Font, Color, B or I in the Text panel to restyle only them</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
+<section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>M</kbd></dt><dd>Rectangle</dd><dt><kbd>L</kbd></dt><dd>Ellipse</dd><dt><kbd>\</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>B</kbd></dt><dd>Inhibition (blunt end)</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt><kbd>I</kbd></dt><dd>Eyedropper: click an object to give the selected objects its style; <kbd>Alt</kbd>+click applies the picked style to an object</dd><dt>Fill and stroke</dt><dd>The two swatches under the tools colour the selection, or new shapes when nothing is selected; <kbd>Shift+X</kbd> swaps fill and stroke, <kbd>D</kbd> sets no fill and a black stroke</dd><dt><kbd>C</kbd></dt><dd>Crop a photo: drag across it; drag again to change the crop, or past its edges to remove it</dd></dl></section>
+<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Esc</kbd> finishes (<kbd>Ctrl+Z</kbd> undoes the edit), <kbd>Enter</kbd> starts a new line</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing; <kbd>Ctrl+Shift+=</kbd> and <kbd>Ctrl+Alt+Shift+=</kbd> do the same</dd><dt><kbd>Ctrl+Shift+.</kbd></dt><dd>Font size up 1 pt; <kbd>Ctrl+Shift+,</kbd> down</dd><dt>Part of a text</dt><dd>While editing, select characters, then change Size, Font, Color, B or I in the Text panel to restyle only them</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text</dd></dl></section>
 <section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw; paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
 </div>
 <div>
-<section><h4>File</h4><dl><dt><kbd>Ctrl+O</kbd></dt><dd>Open an SVG (a PNG or JPG is placed on the canvas)</dd><dt><kbd>Ctrl+I</kbd></dt><dd>Import an SVG, PNG or JPG into this canvas</dd><dt><kbd>Ctrl+S</kbd></dt><dd>Export SVG as name_YYMMDD.svg; after the first save it writes back to the same file</dd><dt>Drop a file</dt><dd>An SVG opens or is imported; a PNG or JPG is placed where dropped</dd><dt>File menu</dt><dd>PNG at 300 or 600 dpi; vector PDF through the print dialog (best in Chrome or Edge)</dd></dl></section>
-<section><h4>Edit</h4><dl><dt><kbd>Ctrl+Z</kbd></dt><dd>Undo</dd><dt><kbd>Ctrl+Shift+Z</kbd></dt><dd>Redo (or <kbd>Ctrl+Y</kbd>)</dd><dt><kbd>Ctrl+C</kbd></dt><dd>Copy</dd><dt><kbd>Ctrl+X</kbd></dt><dd>Cut</dd><dt><kbd>Ctrl+V</kbd></dt><dd>Paste what was copied last: objects, or an image; SVG text from another app is imported</dd><dt><kbd>Ctrl+D</kbd></dt><dd>Duplicate</dd><dt><kbd>Delete</kbd></dt><dd>Delete</dd><dt><kbd>Ctrl+Shift+C</kbd></dt><dd>Copy style; <kbd>Ctrl+Shift+V</kbd> pastes it</dd><dt>Select menu</dt><dd>All, all text, or every shape or text with the same fill or stroke</dd></dl></section>
-<section><h4>Arrange</h4><dl><dt><kbd>Ctrl+G</kbd></dt><dd>Group</dd><dt><kbd>Ctrl+Shift+G</kbd></dt><dd>Ungroup</dd><dt><kbd>Home</kbd></dt><dd>Bring to front</dd><dt><kbd>End</kbd></dt><dd>Send to back</dd><dt><kbd>PgUp</kbd></dt><dd>Forward one step</dd><dt><kbd>PgDn</kbd></dt><dd>Backward one step</dd></dl></section>
+<section><h4>File</h4><dl><dt><kbd>Ctrl+O</kbd></dt><dd>Open an SVG (a PNG or JPG is placed on the canvas)</dd><dt><kbd>Ctrl+Shift+P</kbd></dt><dd>Place (import) an SVG, PNG or JPG into this canvas; <kbd>Ctrl+I</kbd> also works</dd><dt><kbd>Ctrl+S</kbd></dt><dd>Export SVG as name_YYMMDD.svg; after the first save it writes back to the same file; <kbd>Ctrl+Shift+S</kbd> picks a new file</dd><dt><kbd>Ctrl+P</kbd></dt><dd>Vector PDF through the print dialog</dd><dt>Drop a file</dt><dd>An SVG opens or is imported; a PNG or JPG is placed where dropped</dd><dt>File menu</dt><dd>PNG at 300 or 600 dpi; vector PDF through the print dialog (best in Chrome or Edge)</dd></dl></section>
+<section><h4>Edit</h4><dl><dt><kbd>Ctrl+Z</kbd></dt><dd>Undo</dd><dt><kbd>Ctrl+Shift+Z</kbd></dt><dd>Redo (or <kbd>Ctrl+Y</kbd>)</dd><dt><kbd>Ctrl+C</kbd></dt><dd>Copy</dd><dt><kbd>Ctrl+X</kbd></dt><dd>Cut</dd><dt><kbd>Ctrl+V</kbd></dt><dd>Paste what was copied last: objects, or an image; SVG text from another app is imported</dd><dt><kbd>Ctrl+F</kbd></dt><dd>Paste in front of the selection, where it was copied; <kbd>Ctrl+B</kbd> behind it, <kbd>Ctrl+Shift+V</kbd> on top</dd><dt><kbd>Ctrl+D</kbd></dt><dd>Transform again: repeat the last move, scale or rotation</dd><dt><kbd>Delete</kbd></dt><dd>Delete</dd><dt>Copy style</dt><dd>Edit menu, or use the eyedropper (<kbd>I</kbd>)</dd><dt>Select menu</dt><dd>All, all text, or every shape or text with the same fill or stroke</dd></dl></section>
+<section><h4>Arrange</h4><dl><dt><kbd>Ctrl+G</kbd></dt><dd>Group</dd><dt><kbd>Ctrl+Shift+G</kbd></dt><dd>Ungroup</dd><dt><kbd>Ctrl+Shift+]</kbd></dt><dd>Bring to front</dd><dt><kbd>Ctrl+Shift+[</kbd></dt><dd>Send to back</dd><dt><kbd>Ctrl+]</kbd></dt><dd>Forward one step</dd><dt><kbd>Ctrl+[</kbd></dt><dd>Backward one step</dd><dt><kbd>Home</kbd> <kbd>End</kbd></dt><dd>Also front and back; <kbd>PgUp</kbd> <kbd>PgDn</kbd> one step</dd></dl></section>
 </div>
 </div><p class="ft">On a Mac, keyboard shortcuts also work with <kbd>⌘</kbd> in place of <kbd>Ctrl</kbd>. Everything runs in your browser; nothing is uploaded except what you send to the AI provider.</p></form></dialog>
 <dialog id="mNew"><form method="dialog">
@@ -349,7 +347,7 @@ function fit(){ed&&document.activeElement.blur();finish(true);const r=view.getBo
 function zoomAt(p,f){finish(true);k*=f;tx=p[0]-(p[0]-tx)*f;ty=p[1]-(p[1]-ty)*f;place();clearTimeout(zt);zt=setTimeout(()=>{Z*=k;k=1;size();place()},250)}
 
 function setSel(a,q){const s=new Set(a);sel=[...s].filter(e=>{for(let p=e.parentNode;p&&p!==root;p=p.parentNode)if(s.has(p))return false;return true});q||refresh()}
-function bar(){for(const[a,off]of[['undo',!undos.length],['redo',!redos.length],['copy',!sel.length],['del',!sel.length],['paste',!clip],['stc',!sel.length],['stp',!sty||!sel.length],['sf',!sel.length],['ss',!sel.length]])qa(a).disabled=off;
+function bar(){for(const[a,off]of[['undo',!undos.length],['redo',!redos.length],['copy',!sel.length],['del',!sel.length],['paste',!clip],['pfront',!clip],['pback',!clip],['pplace',!clip],['again',!again||!sel.length],['none',!sel.length],['stc',!sel.length],['stp',!sty||!sel.length],['sf',!sel.length],['ss',!sel.length]])qa(a).disabled=off;
   document.title=(dirty?'• ':'')+name+' — minisvg'}
 function refresh(){if(!root)return;syncPage();bar();sb=null;sbs=[];memoize(()=>{for(const e of sel){const b=bbox(e);sb=un(sb,b);sel.length>1&&sel.length<=200&&b&&sbs.push(b)}});
   cb=top_(ctx)?null:bbox(ctx);hud();panel();
@@ -432,7 +430,7 @@ function down(e){if(!root||e.target.closest('.ed'))return;finish(true);document.
   if(h==='rad'){const e=sel[0];D={t:'rad',p,e,r0:rgeo(e)[4],q0:ctm(e).inverse().transformPoint(u)};return cap()}
   if(h&&sb){D={t:h==='rot'?'rot':'sc',h,p,u,b:sb};return cap()}
   if(tool==='text'){const t=hit(e),tt=t&&t.closest('text');if(tt){ctx=tt.parentNode;setSel([tt]);edit(tt,t)}else newText(u);return}
-  if(tool!=='sel'){D={t:tool,p,u};return cap()}
+  if(tool!=='sel'){D={t:tool,p,u,im:tool==='crop'&&hit(e)};return cap()}
   const t=hit(e),w=e.ctrlKey||e.metaKey;
   if(!t||e.shiftKey){D={t:'band',p,u,add:e.shiftKey,h:t,w};return cap()}
   const[el,c]=grab(t,w),was=sel.some(s=>s.contains(t));if(!was){ctx=c;setSel([el])}D={t:'move',p,u,el,c,was};cap()}
@@ -446,26 +444,27 @@ function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textCo
   if(D.t==='rad'){const e=D.e,q=ctm(e).inverse().transformPoint(u),[,,w,h]=rgeo(e),r=max(0,min(D.r0+(q.x-D.q0.x+q.y-D.q0.y)/2,w/2,h/2)),v=fc(r);
     for(const a of['rx','ry'])+v?e.setAttribute(a,v):e.removeAttribute(a);msg(`Corner radius ${(r*sc(ctm(e))*U).toFixed(2)} mm`);return hud()}
   const b=D.b,b0=D.s0;let M;
-  if(D.t==='move'){let h=1,v=1;if(e.ctrlKey)abs(dx)>abs(dy)?(dy=0,v=0):(dx=0,h=0);let x=dx/(Z*k),y=dy/(Z*k);D.g=0;
-    if(!e.altKey){const s=(p,w,a)=>{let d=5/(Z*k),r=null;for(const q of a)for(const o of[0,w/2,w]){const f=q-p-o;abs(f)<abs(d)&&(d=f,r=q)}return r==null?[0,r]:[d,r]},[fx,gx]=h?s(b0.x+x,b0.w,D.sn[0]):[0],[fy,gy]=v?s(b0.y+y,b0.h,D.sn[1]):[0];x+=fx;y+=fy;D.g=[gx,gy]}M=T(x,y)}
+  if(D.t==='move'){let h=1,v=1;if(e.shiftKey){const a=round(atan2(dy,dx)/(PI/4)),r=hypot(dx,dy);dx=r*cos(a*PI/4);dy=r*sin(a*PI/4);a%2?h=v=0:a%4?h=0:v=0}let x=dx/(Z*k),y=dy/(Z*k);D.g=0;
+    if(!(e.ctrlKey||e.metaKey)){const s=(p,w,a)=>{let d=5/(Z*k),r=null;for(const q of a)for(const o of[0,w/2,w]){const f=q-p-o;abs(f)<abs(d)&&(d=f,r=q)}return r==null?[0,r]:[d,r]},[fx,gx]=h?s(b0.x+x,b0.w,D.sn[0]):[0],[fy,gy]=v?s(b0.y+y,b0.h,D.sn[1]):[0];x+=fx;y+=fy;D.g=[gx,gy]}M=T(x,y)}
   else if(D.t==='sc'){const w=D.h.includes('w'),n=D.h.includes('n'),ex=/[ew]/.test(D.h),ey=/[ns]/.test(D.h),ax=w?b.x+b.w:b.x,ay=n?b.y+b.h:b.y,vx=ex?(w?b.x:b.x+b.w)-ax:0,vy=ey?(n?b.y:b.y+b.h)-ay:0;if(!(vx||vy))return;
     let sx=vx?(u.x-ax)/vx:1,sy=vy?(u.y-ay)/vy:1;if(ex&&ey&&!e.shiftKey)sx=sy=((u.x-ax)*vx+(u.y-ay)*vy)/(vx*vx+vy*vy);
     M=about(S(sx||1e-3,sy||1e-3),ax,ay)}
-  else if(D.t==='rot'){const cx=b.x+b.w/2,cy=b.y+b.h/2;let a=(atan2(u.y-cy,u.x-cx)-atan2(D.u.y-cy,D.u.x-cx))*180/PI;if(e.ctrlKey)a=round(a/15)*15;M=about(Rot(a),cx,cy)}
+  else if(D.t==='rot'){const cx=b.x+b.w/2,cy=b.y+b.h/2;let a=(atan2(u.y-cy,u.x-cx)-atan2(D.u.y-cy,D.u.x-cx))*180/PI;if(e.shiftKey)a=round(a/15)*15;M=about(Rot(a),cx,cy)}
   else{if(e.shiftKey&&/line|arrow|inhibit/.test(D.t)){const a=round(atan2(dy,dx)/(PI/4))*PI/4,r=hypot(dx,dy);dx=r*cos(a);dy=r*sin(a)}
     if(e.shiftKey&&/rect|ellipse/.test(D.t)){const m=max(abs(dx),abs(dy));dx=dx<0?-m:m;dy=dy<0?-m:m}D.q=[D.p[0]+dx,D.p[1]+dy];return hud()}
   D.M=M;gw.style.transform=S(Z).multiply(T(-vb.x,-vb.y)).multiply(M).multiply(T(vb.x,vb.y)).multiply(S(1/Z)).toString();hud(M)}
 function snapSet(){const o=new Set(sel),c=cands(top_(ctx)?root:ctx).filter(e=>!o.has(e)),X=[vb.x,vb.x+vb.w/2,vb.x+vb.w],Y=[vb.y,vb.y+vb.h/2,vb.y+vb.h];
   c.length<500&&memoize(()=>c.forEach(e=>{const b=bbox(e);b&&(X.push(b.x,b.x+b.w/2,b.x+b.w),Y.push(b.y,b.y+b.h/2,b.y+b.h))}));D.s0=sb;D.sn=[X,Y]}
-function up(){if(!D)return;const d=D;D=null;
+function up(ev){if(!D)return;const d=D;D=null;
   if(d.t==='pan')return;
   if(d.t==='rad'||d.t==='pt')return commit();
   if(/^(move|sc|rot)$/.test(d.t)){if(d.t==='sc'&&d.on&&d.M&&/^[ew]$/.test(d.h)&&sel.length===1&&sel[0].localName==='text'&&tryWrap(sel[0],d.b,d.M,d.h))return;
-    if(G)ghostOff(d.M);else if(d.t==='move'&&d.was){ctx=d.c;setSel([d.el])}return}
+    if(G){const c=d.t==='move'&&d.M&&ev&&ev.altKey;if(c){ghostOff();const n=undos.length;dup();applyM(d.M);commit();merge(n)}else ghostOff(d.M);d.M&&keep(d.M,d.t==='move'?d.s0:d.b,c)}
+    else if(d.t==='move'&&d.was){ctx=d.c;setSel([d.el])}return}
   if(d.t==='band'){if(d.q){const a=toU(d.p),b=toU(d.q),R=rb(min(a.x,b.x),min(a.y,b.y),abs(a.x-b.x),abs(a.y-b.y));
       const got=memoize(()=>boxed(root,R));setSel(d.add?[...sel,...got]:got,1);const ps=new Set(sel.map(x=>x.parentNode));ctx=ps.size===1?[...ps][0]:root;refresh()}
     else if(d.add&&d.h){let[el,c]=grab(d.h,d.w);const o=sel.find(s=>s!==el&&s.contains(el));o?el=o:ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add){ctx=root;setSel([])}return hud()}
-  if(d.q)create(d.t,toU(d.p),toU(d.q));else hud()}
+  if(d.q)(d.t==='crop'?crop:create)(d.t==='crop'?d.im:d.t,toU(d.p),toU(d.q));else hud()}
 function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e),q=t&&t.closest('text');q&&edit(q,t)}
 
 function create(t,a,b){const p=curParent(),Pi=ctm(p).inverse(),A=Pi.transformPoint(a),B=Pi.transformPoint(b),w=f6(0.5/PT/U/sc(ctm(p))),ln=!/^(rect|ellipse)$/.test(t),s=`fill:${ln?'none':pen.fill};stroke:${ln&&pen.stroke==='none'?'#000000':pen.stroke};stroke-width:${w}`;let e;
@@ -554,10 +553,10 @@ function edit(t,h,mark){finish(true);let r=t;const L=lnKids(t);
   const ks=[];(L||[r]).forEach((l,i)=>{i&&d.append('\n');mirror(l,d,ks)});
   view.append(d);ed={t,r,L:!!L,d,o,ks,r0:JSON.stringify(edLines(d)),vis:t.getAttribute('visibility'),mark};quiet(()=>t.setAttribute('visibility','hidden'));
   d.onkeydown=e=>{e.stopPropagation();if(e.isComposing||e.keyCode===229)return;
-    if(e.key==='Enter'){e.preventDefault();e.shiftKey?document.execCommand('insertLineBreak'):finish(true)}else if(e.key==='Escape')finish(false)};
+    if(e.key==='Enter'){e.preventDefault();document.execCommand('insertLineBreak')}else if(e.key==='Escape')finish(true);else if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.code==='Equal'){e.preventDefault();document.execCommand(e.altKey?'subscript':'superscript')}};
   d.onblur=e=>{const to=e.relatedTarget;to&&to.matches('[data-f=fs],[data-f=ff],[data-f=tc]')&&part()||finish(true)};
   d.onpaste=e=>{e.preventDefault();e.clipboardData.getData('text/plain').split(/\r\n?|\n/).forEach((x,i)=>{i&&document.execCommand('insertLineBreak');x&&document.execCommand('insertText',false,x)})};
-  msg('Shift+Enter starts a new line, Enter finishes, Esc cancels; select characters to restyle only them in the Text panel');
+  msg('Esc finishes, Enter starts a new line, Ctrl+Z undoes the edit; select characters to restyle only them in the Text panel');
   d.focus();const rg=document.createRange();rg.selectNodeContents(d);setRange(rg)}
 function finish(ok){if(!ed)return;const{t,r,L,d,ks,r0,vis,mark}=ed,ls=edLines(d);ed=null;d.remove();
   quiet(()=>vis==null?t.removeAttribute('visibility'):t.setAttribute('visibility',vis));
@@ -614,10 +613,7 @@ const area=()=>$('mRel').value?rb(vb.x,vb.y,vb.w,vb.h):sb;
 function align(c){const R=area();if(!R)return;
   for(const e of sel){const b=bbox(e);if(!b)continue;
     applyM(T({l:R.x-b.x,c:R.x+(R.w-b.w)/2-b.x,r:R.x+R.w-b.x-b.w}[c]||0,{t:R.y-b.y,m:R.y+(R.h-b.h)/2-b.y,b:R.y+R.h-b.y-b.h}[c]||0),[e])}commit()}
-function dist(hz){const[p,s]=hz?['x','w']:['y','h'],it=sel.map(e=>[e,bbox(e)]).filter(a=>a[1]).sort((a,b)=>a[1][p]-b[1][p]);if(it.length<2)return;
-  const R=area(),gap=(R[s]-it.reduce((a,x)=>a+x[1][s],0))/(it.length-1);let q=R[p];
-  for(const[e,b]of it){applyM(T(hz?q-b.x:0,hz?0:q-b.y),[e]);q+=b[s]+gap}commit()}
-function nudge(x,y,big){const d=(big?1:0.1)/U;applyM(T(x*d,y*d));commit()}
+function nudge(x,y,big){const d=(big?1:0.1)/U,M=T(x*d,y*d);keep(M,sb);applyM(M);commit()}
 function dash(e){const w=parseFloat(gcs(e).strokeWidth)||1,d=F.dash.value;return d?[d==='d'?4*w:w,2*w].map(fm).join():null}
 function flip(p,css,v,on){const ts=part()?null:selTexts();if(ts&&!ts.length)return;const x=on(ts?gcs(ts[0]):edAt())?'normal':v;
   if(!ts)return restyle(s=>setRun(s,p,x,css));ts.forEach(t=>setFont(t,p,x));commit()}
@@ -641,7 +637,7 @@ function alike(p){const l=lf0();if(!l)return msg('Select an object first');const
   ctx=ps.size===1?[...ps][0]:root;setSel(o);msg(`Selected ${nObj(o.length)} with ${p} ${/^rgb/.test(v)?hex(v):v}`)}
 let sty=null;const PS=['fill','fill-opacity','stroke','stroke-opacity','stroke-linecap','stroke-linejoin'];
 function styCopy(l=lf0()){if(!l)return;const c=gcs(l),w=parseFloat(c.strokeWidth)||1;
-  sty={p:PS.map(p=>[p,/^rgb/.test(c[p])?hex(c[p]):c[p]]),w:w*ptw(l),d:c.strokeDasharray==='none'?0:c.strokeDasharray.split(/[\s,]+/).map(x=>parseFloat(x)/w),t:l.localName==='text'&&[family(c),c.fontWeight,c.fontStyle,tsize(l)]};bar();msg('Copied the style; Ctrl+Shift+V pastes it')}
+  sty={p:PS.map(p=>[p,/^rgb/.test(c[p])?hex(c[p]):c[p]]),w:w*ptw(l),d:c.strokeDasharray==='none'?0:c.strokeDasharray.split(/[\s,]+/).map(x=>parseFloat(x)/w),t:l.localName==='text'&&[family(c),c.fontWeight,c.fontStyle,tsize(l)]};bar();msg('Copied the style; Edit > Paste style applies it')}
 function styPaste(a=sel){finish(true);if(!sty||!a.length)return;for(const e of a.flatMap(e=>isGrp(e)?klea(e):[e])){if(e.localName==='text'){setSt(e,'fill',sty.p[0][1]);kids(e,'fill');if(sty.t){const[f,b,i,z]=sty.t;setFont(e,'font-family',fam(f));setFont(e,'font-weight',b);setFont(e,'font-style',i);setSize(e,z)}continue}
   for(const[p,v]of sty.p)setSt(e,p,v);const w=sty.w/ptw(e);setSt(e,'stroke-width',f6(w));setSt(e,'stroke-dasharray',sty.d?sty.d.map(x=>fm(x*w)).join():'none')}commit()}
 const pen={fill:'none',stroke:'#000000'},pnt=v=>/^rgb\(/.test(v)?hex(v):/^url/.test(v)?(m=>m?`url(#${m[1]})`:v)(/#([^'")]+)/.exec(v)):v;
@@ -649,6 +645,27 @@ function swapFS(){finish(true);if(!sel.length){[pen.fill,pen.stroke]=[pen.stroke
   for(const e of sel.flatMap(e=>isGrp(e)?klea(e):[e])){const c=gcs(e),f=c.fill,s=c.stroke,fo=c.fillOpacity,so=c.strokeOpacity;if(e.localName==='image'||f===s&&fo===so)continue;
     setSt(e,'fill',pnt(s));setSt(e,'stroke',pnt(f));fo!==so&&(setSt(e,'fill-opacity',so),setSt(e,'stroke-opacity',fo));e.localName==='text'&&['fill','stroke','fill-opacity','stroke-opacity'].forEach(p=>kids(e,p))}
   commit()}
+let again=null;const keep=(M,b,c)=>{if(!b)return;const x=b.x+b.w/2,y=b.y+b.h/2;again={M:T(-x,-y).multiply(M).multiply(T(x,y)),c}},
+  dup=()=>{const o=clip;copy(1);paste(true);clip=o;bar()};
+function tAgain(){finish(true);if(!again)return msg('Nothing to repeat yet: move, scale or rotate something first');if(!sel.length)return;const n=undos.length;again.c&&dup();
+  const b=sb,x=b.x+b.w/2,y=b.y+b.h/2;applyM(T(x,y).multiply(again.M).multiply(T(-x,-y)));commit();again.c&&merge(n)}
+function pasteZ(back){finish(true);if(!clip)return;const s=order(sel),r=s[back?0:s.length-1],n=undos.length;paste(true);const o=order(sel);
+  if(!r||!root.contains(r)){back&&zorder('bot');return merge(n)}const p=r.parentNode,Pi=ctm(p).inverse();
+  for(const e of back?o:o.reverse()){e.parentNode!==p&&setT(e,Pi.multiply(ctm(e.parentNode)).multiply(lm(e)));back?r.before(e):r.after(e)}ctx=p;setSel(o,1);commit();merge(n)}
+function dflt(){finish(true);pen.fill='none';pen.stroke='#000000';if(!sel.length)return panel();
+  for(const e of sel.flatMap(e=>isGrp(e)?klea(e):[e])){if(e.localName==='image')continue;const t=e.localName==='text';setSt(e,'fill',t?'#000000':'none');setSt(e,'stroke',t?'none':'#000000');t&&['fill','stroke'].forEach(p=>kids(e,p))}commit()}
+function fsz(d){const ts=selTexts();if(!ts.length)return;ts.forEach(t=>setSize(t,max(.5,+(tsize(t)+d).toFixed(1))));commit()}
+function crop(h,a,b){const s=sel.length===1&&sel[0].localName==='image'?sel[0]:h&&h.closest('image');setTool('sel');if(!s)return msg('Drag across a photo to crop it');
+  const v=n=>s[n].baseVal.value,ib=rb(v('x'),v('y'),v('width'),v('height')),c=isect(tb(rb(min(a.x,b.x),min(a.y,b.y),abs(a.x-b.x),abs(a.y-b.y)),ctm(s).inverse()),ib);
+  if(!c||!(c.w>0&&c.h>0))return msg('The box misses the photo');
+  const cv=stGet(s,'clip-path'),K=byId(refId(cv)),mine=K&&/^crop/.test(K.id)&&K.childElementCount===1&&K.firstElementChild.localName==='rect',
+    solo=mine&&root.querySelectorAll(`[clip-path="url(#${K.id})"]`).length===1,base=mine?K.getAttribute('clip-path'):cv,full=c.w>=ib.w*(1-1e-9)&&c.h>=ib.h*(1-1e-9);
+  if(full&&!mine)return msg('The box covers the whole photo');
+  setSt(s,'clip-path',null);
+  if(full){base?s.setAttribute('clip-path',base):s.removeAttribute('clip-path');solo&&K.remove()}
+  else{const k=solo?K:mk('clipPath',{id:uid('crop')},defs());solo||(base&&k.setAttribute('clip-path',base),mk('rect',{},k));
+    for(const[n,x]of[['x',c.x],['y',c.y],['width',c.w],['height',c.h]])k.firstElementChild.setAttribute(n,fc(x));s.setAttribute('clip-path',`url(#${k.id})`)}
+  ctx=s.parentNode;setSel([s],1);commit();msg(full?'Removed the crop':'Cropped the photo; drag again to change the crop, or past its edges to remove it')}
 function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
 
@@ -754,15 +771,17 @@ let fh=null;const save=async()=>{const b=new Blob([svgText()],{type:'image/svg+x
 const A={
   new:newDoc,open:()=>chooseFile(0),imp:()=>chooseFile(1),
   svg:save,p300:()=>png(300),p600:()=>png(600),pdf,
-  undo:()=>undo(0),redo:()=>undo(1),group,ungroup,copy:copyOut,paste:()=>paste(),del,fit,dh:()=>dist(1),dv:()=>dist(0),
+  undo:()=>undo(0),redo:()=>undo(1),group,ungroup,copy:copyOut,paste:()=>paste(),del,fit,
   bold:()=>flip('font-weight','fontWeight','bold',c=>+c.fontWeight>=600),ital:()=>flip('font-style','fontStyle','italic',c=>c.fontStyle==='italic'),
   sup:()=>ed&&document.execCommand('superscript'),sub:()=>ed&&document.execCommand('subscript'),
   theme:()=>{const d=document.documentElement.dataset.theme!=='dark';setTheme(d);ls('msbTheme',d?'dark':'light')},
   help:()=>{$('mHelp').showModal();$('mHelp').scrollTop=0},rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
   portrait:()=>vb.w>vb.h&&setPage(vb.x,vb.y,vb.h,vb.w),landscape:()=>vb.h>vb.w&&setPage(vb.x,vb.y,vb.h,vb.w),
   fitPage:()=>{finish(true);const b=memoize(()=>cands(root).reduce((a,e)=>un(a,bbox(e)),null)),m=1/U;b?setPage(b.x-m,b.y-m,b.w+2*m,b.h+2*m):msg('Nothing to fit')},
-  allText:()=>{ctx=root;setSel(texts())},all:()=>setSel(cands(top_(ctx)?root:ctx)),swap:swapFS,stc:styCopy,stp:styPaste,sf:()=>alike('fill'),ss:()=>alike('stroke'),arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}};
+  allText:()=>{ctx=root;setSel(texts())},none:()=>{ctx=root;setSel([])},svgAs:()=>{fh=null;save()},again:tAgain,pplace:()=>paste(true),pfront:()=>pasteZ(0),pback:()=>pasteZ(1),dflt,
+  z100:()=>zv(U*96/25.4/(Z*k)),zin:()=>zv(1.25),zout:()=>zv(.8),all:()=>setSel(cands(top_(ctx)?root:ctx)),swap:swapFS,stc:styCopy,stp:styPaste,sf:()=>alike('fill'),ss:()=>alike('stroke'),arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}};
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
+const zv=f=>{const r=view.getBoundingClientRect(),z=Z*k*f;z>1e-3&&z<1e4&&zoomAt([r.width/2,r.height/2],f)};
 for(const w of['top','up','dn','bot'])A[w]=()=>zorder(w);
 for(const a in ANC)A[a]=()=>anchor(ANC[a]);
 A.chat=()=>{const on=document.body.classList.toggle('chat');ls('msbChat',on?1:0);qa('chat').classList.toggle('on',on);hud();on&&$('mAsk').focus()};
@@ -782,7 +801,7 @@ $('mSide').addEventListener('change',e=>{const f=e.target.dataset.f,t=e.target,v
     if(f==='y')M=T(0,v/U+vb.y-b.y);
     if(f==='w'||f==='h'){const s=v/(f==='w'?b.w:b.h)/U;if(!(s>0&&isFinite(s)))return;M=about(S(f==='w'||l?s:1,f==='h'||l?s:1),b.x,b.y)}
     if(f==='r')M=about(Rot(ang(sel[0])-v),b.x+b.w/2,b.y+b.h/2);
-    applyM(M)}
+    keep(M,b);applyM(M)}
   else if(f==='fs')selTexts().forEach(x=>setSize(x,v));
   else if(f==='ff')t.value.trim()&&selTexts().forEach(x=>setFont(x,'font-family',fam(t.value.trim())));
   else if(f==='tc')selTexts().forEach(x=>{setSt(x,'fill',t.value);kids(x,'fill')});
@@ -812,16 +831,18 @@ addEventListener('drop',e=>{e.preventDefault();const fs=[...e.dataTransfer.files
   if(f&&!/\.svg$/i.test(f.name)&&f.type!=='image/svg+xml')return attach(fs);f&&readFile(f,!!(root&&cands(root).length&&confirm(`Import ${f.name} into the current canvas?\n(Cancel = open it as a new file)`)))});
 addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.returnValue=''}});
 addEventListener('keyup',e=>{if(e.key===' ')space=false});addEventListener('blur',()=>space=false);
-const TK={v:'sel',s:'sel',t:'text',r:'rect',e:'ellipse',l:'line',a:'arrow',i:'inhibit',d:'drop'};
+const TK={v:'sel',t:'text',m:'rect',l:'ellipse','\\':'line',a:'arrow',b:'inhibit',i:'drop',c:'crop'};
 addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SELECT|TEXTAREA)$/.test(tg.tagName)||tg.tagName==='INPUT'&&!/checkbox|color/.test(tg.type)||$('mNew').open||$('mHelp').open)return;
   const c=e.ctrlKey||e.metaKey,K=e.key,kl=K.toLowerCase(),ar={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[K];let f;
   if(K==='Escape'&&document.querySelector('.dd.open'))return menuOff();
   if(K===' '){space=true;e.preventDefault();return}
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
-  else if(c)f={z:()=>undo(e.shiftKey),y:()=>undo(1),c:e.shiftKey?styCopy:copyOut,x:()=>{copyOut();del()},v:e.shiftKey?styPaste:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},d:()=>{const o=clip;copy(1);paste(true);clip=o;bar()},g:e.shiftKey?ungroup:group,a:A.all,s:A.svg,i:A.imp}[kl];
+  else if(c)f={BracketRight:e.shiftKey?A.top:A.up,BracketLeft:e.shiftKey?A.bot:A.dn,Digit0:fit,Numpad0:fit,Digit1:A.z100,Numpad1:A.z100,Equal:A.zin,NumpadAdd:A.zin,Minus:A.zout,NumpadSubtract:A.zout,Quote:A.grid,
+    Period:e.shiftKey&&(()=>fsz(1)),Comma:e.shiftKey&&(()=>fsz(-1))}[e.code]||{z:()=>undo(e.shiftKey),y:()=>undo(1),c:copyOut,x:()=>{copyOut();del()},v:e.shiftKey?A.pplace:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},
+    d:tAgain,f:A.pfront,b:A.pback,g:e.shiftKey?ungroup:group,a:e.shiftKey?A.none:A.all,s:e.shiftKey?A.svgAs:A.svg,i:A.imp,p:e.shiftKey?A.imp:A.pdf,r:A.rulers}[kl];
   else if(ar)f=sel.length&&(()=>{const n=undos.length;nudge(ar[0],ar[1],e.shiftKey);e.repeat&&n&&merge(n)});
-  else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'5':fit,'?':A.help,X:swapFS}[K]||TK[kl]&&(()=>setTool(TK[kl]));
+  else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'?':A.help,X:swapFS,d:dflt}[K]||TK[kl]&&(()=>setTool(TK[kl]));
   if(f){c&&kl==='v'&&!e.shiftKey||e.preventDefault();f()}});
 let pv=0,lastOut='';addEventListener('paste',e=>{if(e.target.closest&&e.target.closest('#mChat,input,textarea,.ed'))return;const f=[...e.clipboardData.files].find(isImg);
   if(f&&root){pv=0;e.preventDefault();return placeImg(f)}
