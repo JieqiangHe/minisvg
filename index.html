@@ -103,7 +103,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <button data-a="ab" title="Align bottom"><svg viewBox="0 0 16 16"><path d="M1 14h14"/><rect x="3" y="2" width="4" height="10"/><rect x="9" y="6" width="4" height="6"/></svg></button></div>
 <select id="mRel"><option value="">Relative to selection</option><option value="1">Relative to page</option></select>
 <h4>Arrange</h4>
-<div class="row"><button data-a="group" title="Group (Ctrl+G)">Group</button><button data-a="ungroup" title="Ungroup (Ctrl+Shift+G)">Ungroup</button></div>
+<div class="row"><button data-a="group" title="Group (Ctrl+G)">Group</button><button data-a="ungroup" title="Ungroup one level (Ctrl+Shift+G); Alt+click or Ctrl+Alt+Shift+G ungroups all levels">Ungroup</button></div>
 <div class="row"><button data-a="top" title="Bring to front (Ctrl+Shift+])">Bring to front</button><button data-a="up" title="Bring forward (Ctrl+])">Forward</button></div>
 <div class="row"><button data-a="bot" title="Send to back (Ctrl+Shift+[)">Send to back</button><button data-a="dn" title="Send backward (Ctrl+[)">Backward</button></div>
 <h4>Text</h4>
@@ -157,10 +157,11 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div>
 <section><h4>File</h4><dl><dt><kbd>Ctrl+O</kbd></dt><dd>Open an SVG (a PNG or JPG is placed on the canvas)</dd><dt><kbd>Ctrl+Shift+P</kbd></dt><dd>Place (import) an SVG, PNG or JPG into this canvas; <kbd>Ctrl+I</kbd> also works</dd><dt><kbd>Ctrl+S</kbd></dt><dd>Export SVG as name_YYMMDD_HHMMSS.svg; after the first save it writes back to the same file; <kbd>Ctrl+Shift+S</kbd> picks a new file</dd><dt><kbd>Ctrl+P</kbd></dt><dd>Vector PDF through the print dialog</dd><dt>Drop a file</dt><dd>An SVG opens or is imported; a PNG or JPG is placed where dropped</dd><dt>File menu</dt><dd>PNG at 300 or 600 dpi; vector PDF through the print dialog (best in Chrome or Edge)</dd></dl></section>
 <section><h4>Edit</h4><dl><dt><kbd>Ctrl+Z</kbd></dt><dd>Undo</dd><dt><kbd>Ctrl+Shift+Z</kbd></dt><dd>Redo (or <kbd>Ctrl+Y</kbd>)</dd><dt><kbd>Ctrl+C</kbd></dt><dd>Copy</dd><dt><kbd>Ctrl+X</kbd></dt><dd>Cut</dd><dt><kbd>Ctrl+V</kbd></dt><dd>Paste what was copied last: objects, or an image; SVG text from another app is imported</dd><dt><kbd>Ctrl+F</kbd></dt><dd>Paste in front of the selection, where it was copied; <kbd>Ctrl+B</kbd> behind it, <kbd>Ctrl+Shift+V</kbd> on top</dd><dt><kbd>Ctrl+D</kbd></dt><dd>Transform again: repeat the last move, scale or rotation</dd><dt><kbd>Delete</kbd></dt><dd>Delete</dd><dt>Select menu</dt><dd>All, all text, or every shape or text with the same fill or stroke</dd></dl></section>
-<section><h4>Arrange</h4><dl><dt><kbd>Ctrl+G</kbd></dt><dd>Group</dd><dt><kbd>Ctrl+Shift+G</kbd></dt><dd>Ungroup</dd><dt><kbd>Ctrl+Shift+]</kbd></dt><dd>Bring to front</dd><dt><kbd>Ctrl+Shift+[</kbd></dt><dd>Send to back</dd><dt><kbd>Ctrl+]</kbd></dt><dd>Forward one step</dd><dt><kbd>Ctrl+[</kbd></dt><dd>Backward one step</dd><dt><kbd>Home</kbd> <kbd>End</kbd></dt><dd>Also front and back; <kbd>PgUp</kbd> <kbd>PgDn</kbd> one step</dd></dl></section>
+<section><h4>Arrange</h4><dl><dt><kbd>Ctrl+G</kbd></dt><dd>Group</dd><dt><kbd>Ctrl+Shift+G</kbd></dt><dd>Ungroup one level; <kbd>Ctrl+Alt+Shift+G</kbd> (or <kbd>Alt</kbd>+click Ungroup) ungroups all levels</dd><dt><kbd>Ctrl+Shift+]</kbd></dt><dd>Bring to front</dd><dt><kbd>Ctrl+Shift+[</kbd></dt><dd>Send to back</dd><dt><kbd>Ctrl+]</kbd></dt><dd>Forward one step</dd><dt><kbd>Ctrl+[</kbd></dt><dd>Backward one step</dd><dt><kbd>Home</kbd> <kbd>End</kbd></dt><dd>Also front and back; <kbd>PgUp</kbd> <kbd>PgDn</kbd> one step</dd></dl></section>
 </div>
 </div><p class="ft">On a Mac, keyboard shortcuts also work with <kbd>⌘</kbd> in place of <kbd>Ctrl</kbd>. Everything runs in your browser; nothing is uploaded except what you send to the AI provider.</p></form></dialog>
 <dialog id="mNew"><form method="dialog">
+<p><label>Name <input id="mNN" value="untitled" spellcheck="false"></label></p>
 <p><select id="mPre"></select></p>
 <p><label><input type="radio" name="mOr" value="p" checked> Portrait</label> <label><input type="radio" name="mOr" value="l"> Landscape</label></p>
 <p><label>Width <input id="mNW" type="number" value="210" min="1" step="0.1"></label> <label>Height <input id="mNH" type="number" value="297" min="1" step="0.1"></label> mm</p>
@@ -469,16 +470,18 @@ function move(e){if(!root)return;const p=vp(e),u=toU(p);mouse=p;$('mPos').textCo
   D.M=M;gw.style.transform=S(Z).multiply(T(-vb.x,-vb.y)).multiply(M).multiply(T(vb.x,vb.y)).multiply(S(1/Z)).toString();hud(M)}
 function snapSet(){const o=new Set(sel),c=cands(top_(ctx)?root:ctx).filter(e=>!o.has(e)),X=[vb.x,vb.x+vb.w/2,vb.x+vb.w],Y=[vb.y,vb.y+vb.h/2,vb.y+vb.h];
   c.length<500&&memoize(()=>c.forEach(e=>{const b=bbox(e);b&&(X.push(b.x,b.x+b.w/2,b.x+b.w),Y.push(b.y,b.y+b.h/2,b.y+b.h))}));D.s0=sb;D.sn=[X,Y]}
+const tog=(t,w)=>{let[el,c]=grab(t,w);const o=sel.find(s=>s!==el&&s.contains(el));o?el=o:ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])};
 function up(ev){if(!D)return;const d=D;D=null;
   if(d.t==='pan')return;
   if(/^(rad|pt|anc)$/.test(d.t))return commit();
+  if(/^(sc|rot)$/.test(d.t)&&!d.on&&ev&&ev.shiftKey){const t=hit(ev);t&&tog(t,ev.ctrlKey||ev.metaKey);return hud()}
   if(d.t==='sc'&&!d.on&&d.h.length===2){const e=sel.length===1&&sel[0];e&&pmodel(e)?(ped=e,msg(PM)):msg(e&&e.localName==='text'?'Text has no points to move; drag a side handle to re-wrap it':'Select one shape to move its points');return hud()}
   if(/^(move|sc|rot)$/.test(d.t)){if(d.t==='sc'&&d.on&&d.M&&/^[ew]$/.test(d.h)&&sel.length===1&&sel[0].localName==='text'&&tryWrap(sel[0],d.b,d.M,d.h))return;
     if(G){const c=d.t==='move'&&d.M&&ev&&ev.altKey;if(c){ghostOff();const n=undos.length;dup();applyM(d.M);commit();merge(n)}else ghostOff(d.M);d.M&&keep(d.M,d.t==='move'?d.s0:d.b,c)}
     else if(d.t==='move'&&d.was){ctx=d.c;setSel([d.el])}return}
   if(d.t==='band'){if(d.q){const a=toU(d.p),b=toU(d.q),R=rb(min(a.x,b.x),min(a.y,b.y),abs(a.x-b.x),abs(a.y-b.y));
       const got=memoize(()=>boxed(root,R));setSel(d.add?[...sel,...got]:got,1);const ps=new Set(sel.map(x=>x.parentNode));ctx=ps.size===1?[...ps][0]:root;refresh()}
-    else if(d.add&&d.h){let[el,c]=grab(d.h,d.w);const o=sel.find(s=>s!==el&&s.contains(el));o?el=o:ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add){ctx=root;setSel([])}return hud()}
+    else if(d.add&&d.h)tog(d.h,d.w);else if(!d.add){ctx=root;setSel([])}return hud()}
   if(d.q)(d.t==='crop'?crop:create)(d.t==='crop'?d.im:d.t,toU(d.p),toU(d.q));else hud()}
 function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e),q=t&&t.closest('text');if(q)return edit(q,t);if(t&&!(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)&&pmodel(t)){ctx=t.parentNode;setSel([t]);ped=t;hud();msg(PM)}}
 
@@ -624,6 +627,9 @@ function ungroup(){const out=[];
       setT(c,M.multiply(L));out.push(c)}
     g.remove();kv&&kpr(lf,kv)}
   setSel(out,1);commit()}
+function ungroupAll(){finish(true);const n=undos.length,keep=[],w=e=>isGrp(e)&&!isLayer(e)&&!(clipOf(e)&&e.children.length===1&&clipOf(e.firstElementChild));
+  for(let k=0;k<64;k++){const gs=sel.filter(w);if(!gs.length)break;keep.push(...sel.filter(e=>!w(e)));setSel(gs,1);ungroup()}
+  setSel([...keep,...sel]);while(undos.length>n+1)merge(n)}
 const area=()=>$('mRel').value?rb(vb.x,vb.y,vb.w,vb.h):sb;
 function align(c){const R=area();if(!R)return;
   for(const e of sel){const b=bbox(e);if(!b)continue;
@@ -723,7 +729,7 @@ function mergeCh(){finish(true);const s=order(sel);if(s.length<2||s.length>7)ret
   mk('rect',{id:uid('rect'),x:fc(x0),y:fc(b0.y),width:fc(b0.w),height:fc(b0.h),style:'fill:#000000;stroke:none'},g);
   s.forEach((e,i)=>{const c=reid(e.cloneNode(true)),b=B[i];g.appendChild(c);setT(c,T(x0,b0.y).multiply(S(b0.w/b.w,b0.h/b.h)).multiply(T(-b.x,-b.y)).multiply(ctm(e)));setSt(c,'mix-blend-mode','screen')});ctx=p;setSel([g],1);commit()}
 function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
-function newDoc(){const d=$('mNew');d.returnValue='';d.showModal()}
+function newDoc(){const d=$('mNew');d.returnValue='';$('mNN').value='untitled';d.showModal();$('mNN').select()}
 
 let hist=[],aiG=null,ac=null,imgs=[],files=[],notes=[],rq=0;
 const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. When asked for changes, return the full updated SVG. If the user attaches an image, redraw that figure as editable vector SVG: keep its layout, shapes, arrows, colours and text labels (as <text>); simplify photos and textures into flat shapes. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
@@ -843,7 +849,7 @@ for(const w of['top','up','dn','bot'])A[w]=()=>zorder(w);
 for(const a in ANC)A[a]=()=>anchor(ANC[a]);
 A.chat=()=>{const on=document.body.classList.toggle('chat');ls('msbChat',on?1:0);qa('chat').classList.toggle('on',on);hud();on&&$('mAsk').focus()};
 
-document.body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!root&&!/new|open/.test(b.dataset.a))return;b.dataset.a&&A[b.dataset.a]?A[b.dataset.a]():b.dataset.t&&setTool(b.dataset.t)});
+document.body.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!root&&!/new|open/.test(b.dataset.a))return;b.dataset.a&&A[b.dataset.a]?(b.dataset.a==='ungroup'&&e.altKey?ungroupAll:A[b.dataset.a])():b.dataset.t&&setTool(b.dataset.t)});
 document.body.addEventListener('mousedown',e=>e.target.closest('#mBar button,#mTools button,#mSide button')&&e.preventDefault());
 const menuOff=x=>document.querySelectorAll('.dd.open').forEach(d=>d!==x&&d.classList.remove('open'));
 addEventListener('click',e=>{const d=e.target.closest('.dd');menuOff(d);d&&(e.target.closest('.ddb')?d.classList.toggle('open'):e.target.closest('.menu button')&&d.classList.remove('open'))});
@@ -891,7 +897,7 @@ const nd=o=>{const v=$('mPre').value,l=document.querySelector('[name=mOr]:checke
 $('mHelp').onclick=e=>{e.target===$('mHelp')&&$('mHelp').close()};
 $('mNew').onchange=e=>e.target.id==='mPre'?nd():e.target.name==='mOr'&&nd(1);$('mNW').oninput=$('mNH').oninput=()=>$('mPre').value='';
 $('mNew').onclose=()=>{const w=+$('mNW').value,h=+$('mNH').value;if($('mNew').returnValue!=='ok'||!(w>0&&h>0))return;
-  if(!discard())return;load(blank(fm(w),fm(h)),'figure.svg');msg(`New canvas ${fm(w)}×${fm(h)} mm`)};
+  if(!discard())return;const n=($('mNN').value.trim().replace(/[\\/:*?"<>|]/g,'_')||'untitled').replace(/(\.svg)?$/i,'.svg');load(blank(fm(w),fm(h)),n);msg(`New canvas ${n}: ${fm(w)}×${fm(h)} mm`)};
 view.addEventListener('pointerdown',down);addEventListener('pointermove',move);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 view.addEventListener('mousedown',e=>e.target.closest('.ed')||e.preventDefault());
 view.addEventListener('dblclick',dbl);view.addEventListener('contextmenu',e=>e.target.closest('.ed')||e.preventDefault());view.addEventListener('pointerleave',()=>{mouse=null;rulers()});
@@ -912,7 +918,7 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SEL
   if(c&&kl==='o')f=A.open;
   else if(!root)return;
   else if(c)f={BracketRight:e.shiftKey?A.top:A.up,BracketLeft:e.shiftKey?A.bot:A.dn,Digit0:fit,Numpad0:fit,Digit1:A.z100,Numpad1:A.z100,Equal:A.zin,NumpadAdd:A.zin,Minus:A.zout,NumpadSubtract:A.zout,Quote:A.grid,
-    Period:e.shiftKey&&(()=>fsz(1)),Comma:e.shiftKey&&(()=>fsz(-1))}[e.code]||{z:()=>undo(e.shiftKey),y:()=>undo(1),c:copyOut,x:()=>{copyOut();del()},v:e.shiftKey?A.pplace:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},
+    Period:e.shiftKey&&(()=>fsz(1)),Comma:e.shiftKey&&(()=>fsz(-1)),KeyG:e.shiftKey&&e.altKey&&ungroupAll}[e.code]||{z:()=>undo(e.shiftKey),y:()=>undo(1),c:copyOut,x:()=>{copyOut();del()},v:e.shiftKey?A.pplace:()=>{pv=1;setTimeout(()=>{pv&&paste();pv=0})},
     d:tAgain,f:A.pfront,b:A.pback,g:e.shiftKey?ungroup:group,a:e.shiftKey?A.none:A.all,s:e.shiftKey?A.svgAs:A.svg,i:A.imp,p:e.shiftKey?A.imp:A.pdf,r:A.rulers}[kl];
   else if(ar)f=sel.length&&(()=>{const n=undos.length;nudge(ar[0],ar[1],e.shiftKey);e.repeat&&n&&merge(n)});
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'?':A.help,X:swapFS,d:dflt}[K]||TK[kl]&&(()=>setTool(TK[kl]));
@@ -929,7 +935,7 @@ function views(){document.body.classList.toggle('noR',!opts.rulers);grid();for(c
 function toggle(k){opts[k]=!opts[k];ls('msb'+k[0].toUpperCase()+k.slice(1),opts[k]?1:0);views()}
 function setTheme(d){document.documentElement.dataset.theme=d?'dark':'light';const b=qa('theme');b.textContent='Theme: '+(d?'Dark':'Light');b.title=d?'Switch to light interface':'Switch to dark interface';rulers()}
 setTheme(document.documentElement.dataset.theme==='dark');
-views();ls('msbChat')==='0'&&(document.body.classList.remove('chat'),qa('chat').classList.remove('on'));load(blank(210,297),'figure.svg');msg('Open or drop an SVG file, or start a new canvas. Scroll to move around, Ctrl+scroll (or pinch) to zoom.');
+views();ls('msbChat')==='0'&&(document.body.classList.remove('chat'),qa('chat').classList.remove('on'));load(blank(210,297),'untitled.svg');msg('Open or drop an SVG file, or start a new canvas. Scroll to move around, Ctrl+scroll (or pinch) to zoom.');
 </script>
 </body>
 </html>
