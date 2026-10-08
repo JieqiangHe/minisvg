@@ -437,8 +437,8 @@ function down(e){if(!root||e.target.closest('.ed'))return;finish(true);document.
   if(/^p[01]$/.test(h)){D={t:'pt',i:+h[1],e:sel[0],p};return cap()}
   if(h==='rad'){const e=sel[0];D={t:'rad',p,e,r0:rgeo(e)[4],q0:ctm(e).inverse().transformPoint(u)};return cap()}
   if(/^a\d+$/.test(h)){const m=pmodel(ped),A=m&&anchorsOf(m)[+h.slice(1)];if(!A)return;D={t:'anc',p,u,e:ped,m,A};return cap()}
-  if(h==='mv'){D={t:'move',p,u};return cap()}
-  if(h&&sb){D={t:h==='rot'?'rot':'sc',h,p,u,b:sb};return cap()}
+  if(h==='mv'&&!(e.ctrlKey||e.metaKey||e.shiftKey)){const t=hit(e),g=t&&grab(t,0);D={t:'move',p,u,el:g&&g[0],c:g&&g[1],was:!!g&&sel.some(s=>s.contains(t))};return cap()}
+  if(h&&h!=='mv'&&sb){D={t:h==='rot'?'rot':'sc',h,p,u,b:sb};return cap()}
   if(tool==='text'){const t=hit(e),tt=t&&t.closest('text');if(tt){ctx=tt.parentNode;setSel([tt]);edit(tt,t)}else newText(u);return}
   if(tool!=='sel'){D={t:tool,p,u,im:tool==='crop'&&hit(e)};return cap()}
   const t=hit(e),w=e.ctrlKey||e.metaKey;
@@ -480,7 +480,7 @@ function up(ev){if(!D)return;const d=D;D=null;
       const got=memoize(()=>boxed(root,R));setSel(d.add?[...sel,...got]:got,1);const ps=new Set(sel.map(x=>x.parentNode));ctx=ps.size===1?[...ps][0]:root;refresh()}
     else if(d.add&&d.h){let[el,c]=grab(d.h,d.w);const o=sel.find(s=>s!==el&&s.contains(el));o?el=o:ctx=c;setSel(sel.includes(el)?sel.filter(x=>x!==el):[...sel,el])}else if(!d.add){ctx=root;setSel([])}return hud()}
   if(d.q)(d.t==='crop'?crop:create)(d.t==='crop'?d.im:d.t,toU(d.p),toU(d.q));else hud()}
-function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e),q=t&&t.closest('text');if(q)return edit(q,t);if(t&&pmodel(t)){ctx=t.parentNode;setSel([t]);ped=t;hud();msg(PM)}}
+function dbl(e){if(!root||tool!=='sel'||e.target.closest('.ed'))return;const t=hit(e),q=t&&t.closest('text');if(q)return edit(q,t);if(t&&!(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)&&pmodel(t)){ctx=t.parentNode;setSel([t]);ped=t;hud();msg(PM)}}
 
 function create(t,a,b){const p=curParent(),Pi=ctm(p).inverse(),A=Pi.transformPoint(a),B=Pi.transformPoint(b),w=f6(0.5/PT/U/sc(ctm(p))),ln=!/^(rect|ellipse)$/.test(t),s=`fill:${ln?'none':pen.fill};stroke:${ln&&pen.stroke==='none'?'#000000':pen.stroke};stroke-width:${w}`;let e;
   if(t==='rect')e=mk('rect',{id:uid('rect'),x:fc(min(A.x,B.x)),y:fc(min(A.y,B.y)),width:fc(abs(B.x-A.x)),height:fc(abs(B.y-A.y)),style:s},p);
