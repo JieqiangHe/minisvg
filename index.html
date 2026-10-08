@@ -49,7 +49,7 @@ input,select{font:inherit}
 #mSide h4{margin:8px 0 4px;padding-bottom:2px;color:var(--h4);border-bottom:1px solid var(--h4b)}#mSide h4:first-child{margin-top:4px}#mSide h4 small{font-weight:normal}
 #mSide label{display:inline-flex;align-items:center;gap:4px;margin:2px 0}
 #mSide .g2{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px}#mSide .g2 label{min-width:0}#mSide .g2 input[type=number]{flex:1;min-width:40px;width:auto}
-#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 8px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv .tc{margin-left:auto}#mSide .kv>input{width:100%;min-width:0}#mSide [data-f=ff]{flex:1;width:0;min-width:0}#mLF{flex:none;padding:0 5px}#mSide .kv select{width:auto;flex:1;min-width:0}
+#mSizes div{display:flex;align-items:center;gap:4px;margin:2px 0}#mSizes span{width:78px}#mSizes input{width:48px!important}#mSizes button{margin-left:auto}#mSide .kv{display:grid;grid-template-columns:max-content 1fr;gap:3px 8px;align-items:center}#mSide .kv>div{display:flex;align-items:center;gap:4px}#mSide .kv label{margin:0 0 0 auto}#mSide .kv input[type=color]{width:62px}#mSide .kv .tc{margin-left:auto}#mSide .kv>input{width:100%;min-width:0}#mSide .kv select{width:auto;flex:1;min-width:0}
 .row{display:flex;gap:3px}.row button{flex:1}#mSide .row{margin:2px 0}#mSide .row button{min-width:0;padding:2px}
 .ic button{height:24px;padding:0;display:grid;place-items:center}.ic svg{width:16px;height:16px;fill:currentColor;stroke:currentColor}.ic rect{stroke:none}
 #mSide select{width:100%}#mPg{flex:1;width:auto!important;min-width:0}#mSide .row .ori{flex:0 0 28px}
@@ -107,7 +107,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div class="row"><button data-a="top" title="Bring to front (Ctrl+Shift+])">Bring to front</button><button data-a="up" title="Bring forward (Ctrl+])">Forward</button></div>
 <div class="row"><button data-a="bot" title="Send to back (Ctrl+Shift+[)">Send to back</button><button data-a="dn" title="Send backward (Ctrl+[)">Backward</button></div>
 <h4>Text</h4>
-<div class="kv"><span>Font</span><div><input list="mFonts" data-f="ff"><button data-a="lfonts" id="mLF" title="List the fonts installed on this computer (Chrome and Edge ask for permission once)" hidden>More</button></div>
+<div class="kv"><span>Font</span><input list="mFonts" data-f="ff">
 <span>Size</span><div><input type="number" step="0.5" min="0.5" data-f="fs">pt<span class="tc">Color</span><input type="color" data-f="tc"></div></div>
 <div class="row"><button data-a="bold" title="Bold"><b>B</b></button><button data-a="ital" title="Italic"><i>I</i></button><button data-a="sup" title="Superscript: applies to selected characters while editing">X²</button><button data-a="sub" title="Subscript: applies to selected characters while editing">X₂</button></div>
 <div class="row ic">
@@ -149,7 +149,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 </div>
 <div>
 <section><h4>Draw</h4><dl><dt><kbd>V</kbd></dt><dd>Select tool (also <kbd>Esc</kbd>)</dd><dt><kbd>T</kbd></dt><dd>Text: click to type, or click a text to edit it</dd><dt><kbd>M</kbd></dt><dd>Rectangle</dd><dt><kbd>L</kbd></dt><dd>Ellipse</dd><dt><kbd>\</kbd></dt><dd>Line</dd><dt><kbd>A</kbd></dt><dd>Arrow (activation)</dd><dt><kbd>B</kbd></dt><dd>Inhibition (blunt end)</dd><dt><kbd>Shift</kbd>+drag</dt><dd>Square, circle, or a line in 45° steps</dd><dt><kbd>I</kbd></dt><dd>Eyedropper: click an object to give the selected objects its style; <kbd>Alt</kbd>+click applies the picked style to an object</dd><dt>Fill and stroke</dt><dd>The two swatches under the tools colour the selection, or new shapes when nothing is selected; <kbd>Shift+X</kbd> swaps fill and stroke, <kbd>D</kbd> sets no fill and a black stroke</dd><dt><kbd>C</kbd></dt><dd>Crop a photo: drag across it; drag again to change the crop, or past its edges to remove it</dd></dl></section>
-<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Esc</kbd> finishes (<kbd>Ctrl+Z</kbd> undoes the edit), <kbd>Enter</kbd> starts a new line</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing; <kbd>Ctrl+Shift+=</kbd> and <kbd>Ctrl+Alt+Shift+=</kbd> do the same</dd><dt><kbd>Ctrl+Shift+.</kbd></dt><dd>Font size up 1 pt; <kbd>Ctrl+Shift+,</kbd> down</dd><dt>Part of a text</dt><dd>While editing, select characters, then change Size, Font, Color, B or I in the Text panel to restyle only them</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text; <b>More</b> next to Font lists the fonts on this computer (Chrome and Edge)</dd></dl></section>
+<section><h4>Text</h4><dl><dt>Double-click</dt><dd>Edit in place; <kbd>Esc</kbd> finishes (<kbd>Ctrl+Z</kbd> undoes the edit), <kbd>Enter</kbd> starts a new line</dd><dt>X² X₂</dt><dd>Superscript or subscript the characters selected while editing; <kbd>Ctrl+Shift+=</kbd> and <kbd>Ctrl+Alt+Shift+=</kbd> do the same</dd><dt><kbd>Ctrl+Shift+.</kbd></dt><dd>Font size up 1 pt; <kbd>Ctrl+Shift+,</kbd> down</dd><dt>Part of a text</dt><dd>While editing, select characters, then change Size, Font, Color, B or I in the Text panel to restyle only them</dd><dt>Left/Center/Right</dt><dd>Anchor the selected text; lines align left, center or right and the text keeps its place</dd><dt>Text panel</dt><dd>Font, size (pt), colour, bold and italic of the selected text; in Chrome and Edge the Font list also offers the fonts on this computer (the browser asks once)</dd></dl></section>
 <section><h4>SVG Chat</h4><dl><dt>AI settings</dt><dd>Your own API key for GLM or DeepSeek</dd><dt><kbd>Enter</kbd></dt><dd>Send; <kbd>Shift+Enter</kbd> for a new line</dd><dt>Attach</dt><dd>A text file to draw from, or an image to redraw; paste or drop works too</dd><dt>Selection</dt><dd>Select part of the figure first to ask about it or have it changed in place</dd></dl></section>
 </div>
 <div>
@@ -778,7 +778,7 @@ const A={
   help:()=>{$('mHelp').showModal();$('mHelp').scrollTop=0},rulers:()=>toggle('rulers'),grid:()=>toggle('grid'),
   portrait:()=>vb.w>vb.h&&setPage(vb.x,vb.y,vb.h,vb.w),landscape:()=>vb.h>vb.w&&setPage(vb.x,vb.y,vb.h,vb.w),
   fitPage:()=>{finish(true);const b=memoize(()=>cands(root).reduce((a,e)=>un(a,bbox(e)),null)),m=1/U;b?setPage(b.x-m,b.y-m,b.w+2*m,b.h+2*m):msg('Nothing to fit')},
-  allText:()=>{ctx=root;setSel(texts())},lfonts:()=>localFonts(1),none:()=>{ctx=root;setSel([])},svgAs:()=>{fh=null;save()},again:tAgain,pplace:()=>paste(true),pfront:()=>pasteZ(0),pback:()=>pasteZ(1),dflt,
+  allText:()=>{ctx=root;setSel(texts())},none:()=>{ctx=root;setSel([])},svgAs:()=>{fh=null;save()},again:tAgain,pplace:()=>paste(true),pfront:()=>pasteZ(0),pback:()=>pasteZ(1),dflt,
   z100:()=>zv(U*96/25.4/(Z*k)),zin:()=>zv(1.25),zout:()=>zv(.8),all:()=>setSel(cands(top_(ctx)?root:ctx)),swap:swapFS,stc:styCopy,stp:styPaste,sf:()=>alike('fill'),ss:()=>alike('stroke'),arial:()=>{texts().forEach(t=>setFont(t,'font-family','Arial'));commit()}};
 for(const c of'lcrtmb')A['a'+c]=()=>align(c);
 const zv=f=>{const r=view.getBoundingClientRect(),z=Z*k*f;z>1e-3&&z<1e4&&zoomAt([r.width/2,r.height/2],f)};
@@ -814,10 +814,10 @@ $('mSide').addEventListener('keydown',e=>{if(!/^(Enter|Escape)$/.test(e.key))ret
 const FONTS=[...$('mFonts').options].map(o=>o.value),sysF=[],fontList=()=>{const u=new Set(FONTS);root&&texts().forEach(t=>u.add(family(gcs(t))));sysF.forEach(f=>u.add(f));$('mFonts').replaceChildren(...[...u].map(f=>new Option(f)))};
 async function localFonts(ask){if(!window.queryLocalFonts||sysF.length)return;
   try{if(!ask&&(await navigator.permissions.query({name:'local-fonts'})).state!=='granted')return;const fs=await queryLocalFonts();
-    sysF.push(...[...new Set(fs.map(f=>f.family))].filter(f=>f&&f[0]!=='.').sort((a,b)=>a.localeCompare(b)));fontList();$('mLF').hidden=true;ask&&msg(`Listed ${sysF.length} fonts from this computer; type to filter them in the Font box`)}
-  catch(e){ask&&msg('The browser did not allow reading the local fonts'+(e.message?': '+e.message:''))}}
-$('mLF').hidden=!window.queryLocalFonts;localFonts();
-F.ff.onfocus=()=>{fontList();F.ff.placeholder=F.ff.value;F.ff.value=''};
+    sysF.push(...[...new Set(fs.map(f=>f.family))].filter(f=>f&&f[0]!=='.').sort((a,b)=>a.localeCompare(b)));fontList();ask&&msg(`Listed ${sysF.length} fonts from this computer; type to filter them in the Font box`)}
+  catch(_){}}
+localFonts();
+F.ff.onfocus=()=>{fontList();localFonts(1);F.ff.placeholder=F.ff.value;F.ff.value=''};
 F.ff.addEventListener('blur',()=>{F.ff.value||(F.ff.value=F.ff.placeholder);F.ff.placeholder=''});
 $('mFS').onchange=e=>{const t=e.target,p=t.id==='mFc'?'fill':'stroke';t.blur();if(!root)return;finish(true);if(!sel.length){pen[p]=t.value;return panel()}styleSet(p,t.value);commit()};
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
