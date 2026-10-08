@@ -794,7 +794,7 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
   const tsum=()=>dt&&(sm.textContent=(out||!ac?'Thought for ':'Thinking… ')+th.toLocaleString('en')+' chars');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0,cut=0;
   const upd=()=>{raf=0;const end=near(LG);if(rsn){const pe=near(pr);pr.append(rsn);rsn='';pe&&(pr.scrollTop=pr.scrollHeight)}out&&(tx.textContent=brief(out));tsum();end&&(LG.scrollTop=LG.scrollHeight)};
   try{const r=await fetch($('mEp').value.trim(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},signal:ac.signal,
-      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,max_tokens:AI[$('mProv').value][1],thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
+      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
     if(!r.ok)throw Error(`${r.status} ${(await r.text()).slice(0,300)}`);
     const rd=r.body.pipeThrough(new TextDecoderStream()).getReader();let buf='';
     for(;;){const{value,done}=await rd.read();if(done)break;const ls=(buf+=value).split('\n');buf=ls.pop();
@@ -811,8 +811,8 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
   hist.push({role:'assistant',content:out});cut&&b.append(el('div',0,'The reply was cut off at the token limit. Set Think to Low, or ask for a simpler figure.'));let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
   const p=el('p'),ins=btn('Insert copy',()=>{aiG=null;put(s)});b.append(p);
   if(part)return p.append(btn('Replace selection',()=>swap(s,part)),ins);p.append(ins,btn('Open as new',()=>put(s,1)));put(s)}
-const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions',131072,'glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions',393216,'deepseek-flash']},
-  aiLoad=()=>{const p=$('mProv').value,[u,,...ms]=AI[p],m=ls('msb'+p+'Model');$('mModel').replaceChildren(...ms.map(x=>new Option(x,x)));
+const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions','deepseek-flash']},
+  aiLoad=()=>{const p=$('mProv').value,[u,...ms]=AI[p],m=ls('msb'+p+'Model');$('mModel').replaceChildren(...ms.map(x=>new Option(x,x)));
     $('mModel').value=ms.includes(m)?m:ms[0];$('mKey').value=ls('msb'+p+'Key')||'';$('mEp').value=ls('msb'+p+'Ep')||u;thumbs()};
 for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);v&&[...e.options].some(o=>o.value===v)&&(e.value=v);e.onchange=()=>{ls(k,e.value);i==='mProv'&&aiLoad()}}
 for(const[i,k]of[['mKey','Key'],['mModel','Model'],['mEp','Ep']])$(i).onchange=()=>{ls('msb'+$('mProv').value+k,$(i).value.trim());thumbs()};
