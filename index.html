@@ -791,28 +791,28 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
     pi=part?await shrink(new Blob([part.x],{type:'image/svg+xml'}),1000).catch(()=>null):null;
   const sent=imgs,fl=files,qf=q+sx+fl.map(f=>`\n\nAttached file "${f.n}":\n\`\`\`\n${f.t}\n\`\`\``).join('');imgs=[];files=[];thumbs();$('mAsk').value='';
   const ims=pi?[...sent,pi]:sent;hist.push({role:'user',content:ims.length?[...ims.map(url=>({type:'image_url',image_url:{url}})),{type:'text',text:qf}]:qf});bub('u',q).append(...sent.map(img),...(part?[chip('f','Selection: '+nObj(part.els.length))]:[]),...fl.map(f=>chip('f',f.n)));const b=bub('a',''),tx=el('span',0,'…'),near=e=>e.scrollHeight-e.scrollTop-e.clientHeight<30;b.append(tx);let dt,sm,pr,shut=0,rsn='',raf=0;
-  const tsum=()=>dt&&(sm.textContent=(out||!ac?'Thought for ':'Thinking… ')+th.toLocaleString('en')+' chars');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0;
+  const tsum=()=>dt&&(sm.textContent=(out||!ac?'Thought for ':'Thinking… ')+th.toLocaleString('en')+' chars');ac=new AbortController();$('mSend').textContent='Stop';let out='',th=0,cut=0;
   const upd=()=>{raf=0;const end=near(LG);if(rsn){const pe=near(pr);pr.append(rsn);rsn='';pe&&(pr.scrollTop=pr.scrollHeight)}out&&(tx.textContent=brief(out));tsum();end&&(LG.scrollTop=LG.scrollHeight)};
   try{const r=await fetch($('mEp').value.trim(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},signal:ac.signal,
-      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,max_tokens:32768,thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
+      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,max_tokens:AI[$('mProv').value][1],thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
     if(!r.ok)throw Error(`${r.status} ${(await r.text()).slice(0,300)}`);
     const rd=r.body.pipeThrough(new TextDecoderStream()).getReader();let buf='';
     for(;;){const{value,done}=await rd.read();if(done)break;const ls=(buf+=value).split('\n');buf=ls.pop();
       for(const l of ls){const d=l.startsWith('data:')&&l.slice(5).trim();if(!d||d==='[DONE]')continue;const j=JSON.parse(d);if(j.error)throw Error(j.error.message||JSON.stringify(j.error));
-        const c=j.choices?.[0]?.delta||{},r=c.reasoning_content||'';
+        const ch=j.choices?.[0]||{},c=ch.delta||{},r=c.reasoning_content||'';ch.finish_reason==='length'&&(cut=1);
         if(r){if(!dt){dt=el('details');sm=el('summary');pr=el('div','th');dt.open=true;dt.append(sm,pr);b.prepend(dt);tx.textContent=''}rsn+=r;th+=r.length}
         if(c.content){out+=c.content;dt&&!shut&&(shut=1,dt.open=false)}
         raf||(raf=requestAnimationFrame(upd))}}
-    if(!out)throw Error('Empty reply');
+    if(!out)throw Error(cut?'The token limit was reached while thinking. Set Think to Low, or ask for less.':'Empty reply');
   }catch(e){cancelAnimationFrame(raf);raf=0;if(!LG.contains(b))return;hist.pop();$('mAsk').value||($('mAsk').value=t);imgs=sent.concat(imgs);files=fl.concat(files);thumbs();tx.textContent=e.name==='AbortError'?'Stopped':e.message+(e.name==='TypeError'?' (network, URL or CORS problem)':'');return}
   finally{raf&&(cancelAnimationFrame(raf),upd());ac=null;tsum();$('mSend').textContent='Send';thumbs()}
   if(part){const u=hist.at(-1),f=c=>c.replace(sx,'\n\n[A selected part of the figure was attached here as SVG.]');
     u.content=Array.isArray(u.content)?u.content.filter(c=>c.image_url?.url!==pi).map(c=>c.type==='text'?{...c,text:f(c.text)}:c):f(u.content)}
-  hist.push({role:'assistant',content:out});let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
+  hist.push({role:'assistant',content:out});cut&&b.append(el('div',0,'The reply was cut off at the token limit. Set Think to Low, or ask for a simpler figure.'));let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
   const p=el('p'),ins=btn('Insert copy',()=>{aiG=null;put(s)});b.append(p);
   if(part)return p.append(btn('Replace selection',()=>swap(s,part)),ins);p.append(ins,btn('Open as new',()=>put(s,1)));put(s)}
-const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions','deepseek-flash']},
-  aiLoad=()=>{const p=$('mProv').value,[u,...ms]=AI[p],m=ls('msb'+p+'Model');$('mModel').replaceChildren(...ms.map(x=>new Option(x,x)));
+const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions',131072,'glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions',393216,'deepseek-flash']},
+  aiLoad=()=>{const p=$('mProv').value,[u,,...ms]=AI[p],m=ls('msb'+p+'Model');$('mModel').replaceChildren(...ms.map(x=>new Option(x,x)));
     $('mModel').value=ms.includes(m)?m:ms[0];$('mKey').value=ls('msb'+p+'Key')||'';$('mEp').value=ls('msb'+p+'Ep')||u;thumbs()};
 for(const[i,k]of[['mProv','msbAi'],['mThink','msbThink']]){const e=$(i),v=ls(k);v&&[...e.options].some(o=>o.value===v)&&(e.value=v);e.onchange=()=>{ls(k,e.value);i==='mProv'&&aiLoad()}}
 for(const[i,k]of[['mKey','Key'],['mModel','Model'],['mEp','Ep']])$(i).onchange=()=>{ls('msb'+$('mProv').value+k,$(i).value.trim());thumbs()};
