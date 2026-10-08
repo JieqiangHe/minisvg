@@ -10,7 +10,7 @@ A lightweight in-browser SVG editor for touching up ggplot2/svglite figures (oft
 - UI text, tooltips, messages and README are English only. Never leave Chinese in the app.
 - Code style: dense and short, no comments, match the surrounding one-liner style. Simplify without changing behaviour; don't refactor unasked.
 - README ends at "... Nothing is uploaded." followed by the `**Live: ...**` line and the TBtools-II note. Keep it that short.
-- After changing `index.html`, rebuild `minisvg.plugin` with the skill (JDK: micromamba env `openjdk_25.0.2`, `~/.local/share/mamba/envs/openjdk_25.0.2/lib/jvm/bin`; TBtools jar: `/Applications/TBtools-II.app/Contents/java/app/TBtools_JRE1.6.jar`) and commit it.
+- After changing `index.html`, rebuild `minisvg.plugin` with the skill (JDK: micromamba env `openjdk_25.0.2`, `~/.local/share/mamba/envs/openjdk_25.0.2/lib/jvm/bin`; TBtools jar: `/Applications/TBtools-II.app/Contents/java/app/TBtools_JRE1.6.jar`) and commit it. Without the jar (a cloud sandbox), see the skill's stub note.
 
 ## Architecture (names in index.html)
 
@@ -77,5 +77,5 @@ A lightweight in-browser SVG editor for touching up ggplot2/svglite figures (oft
 - Ctrl+click on macOS depends on the canvas `contextmenu` being suppressed; untested on a Mac.
 - Firefox and Safari have not been tested (only Chromium is available here). Safari may ignore `@page size` for PDF; record it, don't hack around it.
 - Ctrl+S overwrite saving needs `showSaveFilePicker` (Chromium; Safari and Firefox fall back to a download). Untested in TBtools' JxBrowser.
-- In TBtools (JxBrowser, macOS built-in Pinyin), Chinese punctuation typed into the SVG Chat box does nothing. Chromium with a simulated IME types it fine, so JxBrowser's off-screen IME path is suspected; set aside for now (Oct 2026). Other inputs (the T tool's editor, the Key field) not yet checked.
+- In TBtools (JxBrowser, macOS built-in Pinyin), Chinese punctuation typed into the SVG Chat box did nothing (Chromium types it fine). Fixed in the plugin's `PluginInject` (see the skill's "Chinese punctuation on macOS"), tested only with mocks; confirm in TBtools, including the T tool's editor.
 - Pasting SVG text trusts `text/plain` that starts with `<svg`/`<?xml` and differs from what this page last wrote; other clipboard flavours (an SVG wrapped in `text/html`, for instance) are ignored.
