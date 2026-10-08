@@ -86,7 +86,7 @@ body.chat{grid-template-columns:40px 1fr 236px 300px}
 <div id="mView"><div id="mStage"><div id="mPage"></div><svg id="mGrid" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path class="mi"/><path class="ma"/></svg><div id="mGW"><svg id="mGhost" xmlns="http://www.w3.org/2000/svg"></svg></div></div><div id="mCap"></div><svg id="mHud" xmlns="http://www.w3.org/2000/svg"></svg><canvas id="mRx"></canvas><canvas id="mRy"></canvas></div>
 <div id="mSide">
 <h4>Page <small>mm</small></h4>
-<div class="row ic"><select data-f="pg" id="mPg" title="Page size"><option value="">Custom</option><option value="210,297">A4</option><option value="297,420">A3</option><option value="148,210">A5</option><option value="215.9,279.4">US Letter</option><option value="85,85">Single column 85 mm</option><option value="180,120">Double column 180 mm</option></select><button data-a="portrait" class="ori" title="Portrait"><svg viewBox="0 0 16 16"><rect x="4" y="1.5" width="8" height="13"/></svg></button><button data-a="landscape" class="ori" title="Landscape"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8"/></svg></button></div>
+<div class="row ic"><select data-f="pg" id="mPg" title="Page size"><option value="">Custom</option><option value="210,297">A4</option><option value="297,420">A3</option><option value="148,210">A5</option><option value="215.9,279.4">US Letter</option></select><button data-a="portrait" class="ori" title="Portrait"><svg viewBox="0 0 16 16"><rect x="4" y="1.5" width="8" height="13"/></svg></button><button data-a="landscape" class="ori" title="Landscape"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="13" height="8"/></svg></button></div>
 <div class="g2"><label>W<input type="number" step="1" min="1" data-f="pw"></label><label>H<input type="number" step="1" min="1" data-f="ph"></label></div>
 <div class="row"><button data-a="fitPage" title="Resize the page to the drawing (1 mm margin). Anything outside the page is not exported.">Fit page to content</button></div>
 <h4>Transform <small>mm</small></h4>
@@ -834,7 +834,7 @@ F.ff.onfocus=()=>{fontList();localFonts(1);F.ff.placeholder=F.ff.value;F.ff.valu
 F.ff.addEventListener('blur',()=>{F.ff.value||(F.ff.value=F.ff.placeholder);F.ff.placeholder=''});
 $('mFS').onchange=e=>{const t=e.target,p=t.id==='mFc'?'fill':'stroke';t.blur();if(!root)return;finish(true);if(!sel.length){pen[p]=t.value;return panel()}styleSet(p,t.value);commit()};
 $('mFile').onchange=e=>readFile(e.target.files[0],fileMode);
-$('mPre').append(...[...F.pg.options].slice(1).map(o=>new Option(/mm/.test(o.text)?o.text:`${o.text} (${o.value.split(',').map(round).join('×')} mm)`,o.value)),new Option('Custom',''));
+$('mPre').append(...[...F.pg.options].slice(1).map(o=>new Option(`${o.text} (${o.value.split(',').map(round).join('×')} mm)`,o.value)),new Option('Custom',''));
 const nd=o=>{const v=$('mPre').value,l=document.querySelector('[name=mOr]:checked').value==='l';let w=+$('mNW').value,h=+$('mNH').value;if(v&&!o)[w,h]=v.split(',').map(Number);if(w!==h&&(o?l!==w>h:l&&w<h))[w,h]=[h,w];$('mNW').value=w;$('mNH').value=h;if(w!==h)document.querySelector(`[name=mOr][value=${w>h?'l':'p'}]`).checked=true};
 $('mHelp').onclick=e=>{e.target===$('mHelp')&&$('mHelp').close()};
 $('mNew').onchange=e=>e.target.id==='mPre'?nd():e.target.name==='mOr'&&nd(1);$('mNW').oninput=$('mNH').oninput=()=>$('mPre').value='';
