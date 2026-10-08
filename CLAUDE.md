@@ -40,7 +40,7 @@ A lightweight in-browser SVG editor for touching up ggplot2/svglite figures (oft
   - Preset rule: a preset keeps its own orientation, except that a portrait preset is flipped while landscape is selected.
 - Export:
   - `svgText()` gives the clean SVG (via `finish(true)` + `prolog` + XMLSerializer).
-  - `outName(ext,tag='')` builds `name[_tag]_YYMMDD` in lowercase; PNG is `name_300dpi_YYMMDD.png`.
+  - `outName(ext,tag='')` builds `name[_tag]_YYMMDD_HHMMSS` (`stamp()`, local time) in lowercase, first stripping one or two trailing `_\d{6}` groups so re-saving doesn't stack stamps; PNG is `name_300dpi_YYMMDD_HHMMSS.png`.
   - `png(dpi)` and `pdf()` both use `vb.w*U` for mm. `pdf()` is a hidden iframe with `@page{size:Wmm Hmm;margin:0}` plus `print()`.
   - Ctrl+S (`save`) keeps the `showSaveFilePicker` handle in `fh` after the first save and writes back to it; `load()` clears `fh`; without the API, or when the write fails, it falls back to `dl()`.
 - Clipboard: `copyOut` also writes the selection as SVG (or a note) to the system clipboard, remembered in `lastOut`; a paste of text starting with `<svg`/`<?xml` that is not `lastOut` is imported. `reid()` renames ids in a subtree and relinks its internal `url(#…)`/href references, so duplicates stay self-contained.
