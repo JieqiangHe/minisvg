@@ -917,6 +917,8 @@ addEventListener('keydown',e=>{const tg=e.target;if(tg.isContentEditable||/^(SEL
   else if(ar)f=sel.length&&(()=>{const n=undos.length;nudge(ar[0],ar[1],e.shiftKey);e.repeat&&n&&merge(n)});
   else f={Escape:esc,Delete:del,Backspace:del,Home:A.top,End:A.bot,PageUp:A.up,PageDown:A.dn,'?':A.help,X:swapFS,d:dflt}[K]||TK[kl]&&(()=>setTool(TK[kl]));
   if(f){c&&kl==='v'&&!e.shiftKey||e.preventDefault();f()}});
+let pdn=0;addEventListener('pointerdown',()=>pdn=1,true);addEventListener('pointerup',()=>pdn=0,true);addEventListener('pointercancel',()=>pdn=0,true);
+document.addEventListener('selectstart',e=>{const t=e.target.nodeType===1?e.target:e.target.parentElement;if(!t||t.closest('input,textarea,select,[contenteditable],.ed,#mLog')||document.querySelector('dialog[open]'))return;e.preventDefault();pdn||!root||A.all()});
 let pv=0,lastOut='';addEventListener('paste',e=>{if(e.target.closest&&e.target.closest('#mChat,input,textarea,.ed'))return;const f=[...e.clipboardData.files].find(isImg);
   if(f&&root){pv=0;e.preventDefault();return placeImg(f)}
   const t=e.clipboardData.getData('text/plain');
