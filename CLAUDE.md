@@ -9,7 +9,7 @@ A lightweight in-browser SVG editor for touching up ggplot2/svglite figures (oft
 - Commit and push straight to `main`; HTTPS auth fails in this sandbox, so push over SSH (`git push git@github.com:JieqiangHe/minisvg.git main`). Do not create branches or PRs unless asked.
 - UI text, tooltips, messages and README are English only. Never leave Chinese in the app.
 - Code style: dense and short, no comments, match the surrounding one-liner style. Simplify without changing behaviour; don't refactor unasked.
-- README ends at "... Nothing is uploaded." followed by the `**Live: ...**` line and the TBtools-II note. Keep it that short.
+- README ends at "... Nothing is uploaded." followed by the `**Live: ...**` line, the TBtools-II note and the licensing warning (do not use/trace others' figures as your own). Keep it that short.
 - After changing `index.html`, rebuild `minisvg.plugin` with the skill (JDK: micromamba env `openjdk_25.0.2`, `~/.local/share/mamba/envs/openjdk_25.0.2/lib/jvm/bin`; TBtools jar: `/Applications/TBtools-II.app/Contents/java/app/TBtools_JRE1.6.jar`) and commit it. Without the jar (a cloud sandbox), see the skill's stub note.
 
 ## Architecture (names in index.html)
