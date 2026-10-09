@@ -7,3 +7,5 @@ A tiny in-browser SVG editor for touching up figures from ggplot2 or Inkscape: e
 **Live: https://jieqianghe.github.io/minisvg/**
 
 [TBtools-II](https://github.com/CJ-Chen/TBtools-II) users can use `minisvg.plugin` directly.
+
+Do not use or trace figures from BioRender, Figdraw, icon sites, papers or textbooks and publish them as your own; when you use others' graphics, follow their license, credit the source, and obtain permission where required.
