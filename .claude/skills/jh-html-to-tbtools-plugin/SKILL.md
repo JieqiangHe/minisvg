@@ -34,6 +34,7 @@ Copy the app into a staging directory and make all modifications in the copy; ne
 - The entry file must be named `index.html`.
 - No other `.jar` at the top level: TBtools loads only the first jar it finds, and build.sh errors out on any extra one.
 - Dot-prefixed files (`.git`, `.DS_Store`, etc.) are dropped automatically during packaging.
+- Everything else in the staging directory is packaged as is. If the app uses the TBtools model (see TBtools model bridge below), put its `tbtools-ai.json` next to `index.html`; minisvg stages exactly these two files.
 
 ### 2. Localizing external dependencies
 
@@ -115,6 +116,21 @@ The `.plugin` is installed through Install Plugin in the TBtools menu. On delive
 - Fix, on macOS only: once it finds the Browser, PluginInject stores it as the panel's client property (key `PluginInject.class`) and pushes one `EventQueue`. That queue tracks whether a composition is in progress. A commit made while none is, whose source lies inside a plugin panel, is inserted with `focusedFrame()` (else `mainFrame()`) `.executeJavaScript("document.execCommand('insertText',false,'\uXXXX…')")` and is not dispatched. If the script returns anything but true (no editable element has focus) or throws, the event goes on to JxBrowser as before. Windows is left alone: its IME path differs, and the text might arrive twice.
 - Tested only with mock classes on Xvfb (Oct 2026). A mock view must return non-null `getInputMethodRequests()`, or it never receives input-method events.
 
+## TBtools model bridge (window.tbtools.ai)
+
+- Source: minisvg PR #19 by CJ-Chen, the TBtools author (Oct 2026). TBtools' side could not be decompiled here, so this is the API as that PR uses it.
+- Opt-in: a `tbtools-ai.json` next to `index.html` in the plugin folder declares what the page may use:
+  ```json
+  {"version": 1, "capabilities": ["chat", "vision"]}
+  ```
+  `chat` is text chat; `vision` is image understanding. A TBtools build with the bridge then exposes `window.tbtools.ai` to the page.
+- Feature-detect it (`window.tbtools&&window.tbtools.ai`) and keep the page's own providers, so it still works in a normal browser. minisvg checks once at startup.
+- `chat(messages,{onDelta})`: `messages` are `{role,content}` with string content (system first). `onDelta(s)` receives the whole reply so far, not a delta. Resolves to the full reply.
+- `chatImage(prompt,dataUrl,mime)`: one prompt string and one image (`image/png|jpeg|gif|webp`), no streaming. Resolves to the reply. History, attached files and other images must be folded into the prompt.
+- Both return a promise carrying `requestId`. `abort(requestId)` stops a request, and its promise rejects with the message `aborted`.
+- Other rejections carry a code: `denied`, `busy`, `closed`, `invalid`, `too_many` or `too_large`. minisvg keeps each request within 32,000 characters and 20 messages; treat those as the PR's assumptions, not documented limits.
+- No API key is involved. Untested here: confirm in a TBtools build that has the bridge.
+
 ## Known limitations
 
 - **Downloads**: `<a download>`, Blob and `Plotly.downloadImage` downloads open a Save dialog (see above). Confirmed in TBtools-II on macOS (Oct 2026).
@@ -129,6 +145,7 @@ The `.plugin` is installed through Install Plugin in the TBtools menu. On delive
     e.preventDefault();down||appSelectAll()});
   ```
   `document.execCommand('selectAll')` reproduces the problem in any Chromium for testing. Applied in minisvg; not yet confirmed inside TBtools.
+- **TBtools model**: works only in TBtools builds that provide `window.tbtools.ai`, and only with `tbtools-ai.json` in the plugin. Not yet confirmed inside TBtools.
 - **localStorage**: data lives in TBtools' shared `.jxbrowser` directory. All file:// pages share one origin and can read each other's data — if the app stores an API key there, tell the user.
 - **Do not load the page from a data: URL**: its origin is opaque and localStorage access throws SecurityError.
 - **Updates**: if only `index.html` changed and dependencies need no re-localization, replace `.Plugin/<name>/index.html` in place; otherwise rebuild.
