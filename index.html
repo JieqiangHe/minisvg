@@ -732,7 +732,7 @@ function chooseFile(m){fileMode=m;$('mFile').value='';$('mFile').click()}
 function newDoc(){const d=$('mNew');d.returnValue='';$('mNN').value='untitled';d.showModal();$('mNN').select()}
 
 let hist=[],aiG=null,ac=null,imgs=[],files=[],notes=[],rq=0;
-const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. When asked for changes, return the full updated SVG. If the user attaches an image, redraw that figure as editable vector SVG: keep its layout, shapes, arrows, colours and text labels (as <text>); simplify photos and textures into flat shapes. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
+const LG=$('mLog'),sys=()=>`You draw scientific figures as SVG for an Inkscape-compatible editor. Reply with at most one short sentence plus exactly one complete SVG in a \`\`\`svg block. Use xmlns="http://www.w3.org/2000/svg" and width/height in mm with a viewBox in the same units (e.g. width="80mm" height="60mm" viewBox="0 0 80 60"), so 1 user unit = 1 mm and 7-10 pt text is font-size 2.5-3.5. Text must be real <text> elements in Arial. No scripts, external images, external fonts or foreignObject. Keep every element and detail, but write the SVG compactly: round coordinates and sizes to at most 2 decimals, put attributes shared by several elements on a <g> instead of repeating them, and use no comments, metadata or indentation. When asked for changes, return the full updated SVG. If the user attaches an image, redraw that figure as editable vector SVG: keep its layout, shapes, arrows, colours and text labels (as <text>); simplify photos and textures into flat shapes. The page is ${fm(vb.w*U)}x${fm(vb.h*U)} mm.`,
   bub=(c,t)=>{const d=el('div',c,t);LG.append(d);LG.scrollTop=LG.scrollHeight;return d},merge=k=>{if(undos.length>k){const x=undos.pop();undos.push(undos.pop().concat(x))}},
   brief=t=>t.replace(/```\w*\s*/g,'').replace(/<svg[\s\S]*?(<\/svg>|$)/gi,m=>`[SVG, ${m.length} chars]`).trim();
 function svgOf(t){let s=(/<svg[\s\S]*<\/svg>/i.exec(t)||[])[0];if(!s)return null;s=s.replace(/&nbsp;/g,'&#160;');
@@ -798,13 +798,16 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
   const ims=pi?[...sent,pi]:sent;hist.push({role:'user',content:ims.length?[...ims.map(url=>({type:'image_url',image_url:{url}})),{type:'text',text:qf}]:qf});bub('u',q).append(...sent.map(img),...(part?[chip('f','Selection: '+nObj(part.els.length))]:[]),...fl.map(f=>chip('f',f.n)));const b=bub('a',''),tx=el('span',0,'…'),near=e=>e.scrollHeight-e.scrollTop-e.clientHeight<30;b.append(tx);let dt,sm,pr,shut=0,rsn='',raf=0,rid='';
   const tsum=()=>dt&&(sm.textContent=(out||!ac?'Thought for ':'Thinking… ')+th.toLocaleString('en')+' chars');ac=tb?{abort:()=>rid&&tb.abort(rid)}:new AbortController();$('mSend').textContent='Stop';let out='',th=0,cut=0;
   const upd=()=>{raf=0;const end=near(LG);if(rsn){const pe=near(pr);pr.append(rsn);rsn='';pe&&(pr.scrollTop=pr.scrollHeight)}out&&(tx.textContent=brief(out));tsum();end&&(LG.scrollTop=LG.scrollHeight)};
-  try{if(tb){let p,x=q,h='';if(see){const y=sys(),ok=s=>y.length+x.length+s.length<=32e3,ld=part&&pd+'. '+pa;for(const f of fl)x+=ok(fb(f))?fb(f):`\n\nAttached file "${f.n}" was too large to include.`;
+  const sv=s=>s.search(/<svg[\s>]/i),con=o=>[{role:'assistant',content:o},{role:'user',content:'Your reply was cut off at the length limit. Continue exactly where it stops, right after its last tag: output only the rest of the SVG through </svg>, with no repetition, explanation or code fence.'}];
+  try{for(let k=0;;k++){const o=out,od={onDelta:s=>{out=o+(s||'');raf||(raf=requestAnimationFrame(upd))}};cut=0;
+    if(tb){let p,x=q,h='';if(k){const m=tbFit([...hist,...con(o)]);if(m?.at(-2)?.content!==o){cut=1;break}p=tb.chat(m,od)}
+      else if(see){const y=sys(),ok=s=>y.length+x.length+s.length<=32e3,ld=part&&pd+'. '+pa;for(const f of fl)x+=ok(fb(f))?fb(f):`\n\nAttached file "${f.n}" was too large to include.`;
         part&&(x+=ld+(ok(ld+`\n${fn}\n`)?`\n${fn}\n`:see===pi?' The image is that selection.':' The selected SVG was too large to include.'));sent[1]&&(x+=`\n\nOnly the first of ${sent.length} attached images was sent.`);
         for(const m of hist.slice(0,-1).reverse()){const l=`${m.role==='assistant'?'Assistant':'User'}: ${tbFlat(m.content)}\n`;if(!ok(h+l))break;h=l+h}
-        p=tb.chatImage(y+(h&&'\n\n'+h)+x,see,see.match(/^data:(image\/(png|jpeg|gif|webp))/)?.[1]||'image/png')}else p=tb.chat(pk,{onDelta:s=>{out=s||'';raf||(raf=requestAnimationFrame(upd))}});
-      rid=p.requestId;out=await p||'';upd()}
+        p=tb.chatImage(y+(h&&'\n\n'+h)+x,see,see.match(/^data:(image\/(png|jpeg|gif|webp))/)?.[1]||'image/png')}else p=tb.chat(pk,od);
+      rid=p.requestId;out=o+(await p||'');upd()}
     else{const r=await fetch($('mEp').value.trim(),{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},signal:ac.signal,
-      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist],stream:true,thinking:{type:'enabled'},reasoning_effort:$('mThink').value})});
+      body:JSON.stringify({model:$('mModel').value.trim(),messages:[{role:'system',content:sys()},...hist,...k?con(o):[]],stream:true,thinking:{type:'enabled'},reasoning_effort:k?'low':$('mThink').value})});
     if(!r.ok)throw Error(`${r.status} ${(await r.text()).slice(0,300)}`);
     const rd=r.body.pipeThrough(new TextDecoderStream()).getReader();let buf='';
     for(;;){const{value,done}=await rd.read();if(done)break;const ls=(buf+=value).split('\n');buf=ls.pop();
@@ -814,11 +817,15 @@ async function ask(){if(ac)return ac.abort();const t=$('mAsk').value.trim(),q=t|
         if(c.content){out+=c.content;dt&&!shut&&(shut=1,dt.open=false)}
         raf||(raf=requestAnimationFrame(upd))}}}
     if(!out)throw Error(cut?'The token limit was reached while thinking. Set Think to Low, or ask for less.':'Empty reply');
+    if(k){let c=out.slice(o.length).replace(/^\s*(```\w*\s*)?/,'');const i=sv(c);
+      if(i<0){for(let n=min(c.length,o.length,4e3);n>15;n--)if(c[n-1]==='>'&&o.endsWith(c.slice(0,n))&&/<[a-z]/i.test(c.slice(0,n))){c=c.slice(n);break}out=o+c}else out=o.slice(0,sv(o))+c.slice(i)}
+    const op=sv(out)>=0&&!/<\/svg>/i.test(out);tb&&op&&(cut=1);if(!cut||!op||k>2)break;
+    const j=out.lastIndexOf('>');j>sv(out)&&(out=out.slice(0,j+1));msg(`The reply was cut off at the token limit; continuing (${k+1}/3)…`)}
   }catch(e){cancelAnimationFrame(raf);raf=0;if(!LG.contains(b))return;hist.pop();$('mAsk').value||($('mAsk').value=t);imgs=sent.concat(imgs);files=fl.concat(files);thumbs();tx.textContent=e.name==='AbortError'?'Stopped':(tbWhy[e.message]||e.message)+(e.name==='TypeError'?' (network, URL or CORS problem)':'');return}
   finally{raf&&(cancelAnimationFrame(raf),upd());ac=null;tsum();$('mSend').textContent='Send';thumbs()}
   if(part){const u=hist.at(-1),f=c=>c.replace(sx,'\n\n[A selected part of the figure was attached here as SVG.]');
     u.content=Array.isArray(u.content)?u.content.filter(c=>c.image_url?.url!==pi).map(c=>c.type==='text'?{...c,text:f(c.text)}:c):f(u.content)}
-  hist.push({role:'assistant',content:out});cut&&b.append(el('div',0,'The reply was cut off at the token limit. Set Think to Low, or ask for a simpler figure.'));let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
+  hist.push({role:'assistant',content:out});cut&&b.append(el('div',0,'The reply was cut off at the token limit. '+(tb?'Ask':'Set Think to Low, or ask')+' for a simpler figure.'));let s;try{s=svgOf(out)}catch(e){return msg('The reply contains an invalid SVG: '+e.message)}if(!s)return;
   const p=el('p'),ins=btn('Insert copy',()=>{aiG=null;put(s)});b.append(p);
   if(part)return p.append(btn('Replace selection',()=>swap(s,part)),ins);p.append(ins,btn('Open as new',()=>put(s,1)));put(s)}
 const AI={Glm:['https://open.bigmodel.cn/api/paas/v4/chat/completions','glm-5.3-flash'],Ds:['https://api.deepseek.com/chat/completions','deepseek-flash']},
